@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import * as React from "react";
 import { Moon, SunMedium } from "lucide-react";
@@ -21,9 +21,9 @@ export function ThemeToggle() {
       type="button"
       variant="outline"
       size="icon"
-      aria-label={isDark ? "Przełącz na jasny motyw" : "Przełącz na ciemny motyw"}
+      className="rounded-full"
+      aria-label={isDark ? "Przelacz na jasny motyw" : "Przelacz na ciemny motyw"}
       onClick={() => setTheme(isDark ? "light" : "dark")}
-      className="rounded-full border-border/60 bg-background/70"
     >
       {isDark ? <SunMedium /> : <Moon />}
     </Button>

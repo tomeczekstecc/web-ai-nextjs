@@ -1,15 +1,12 @@
 import type { Metadata } from "next";
-import { IBM_Plex_Mono, Space_Grotesk } from "next/font/google";
+import { IBM_Plex_Mono, Geist, Inter } from "next/font/google";
 
 import { ThemeProvider } from "@/components/theme-provider";
 import { cn } from "@/lib/utils";
 
 import "./globals.css";
 
-const spaceGrotesk = Space_Grotesk({
-  variable: "--font-sans",
-  subsets: ["latin"],
-});
+const inter = Inter({subsets:['latin'],variable:'--font-sans'});
 
 const ibmPlexMono = IBM_Plex_Mono({
   variable: "--font-mono",
@@ -29,10 +26,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pl" suppressHydrationWarning>
+    <html lang="pl" suppressHydrationWarning className={cn("font-sans", inter.variable)}>
       <body
         className={cn(
-          spaceGrotesk.variable,
+          inter.variable,
           ibmPlexMono.variable,
           "font-sans antialiased",
         )}
