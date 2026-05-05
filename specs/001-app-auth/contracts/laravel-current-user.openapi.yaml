@@ -1,0 +1,77 @@
+openapi: 3.1.0
+info:
+  title: Laravel Current User Contract
+  version: 0.2.0
+  description: |
+    Server-to-server contract used by the Next.js app for existing authenticated
+    sessions that need Laravel-owned application user and authorization data.
+paths:
+  /me:
+    get:
+      summary: Resolve the current Laravel application user for an authenticated session
+      parameters:
+        - in: header
+          name: X-Auth-Email
+          required: true
+          schema:
+            type: string
+            format: email
+        - in: header
+          name: X-Auth-Provider
+          required: true
+          schema:
+            type: string
+            enum: [password, keycloak]
+        - in: header
+          name: X-Auth-Subject
+          required: false
+          schema:
+            type: string
+        - in: header
+          name: X-Internal-Auth
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Application user resolved and authorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppUserPayload'
+        '403':
+          description: Authenticated identity exists but is not allowed to access the app.
+        '404':
+          description: No linked application user exists.
+        '503':
+          description: Authorization service temporarily unavailable.
+components:
+  schemas:
+    AppUserPayload:
+      type: object
+      required: [id, email, display_name, access_state, roles, permissions]
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+          format: email
+        display_name:
+          type: string
+        avatar_url:
+          type: string
+          nullable: true
+        access_state:
+          type: string
+          enum: [active]
+        roles:
+          type: array
+          items:
+            type: string
+        permissions:
+          type: array
+          items:
+            type: string
+        organization_name:
+          type: string
+          nullable: true

@@ -1,0 +1,112 @@
+openapi: 3.1.0
+info:
+  title: Laravel Provisioning Contract
+  version: 0.1.0
+  description: |
+    Synchronous provisioning or upsert contract used after verified self-service
+    sign-up and first-time SSO login. Laravel evaluates policy and returns the
+    resolved application-user payload directly.
+paths:
+  /auth/provision:
+    post:
+      summary: Provision or confirm application access for a verified auth account
+      parameters:
+        - in: header
+          name: X-Internal-Auth
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, email_verified, provider]
+              properties:
+                email:
+                  type: string
+                  format: email
+                email_verified:
+                  type: boolean
+                username:
+                  type: string
+                  nullable: true
+                display_name:
+                  type: string
+                  nullable: true
+                provider:
+                  type: string
+                  enum: [password, keycloak]
+                provider_subject:
+                  type: string
+                  nullable: true
+                image:
+                  type: string
+                  nullable: true
+      responses:
+        '200':
+          description: Provisioning succeeded and access is active.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProvisioningSuccess'
+        '403':
+          description: Provisioning completed, but Laravel policy denied access.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProvisioningDenied'
+        '503':
+          description: Provisioning unavailable.
+components:
+  schemas:
+    ProvisioningSuccess:
+      type: object
+      required: [status, app_user]
+      properties:
+        status:
+          type: string
+          enum: [authorized]
+        app_user:
+          $ref: '#/components/schemas/AppUserPayload'
+        created_or_updated:
+          type: string
+          enum: [created, updated, confirmed]
+    ProvisioningDenied:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [denied]
+        reason_code:
+          type: string
+    AppUserPayload:
+      type: object
+      required: [id, email, display_name, access_state, roles, permissions]
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+          format: email
+        display_name:
+          type: string
+        avatar_url:
+          type: string
+          nullable: true
+        access_state:
+          type: string
+          enum: [active]
+        roles:
+          type: array
+          items:
+            type: string
+        permissions:
+          type: array
+          items:
+            type: string
+        organization_name:
+          type: string
+          nullable: true

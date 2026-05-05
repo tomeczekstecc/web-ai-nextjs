@@ -1,13 +1,16 @@
-import { AppSidebar } from "@/components/app-sidebar"
-import { ChartAreaInteractive } from "@/components/chart-area-interactive"
-import { DataTable } from "@/components/data-table"
-import { SectionCards } from "@/components/section-cards"
-import { SiteHeader } from "@/components/site-header"
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
+import { AppSidebar } from "@/components/app-sidebar";
+import { ChartAreaInteractive } from "@/components/chart-area-interactive";
+import { DataTable } from "@/components/data-table";
+import { SectionCards } from "@/components/section-cards";
+import { SiteHeader } from "@/components/site-header";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { requireAuthorizedAppSession } from "@/lib/auth/session";
 
-import data from "./data.json"
+import data from "./data.json";
 
-export default function Page() {
+export default async function DashboardPage() {
+  const appSession = await requireAuthorizedAppSession("/dashboard");
+
   return (
     <SidebarProvider
       style={
@@ -17,7 +20,15 @@ export default function Page() {
         } as React.CSSProperties
       }
     >
-      <AppSidebar variant="inset" />
+      <AppSidebar
+        user={{
+          name: appSession.access.appUser.displayName,
+          email: appSession.access.appUser.email,
+          avatar: appSession.access.appUser.avatarUrl || "/avatars/shadcn.jpg",
+          organizationName: appSession.access.appUser.organizationName,
+        }}
+        variant="inset"
+      />
       <SidebarInset>
         <SiteHeader />
         <div className="flex flex-1 flex-col">
@@ -33,5 +44,5 @@ export default function Page() {
         </div>
       </SidebarInset>
     </SidebarProvider>
-  )
+  );
 }

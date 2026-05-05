@@ -1,0 +1,36 @@
+openapi: 3.1.0
+info:
+  title: Next.js Session Revocation Hook
+  version: 0.1.0
+  description: |
+    Internal hook called by Laravel when product access is revoked after the user
+    already has an active app session.
+paths:
+  /api/internal/auth/revoke:
+    post:
+      summary: Revoke active auth sessions for a Laravel-disabled user
+      parameters:
+        - in: header
+          name: X-Internal-Auth-Revoke
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, reason]
+              properties:
+                email:
+                  type: string
+                  format: email
+                reason:
+                  type: string
+      responses:
+        '200':
+          description: Matching sessions revoked.
+        '401':
+          description: Invalid internal credential.
+components: {}
