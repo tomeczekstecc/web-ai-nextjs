@@ -27,3 +27,9 @@ Project-level follow-ups captured by agents.
   - Date: 2026-05-07
   - Branch: `master`
   - Domain: agents
+
+- [ ] Apply SEO best practices across the app (meta tags, Open Graph, structured data, sitemap, robots.txt).
+  - Priority: medium
+  - Date: 2026-05-07
+  - Branch: `master`
+  - Domain: landing-page
