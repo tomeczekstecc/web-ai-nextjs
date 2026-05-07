@@ -9,11 +9,11 @@ import type {
 } from "@/lib/api/domains/applications/contract";
 import { mapApplication } from "@/lib/api/domains/applications/mapper";
 
-type ApplicationMutationResult = ApiResult<Application>;
+type ApplicationCommandResult = ApiResult<Application>;
 
 export async function createApplication(
   input: CreateApplicationInput,
-): Promise<ApplicationMutationResult> {
+): Promise<ApplicationCommandResult> {
   const result = await apiRequest<ApplicationPayload, CreateApplicationInput>({
     path: "/api/applications",
     method: "POST",
@@ -33,7 +33,7 @@ export async function createApplication(
 
 export async function submitApplication(
   applicationId: string,
-): Promise<ApplicationMutationResult> {
+): Promise<ApplicationCommandResult> {
   const result = await apiRequest<ApplicationPayload>({
     path: `/api/applications/${applicationId}/submit`,
     method: "POST",

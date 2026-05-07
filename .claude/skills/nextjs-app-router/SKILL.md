@@ -11,17 +11,19 @@ Use this skill for `apps/web` work that depends on Next.js App Router structure 
 
 ## Workflow
 
-1. Read the closest route segment in `apps/web/app`.
+1. Read the closest route segment in `src/app`.
 2. Decide whether the component should stay server-side or become a client component.
 3. Keep `"use client"` only where interactivity, hooks, or browser APIs require it.
 4. Keep route and layout responsibilities inside the App Router structure instead of moving them into random helpers.
-5. Use `$context7-first` for exact Next.js APIs such as metadata, caching, navigation, server actions, or route behavior.
+5. Place feature routes under the relevant domain segment, such as `src/app/auth/` for auth-facing pages.
+6. Use `$context7-first` for exact Next.js APIs such as metadata, caching, navigation, server actions, or route behavior.
 
 ## Rules
 
 - Prefer server components by default.
 - Isolate client interactivity into leaf components when practical.
-- Keep route files small and push reusable UI into `components/`.
+- Keep route files small and push reusable UI into `src/components/`.
+- Group feature routes by bounded context under `src/app/<domain>/` when the domain is clear.
 - Respect existing aliases, file placement, and app-level layout patterns.
 - Avoid framework workarounds before confirming the API in docs.
 

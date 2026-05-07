@@ -39,8 +39,30 @@
 - Shared fetch behavior belongs in `src/lib/api/core/`.
 - Raw backend payloads belong in domain contracts.
 - Naming conversion belongs in domain mappers.
+- Follow basic CQRS in each API domain: read operations live in `queries.ts`, write operations live in `commands.ts`.
+- Queries must not change backend state; commands are the only API-domain modules that create, update, submit, revoke, provision, or delete.
+- Do not call commands from queries or queries from commands. Share pure mapping and contract code through `mapper.ts` and `contract.ts`.
 - Pages and components should consume mapped models, not raw DTOs.
 - Avoid wiring transport logic directly into route components when a domain module is the better fit.
+
+## Validation
+
+- Use Zod as the project standard for all runtime validation and schema definition.
+- Define schemas with `z.object()` and infer TypeScript types with `z.infer<typeof schema>` — never duplicate types manually.
+- Place shared schemas in the closest domain module that owns the data; avoid a global `schemas/` dumping ground.
+- Use `.parse()` at system boundaries (form submission, API responses, route params); use `.safeParse()` when you need to handle errors without throwing.
+- Do not use Yup, Joi, or other validation libraries.
+
+## Forms
+
+- Use TanStack Form as the project standard for all forms (see: https://ui.shadcn.com/docs/forms/tanstack-form).
+- Define form shape with Zod and pass the schema to `useForm()` via `validators`.
+- Wire each field through `form.Field`: bind `field.state.value` to value, `field.handleChange` to onChange, and `field.handleBlur` to onBlur.
+- Show validation errors conditionally after the field is touched: `isTouched && !isValid`.
+- Add `data-invalid` to the field wrapper and `aria-invalid` to the control for accessible error states.
+- Use `mode="array"` on parent fields for dynamic lists; manage items with `pushValue` / `removeValue`.
+- Prefer `onBlur` or `onSubmit` validation triggers; avoid `onChange` validation unless UX explicitly requires it.
+- Do not use React Hook Form, Formik, or other form libraries.
 
 ## Styling
 
@@ -68,6 +90,8 @@ This repository uses a `src/` application layout. Keep new application code unde
 - Do not refactor unrelated code without a clear payoff.
 - Remove unused imports, dead branches, and abandoned scaffolding when you touch a file.
 - Add brief comments only when the code would otherwise be hard to parse.
+- DRY: extract shared logic only when the same code appears in two or more real callers; do not pre-abstract.
+- KISS: prefer the simplest solution that fully works; avoid clever patterns, extra layers, or premature generalization.
 
 ## Verification
 

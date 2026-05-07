@@ -92,7 +92,7 @@ src/lib/
          |- contract.ts
          |- mapper.ts
          |- queries.ts
-         `- mutations.ts
+         `- commands.ts
 ```
 
 **Structure Decision**: Keep auth-specific routes under `src/app/auth/`, UI under `src/components/auth/`, and helpers under `src/lib/auth/`. Reuse the server-first API domain pattern for Laravel current-user, provisioning, and related auth integration instead of building a parallel transport layer.
@@ -140,7 +140,7 @@ See [research.md](./research.md) for rationale and alternatives.
 
 ### Slice 3 - Laravel Access and Provisioning
 
-- Add `auth-user` domain contracts, queries, and mutations for current-user resolution and provisioning or upsert.
+- Add `auth-user` domain contracts, queries, and commands for current-user resolution and provisioning or upsert.
 - Resolve existing-user access at sign-in and carry the access snapshot in the authenticated session.
 - Run verified sign-ups and first-time SSO users through synchronous provisioning that returns the app-user payload directly.
 - Replace mock dashboard or sidebar identity data with Laravel-owned user data.

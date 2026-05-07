@@ -28,7 +28,7 @@ src/lib/api/
     applications/
       contract.ts
       mapper.ts
-      mutations.ts
+      commands.ts
 ```
 
 ### Responsibilities
@@ -44,9 +44,9 @@ src/lib/api/
 - `src/lib/api/domains/<domain>/mapper.ts`
   Maps backend DTO fields like `primary_cta_label` into frontend fields like `primaryCtaLabel`.
 - `src/lib/api/domains/<domain>/queries.ts`
-  Contains read operations for that domain and decides how fallback behavior should work.
-- `src/lib/api/domains/<domain>/mutations.ts`
-  Contains write operations for that domain such as create, update, submit, and delete flows.
+  Contains read-side operations for that domain and decides how fallback behavior should work.
+- `src/lib/api/domains/<domain>/commands.ts`
+  Contains write-side operations for that domain such as create, update, submit, and delete flows.
 
 ### Request flow
 
@@ -57,12 +57,13 @@ src/lib/api/
 5. The domain mapper converts the DTO into the model used by the UI.
 6. The page renders only the mapped model and does not need to know transport details.
 
-### Example rule of thumb
+### CQRS rule of thumb
 
-- Pages and components should import domain queries.
-- Server actions and mutation handlers should import domain mutations.
-- Domain queries should import the shared HTTP client.
-- Domain mutations should also import the shared HTTP client.
+- `queries.ts` is the read side. Query functions should fetch data and return mapped read models without causing backend state changes.
+- `commands.ts` is the write side. Command functions may create, update, submit, revoke, provision, or otherwise change backend state.
+- Pages and server components should import domain queries for route data.
+- Server actions, route handlers, and event-style flows should import domain commands for writes.
+- Query and command functions should import the shared HTTP client directly instead of calling each other.
 - Only mappers should translate backend field naming into frontend naming.
 - New endpoints should be added inside a domain folder instead of wiring `fetch` directly in the page.
 
@@ -75,7 +76,7 @@ src/lib/api/domains/users/
   contract.ts
   mapper.ts
   queries.ts
-  mutations.ts
+  commands.ts
 ```
 
 Then:
@@ -84,17 +85,17 @@ Then:
 - define the frontend model in `contract.ts`
 - map DTO -> model in `mapper.ts`
 - call `apiRequest()` in `queries.ts`
-- call `apiRequest()` in `mutations.ts` for writes
+- call `apiRequest()` in `commands.ts` for writes
 - import the query from the page or server component
 
-### Example: mutation
+### Example: command
 
-For write flows, add a `mutations.ts` file to the domain. A typical mutation keeps the request DTO, response DTO, and mapped frontend model inside the same domain boundary.
+For write flows, add a `commands.ts` file to the domain. A typical command keeps the request DTO, response DTO, and mapped frontend model inside the same domain boundary.
 
 This repo now includes a concrete example in `src/lib/api/domains/applications/`.
 
 ```ts
-// src/lib/api/domains/applications/mutations.ts
+// src/lib/api/domains/applications/commands.ts
 import "server-only";
 
 import { apiRequest } from "@/lib/api/core/http";
@@ -174,11 +175,12 @@ export function mapApplication(payload: ApplicationPayload): Application {
 }
 ```
 
-Mutation rule of thumb:
+CQRS rule of thumb:
 
 - `queries.ts` is for reads.
-- `mutations.ts` is for writes.
+- `commands.ts` is for writes.
 - Both should call `apiRequest()`.
+- Queries should not call commands, and commands should not call queries.
 - Only the domain layer should know raw backend field names.
 - Components should consume mapped frontend models, not DTOs.
 

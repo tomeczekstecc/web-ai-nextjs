@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 import {
   getCurrentAuthUser,
 } from "@/lib/api/domains/auth-user/queries";
-import { provisionAuthUser } from "@/lib/api/domains/auth-user/mutations";
+import { provisionAuthUser } from "@/lib/api/domains/auth-user/commands";
 import type {
   AuthIdentity,
   AuthProvider,

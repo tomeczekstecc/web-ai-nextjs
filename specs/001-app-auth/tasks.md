@@ -34,7 +34,7 @@
 
 - [X] T004 Establish the Better Auth server configuration, database-backed auth store, session rules, and plugin setup in `src/lib/auth.ts`
 - [X] T005 [P] Build shared auth client, internal-path redirect sanitization, and Laravel mail handoff helpers in `src/lib/auth-client.ts`, `src/lib/auth/redirects.ts`, and `src/lib/auth/email.ts`
-- [X] T006 [P] Define Laravel auth-user contracts, mapping, and transport boundaries in `src/lib/api/domains/auth-user/contract.ts`, `src/lib/api/domains/auth-user/mapper.ts`, `src/lib/api/domains/auth-user/queries.ts`, and `src/lib/api/domains/auth-user/mutations.ts`
+- [X] T006 [P] Define Laravel auth-user contracts, mapping, and transport boundaries in `src/lib/api/domains/auth-user/contract.ts`, `src/lib/api/domains/auth-user/mapper.ts`, `src/lib/api/domains/auth-user/queries.ts`, and `src/lib/api/domains/auth-user/commands.ts`
 - [X] T007 Mount the Better Auth catch-all handler and dedicated Laravel revocation endpoint in `src/app/api/auth/[...all]/route.ts` and `src/app/api/internal/auth/revoke/route.ts`
 - [X] T008 Add shared session establishment, access snapshot, and protected-route helpers in `src/lib/auth/session.ts`
 
@@ -75,7 +75,7 @@
 - [X] T018 [P] [US2] Create the generic blocked-access and temporary auth-unavailable outcome pages in `src/app/auth/access-denied/page.tsx` and `src/app/auth/unavailable/page.tsx`
 - [X] T019 [P] [US2] Replace mock sidebar identity data with Laravel-resolved application-user data in `src/components/app-sidebar.tsx` and `src/components/nav-user.tsx`
 - [X] T020 [US2] Gate `src/app/dashboard/page.tsx` and nested dashboard access with server-side session resolution in `src/app/dashboard/page.tsx` and `src/lib/auth/session.ts`
-- [X] T021 [US2] Implement existing-session current-user resolution and first-time provisioning or upsert flow in `src/lib/api/domains/auth-user/queries.ts`, `src/lib/api/domains/auth-user/mutations.ts`, and `src/lib/auth/session.ts`
+- [X] T021 [US2] Implement existing-session current-user resolution and first-time provisioning or upsert flow in `src/lib/api/domains/auth-user/queries.ts`, `src/lib/api/domains/auth-user/commands.ts`, and `src/lib/auth/session.ts`
 - [X] T022 [US2] Enforce generic blocked-access handling, validated internal return destinations, and authenticated-route redirects in `src/lib/auth/redirects.ts`, `src/app/auth/sign-in/page.tsx`, and `src/app/auth/sign-up/page.tsx`
 - [X] T023 [US2] Finalize immediate revocation handling and temporary backend-unavailable fallbacks in `src/app/api/internal/auth/revoke/route.ts`, `src/lib/auth.ts`, and `src/app/auth/unavailable/page.tsx`
 - [ ] T024 [US2] Verify protected-route redirects, denied access, temporary backend failures, and revoked-session behavior in `src/app/dashboard/page.tsx`, `src/app/auth/access-denied/page.tsx`, and `src/app/auth/unavailable/page.tsx`
@@ -95,7 +95,7 @@
 - [X] T025 [P] [US3] Create the config-gated Keycloak entry control in `src/components/auth/sso-button.tsx`
 - [X] T026 [US3] Add Keycloak Generic OAuth configuration, verified-email auto-link rules, and local-only SSO logout behavior in `src/lib/auth.ts`
 - [X] T027 [US3] Surface optional SSO on the sign-in route and align logout UI behavior in `src/app/auth/sign-in/page.tsx` and `src/components/nav-user.tsx`
-- [X] T028 [US3] Reuse synchronous Laravel provisioning and session establishment for first-time SSO users in `src/lib/auth/session.ts` and `src/lib/api/domains/auth-user/mutations.ts`
+- [X] T028 [US3] Reuse synchronous Laravel provisioning and session establishment for first-time SSO users in `src/lib/auth/session.ts` and `src/lib/api/domains/auth-user/commands.ts`
 - [ ] T029 [US3] Verify enabled and disabled SSO visibility, provider return flow, and local-only logout behavior in `src/components/auth/sso-button.tsx`, `src/app/auth/sign-in/page.tsx`, and `src/lib/auth.ts`
 
 ---

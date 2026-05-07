@@ -22,7 +22,7 @@ Use this skill for visual design quality in `apps/web`. Favor intentional hierar
 - Avoid generic "AI slop" layouts.
 - Prefer a clear visual direction over many competing accents.
 - Use typography, spacing, and rhythm to make sections legible.
-- Keep reusable UI primitives in `components/ui` and feature-specific composition elsewhere.
+- Keep reusable UI primitives in `src/components/ui` and feature-specific composition elsewhere.
 - Preserve mobile and desktop quality together.
 
 ## Validation
