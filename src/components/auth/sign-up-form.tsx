@@ -9,7 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
-import { buildSignInHref, buildVerifyEmailCallback, sanitizeReturnTo } from "@/lib/auth/redirects";
+import { AUTH_ROUTES, buildSignInHref, buildVerifyEmailCallback, sanitizeReturnTo } from "@/lib/auth/redirects";
 
 const genericResponse = "Jesli konto moglo zostac utworzone, wyslemy dalsze instrukcje na podany adres e-mail.";
 
@@ -65,7 +65,7 @@ export function SignUpForm() {
     });
 
     router.replace(
-      `/verify-email?email=${encodeURIComponent(email.trim())}&returnTo=${encodeURIComponent(returnTo)}`,
+      `${AUTH_ROUTES.verifyEmail}?email=${encodeURIComponent(email.trim())}&returnTo=${encodeURIComponent(returnTo)}`,
     );
     router.refresh();
   }

@@ -2,7 +2,7 @@
 
 ## API integration pattern
 
-This project uses a server-first API layer in `lib/api` so page and component code stay small even when backend integration grows.
+This project uses a server-first API layer in `src/lib/api` so page and component code stay small even when backend integration grows.
 
 ### Goals
 
@@ -14,7 +14,7 @@ This project uses a server-first API layer in `lib/api` so page and component co
 ### Folder structure
 
 ```text
-lib/api/
+src/lib/api/
   core/
     config.ts
     http.ts
@@ -33,25 +33,25 @@ lib/api/
 
 ### Responsibilities
 
-- `lib/api/core/config.ts`
+- `src/lib/api/core/config.ts`
   Reads API configuration such as `API_URL` and builds absolute backend URLs.
-- `lib/api/core/http.ts`
+- `src/lib/api/core/http.ts`
   Owns the shared `fetch` wrapper, JSON parsing, and normalized API error handling.
-- `lib/api/contracts/common.ts`
+- `src/lib/api/contracts/common.ts`
   Defines common request, response, and error types used across domains.
-- `lib/api/domains/<domain>/contract.ts`
+- `src/lib/api/domains/<domain>/contract.ts`
   Defines the raw backend payloads and the frontend-friendly models for that domain.
-- `lib/api/domains/<domain>/mapper.ts`
+- `src/lib/api/domains/<domain>/mapper.ts`
   Maps backend DTO fields like `primary_cta_label` into frontend fields like `primaryCtaLabel`.
-- `lib/api/domains/<domain>/queries.ts`
+- `src/lib/api/domains/<domain>/queries.ts`
   Contains read operations for that domain and decides how fallback behavior should work.
-- `lib/api/domains/<domain>/mutations.ts`
+- `src/lib/api/domains/<domain>/mutations.ts`
   Contains write operations for that domain such as create, update, submit, and delete flows.
 
 ### Request flow
 
-1. A page imports a domain query, for example `getLandingPageContent` from `lib/api/domains/landing-page/queries.ts`.
-2. The domain query calls the shared `apiRequest()` helper in `lib/api/core/http.ts`.
+1. A page imports a domain query, for example `getLandingPageContent` from `src/lib/api/domains/landing-page/queries.ts`.
+2. The domain query calls the shared `apiRequest()` helper in `src/lib/api/core/http.ts`.
 3. The HTTP layer builds the full backend URL from `API_URL`.
 4. The backend response is parsed into a raw DTO.
 5. The domain mapper converts the DTO into the model used by the UI.
@@ -71,7 +71,7 @@ lib/api/
 If you need a new `users` integration, add:
 
 ```text
-lib/api/domains/users/
+src/lib/api/domains/users/
   contract.ts
   mapper.ts
   queries.ts
@@ -91,10 +91,10 @@ Then:
 
 For write flows, add a `mutations.ts` file to the domain. A typical mutation keeps the request DTO, response DTO, and mapped frontend model inside the same domain boundary.
 
-This repo now includes a concrete example in `lib/api/domains/applications/`.
+This repo now includes a concrete example in `src/lib/api/domains/applications/`.
 
 ```ts
-// lib/api/domains/applications/mutations.ts
+// src/lib/api/domains/applications/mutations.ts
 import "server-only";
 
 import { apiRequest } from "@/lib/api/core/http";
@@ -130,7 +130,7 @@ export async function createApplication(
 Example contract shape:
 
 ```ts
-// lib/api/domains/applications/contract.ts
+// src/lib/api/domains/applications/contract.ts
 export type CreateApplicationInput = {
   firstName: string;
   lastName: string;
@@ -157,7 +157,7 @@ export type Application = {
 Example mapper:
 
 ```ts
-// lib/api/domains/applications/mapper.ts
+// src/lib/api/domains/applications/mapper.ts
 import type {
   Application,
   ApplicationPayload,
@@ -184,4 +184,4 @@ Mutation rule of thumb:
 
 ### Transitional compatibility
 
-Legacy flat files such as `lib/api/client.ts` and `lib/api/contracts.ts` currently re-export the new modules. That keeps the refactor incremental while new code moves to the domain-folder pattern.
+Legacy flat files such as `src/lib/api/client.ts` and `src/lib/api/contracts.ts` currently re-export the new modules. That keeps the refactor incremental while new code moves to the domain-folder pattern.

@@ -15,7 +15,7 @@
 
 ## Path Conventions
 
-- Current project: `app/`, `components/`, `lib/`, `public/`
+- Current project: `src/app/`, `src/components/`, `src/lib/`, `public/`
 - Adjust paths based on the real structure captured in plan.md
 
 ## Phase 1: Setup (Shared Infrastructure)
@@ -24,7 +24,7 @@
 
 - [X] T001 Add Better Auth and required auth dependencies in `package.json` and refresh `pnpm-lock.yaml`
 - [X] T002 Add auth, Laravel integration, and Keycloak runtime placeholders to `.env.example`
-- [X] T003 [P] Create the auth route, page, component, and domain scaffolding in `app/api/auth/[...all]/route.ts`, `app/api/internal/auth/revoke/route.ts`, `app/sign-in/page.tsx`, `app/sign-up/page.tsx`, `app/verify-email/page.tsx`, `app/reset-password/page.tsx`, `app/access-denied/page.tsx`, `app/auth-unavailable/page.tsx`, `components/auth/`, `lib/auth/`, and `lib/api/domains/auth-user/`
+- [X] T003 [P] Create the auth route, page, component, and domain scaffolding in `src/app/api/auth/[...all]/route.ts`, `src/app/api/internal/auth/revoke/route.ts`, `src/app/auth/sign-in/page.tsx`, `src/app/auth/sign-up/page.tsx`, `src/app/auth/verify-email/page.tsx`, `src/app/auth/reset-password/page.tsx`, `src/app/auth/access-denied/page.tsx`, `src/app/auth/unavailable/page.tsx`, `src/components/auth/`, `src/lib/auth/`, and `src/lib/api/domains/auth-user/`
 
 ---
 
@@ -32,11 +32,11 @@
 
 **Purpose**: Core groundwork that MUST be complete before user stories
 
-- [X] T004 Establish the Better Auth server configuration, database-backed auth store, session rules, and plugin setup in `lib/auth.ts`
-- [X] T005 [P] Build shared auth client, internal-path redirect sanitization, and Laravel mail handoff helpers in `lib/auth-client.ts`, `lib/auth/redirects.ts`, and `lib/auth/email.ts`
-- [X] T006 [P] Define Laravel auth-user contracts, mapping, and transport boundaries in `lib/api/domains/auth-user/contract.ts`, `lib/api/domains/auth-user/mapper.ts`, `lib/api/domains/auth-user/queries.ts`, and `lib/api/domains/auth-user/mutations.ts`
-- [X] T007 Mount the Better Auth catch-all handler and dedicated Laravel revocation endpoint in `app/api/auth/[...all]/route.ts` and `app/api/internal/auth/revoke/route.ts`
-- [X] T008 Add shared session establishment, access snapshot, and protected-route helpers in `lib/auth/session.ts`
+- [X] T004 Establish the Better Auth server configuration, database-backed auth store, session rules, and plugin setup in `src/lib/auth.ts`
+- [X] T005 [P] Build shared auth client, internal-path redirect sanitization, and Laravel mail handoff helpers in `src/lib/auth-client.ts`, `src/lib/auth/redirects.ts`, and `src/lib/auth/email.ts`
+- [X] T006 [P] Define Laravel auth-user contracts, mapping, and transport boundaries in `src/lib/api/domains/auth-user/contract.ts`, `src/lib/api/domains/auth-user/mapper.ts`, `src/lib/api/domains/auth-user/queries.ts`, and `src/lib/api/domains/auth-user/mutations.ts`
+- [X] T007 Mount the Better Auth catch-all handler and dedicated Laravel revocation endpoint in `src/app/api/auth/[...all]/route.ts` and `src/app/api/internal/auth/revoke/route.ts`
+- [X] T008 Add shared session establishment, access snapshot, and protected-route helpers in `src/lib/auth/session.ts`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -50,15 +50,15 @@
 
 ### Implementation for User Story 1
 
-- [X] T009 [P] [US1] Create the native sign-in form UI with generic public error handling in `components/auth/sign-in-form.tsx`
-- [X] T010 [P] [US1] Create the native sign-up form UI with optional username and required consent checkbox in `components/auth/sign-up-form.tsx`
-- [X] T011 [P] [US1] Create the password-reset and verification-status UI components in `components/auth/reset-password-form.tsx` and `components/auth/verify-email-status.tsx`
-- [X] T012 [US1] Implement the app-owned sign-in route behavior and authenticated-user redirect handling in `app/sign-in/page.tsx`
-- [X] T013 [US1] Implement the app-owned sign-up route behavior and config-gated sign-up visibility in `app/sign-up/page.tsx`
-- [X] T014 [US1] Implement email-verification completion and resend behavior in `app/verify-email/page.tsx`
-- [X] T015 [US1] Implement password reset request and completion behavior in `app/reset-password/page.tsx`
-- [X] T016 [US1] Wire username login, 12-character password policy, required email verification, generic responses, and session revocation after reset in `lib/auth.ts` and `lib/auth/email.ts`
-- [ ] T017 [US1] Verify Polish copy, theme parity, and mobile/desktop behavior across `app/sign-in/page.tsx`, `app/sign-up/page.tsx`, `app/verify-email/page.tsx`, and `app/reset-password/page.tsx`
+- [X] T009 [P] [US1] Create the native sign-in form UI with generic public error handling in `src/components/auth/sign-in-form.tsx`
+- [X] T010 [P] [US1] Create the native sign-up form UI with optional username and required consent checkbox in `src/components/auth/sign-up-form.tsx`
+- [X] T011 [P] [US1] Create the password-reset and verification-status UI components in `src/components/auth/reset-password-form.tsx` and `src/components/auth/verify-email-status.tsx`
+- [X] T012 [US1] Implement the app-owned sign-in route behavior and authenticated-user redirect handling in `src/app/auth/sign-in/page.tsx`
+- [X] T013 [US1] Implement the app-owned sign-up route behavior and config-gated sign-up visibility in `src/app/auth/sign-up/page.tsx`
+- [X] T014 [US1] Implement email-verification completion and resend behavior in `src/app/auth/verify-email/page.tsx`
+- [X] T015 [US1] Implement password reset request and completion behavior in `src/app/auth/reset-password/page.tsx`
+- [X] T016 [US1] Wire username login, 12-character password policy, required email verification, generic responses, and session revocation after reset in `src/lib/auth.ts` and `src/lib/auth/email.ts`
+- [ ] T017 [US1] Verify Polish copy, theme parity, and mobile/desktop behavior across `src/app/auth/sign-in/page.tsx`, `src/app/auth/sign-up/page.tsx`, `src/app/auth/verify-email/page.tsx`, and `src/app/auth/reset-password/page.tsx`
 
 **Checkpoint**: User Story 1 should be fully functional and independently verifiable
 
@@ -72,13 +72,13 @@
 
 ### Implementation for User Story 2
 
-- [X] T018 [P] [US2] Create the generic blocked-access and temporary auth-unavailable outcome pages in `app/access-denied/page.tsx` and `app/auth-unavailable/page.tsx`
-- [X] T019 [P] [US2] Replace mock sidebar identity data with Laravel-resolved application-user data in `components/app-sidebar.tsx` and `components/nav-user.tsx`
-- [X] T020 [US2] Gate `app/dashboard/page.tsx` and nested dashboard access with server-side session resolution in `app/dashboard/page.tsx` and `lib/auth/session.ts`
-- [X] T021 [US2] Implement existing-session current-user resolution and first-time provisioning or upsert flow in `lib/api/domains/auth-user/queries.ts`, `lib/api/domains/auth-user/mutations.ts`, and `lib/auth/session.ts`
-- [X] T022 [US2] Enforce generic blocked-access handling, validated internal return destinations, and authenticated-route redirects in `lib/auth/redirects.ts`, `app/sign-in/page.tsx`, and `app/sign-up/page.tsx`
-- [X] T023 [US2] Finalize immediate revocation handling and temporary backend-unavailable fallbacks in `app/api/internal/auth/revoke/route.ts`, `lib/auth.ts`, and `app/auth-unavailable/page.tsx`
-- [ ] T024 [US2] Verify protected-route redirects, denied access, temporary backend failures, and revoked-session behavior in `app/dashboard/page.tsx`, `app/access-denied/page.tsx`, and `app/auth-unavailable/page.tsx`
+- [X] T018 [P] [US2] Create the generic blocked-access and temporary auth-unavailable outcome pages in `src/app/auth/access-denied/page.tsx` and `src/app/auth/unavailable/page.tsx`
+- [X] T019 [P] [US2] Replace mock sidebar identity data with Laravel-resolved application-user data in `src/components/app-sidebar.tsx` and `src/components/nav-user.tsx`
+- [X] T020 [US2] Gate `src/app/dashboard/page.tsx` and nested dashboard access with server-side session resolution in `src/app/dashboard/page.tsx` and `src/lib/auth/session.ts`
+- [X] T021 [US2] Implement existing-session current-user resolution and first-time provisioning or upsert flow in `src/lib/api/domains/auth-user/queries.ts`, `src/lib/api/domains/auth-user/mutations.ts`, and `src/lib/auth/session.ts`
+- [X] T022 [US2] Enforce generic blocked-access handling, validated internal return destinations, and authenticated-route redirects in `src/lib/auth/redirects.ts`, `src/app/auth/sign-in/page.tsx`, and `src/app/auth/sign-up/page.tsx`
+- [X] T023 [US2] Finalize immediate revocation handling and temporary backend-unavailable fallbacks in `src/app/api/internal/auth/revoke/route.ts`, `src/lib/auth.ts`, and `src/app/auth/unavailable/page.tsx`
+- [ ] T024 [US2] Verify protected-route redirects, denied access, temporary backend failures, and revoked-session behavior in `src/app/dashboard/page.tsx`, `src/app/auth/access-denied/page.tsx`, and `src/app/auth/unavailable/page.tsx`
 
 **Checkpoint**: User Story 2 should be fully functional and independently verifiable
 
@@ -92,11 +92,11 @@
 
 ### Implementation for User Story 3
 
-- [X] T025 [P] [US3] Create the config-gated Keycloak entry control in `components/auth/sso-button.tsx`
-- [X] T026 [US3] Add Keycloak Generic OAuth configuration, verified-email auto-link rules, and local-only SSO logout behavior in `lib/auth.ts`
-- [X] T027 [US3] Surface optional SSO on the sign-in route and align logout UI behavior in `app/sign-in/page.tsx` and `components/nav-user.tsx`
-- [X] T028 [US3] Reuse synchronous Laravel provisioning and session establishment for first-time SSO users in `lib/auth/session.ts` and `lib/api/domains/auth-user/mutations.ts`
-- [ ] T029 [US3] Verify enabled and disabled SSO visibility, provider return flow, and local-only logout behavior in `components/auth/sso-button.tsx`, `app/sign-in/page.tsx`, and `lib/auth.ts`
+- [X] T025 [P] [US3] Create the config-gated Keycloak entry control in `src/components/auth/sso-button.tsx`
+- [X] T026 [US3] Add Keycloak Generic OAuth configuration, verified-email auto-link rules, and local-only SSO logout behavior in `src/lib/auth.ts`
+- [X] T027 [US3] Surface optional SSO on the sign-in route and align logout UI behavior in `src/app/auth/sign-in/page.tsx` and `src/components/nav-user.tsx`
+- [X] T028 [US3] Reuse synchronous Laravel provisioning and session establishment for first-time SSO users in `src/lib/auth/session.ts` and `src/lib/api/domains/auth-user/mutations.ts`
+- [ ] T029 [US3] Verify enabled and disabled SSO visibility, provider return flow, and local-only logout behavior in `src/components/auth/sso-button.tsx`, `src/app/auth/sign-in/page.tsx`, and `src/lib/auth.ts`
 
 ---
 
@@ -104,9 +104,9 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [X] T030 [P] Refine Polish copy and generic messaging consistency across `app/sign-in/page.tsx`, `app/sign-up/page.tsx`, `app/verify-email/page.tsx`, `app/reset-password/page.tsx`, `app/access-denied/page.tsx`, and `app/auth-unavailable/page.tsx`
-- [X] T031 Remove duplication and simplify shared auth abstractions in `lib/auth.ts`, `lib/auth/session.ts`, and `components/auth/`
-- [X] T032 Review auth comments and keep only TODO or security exceptions in `lib/auth.ts`, `lib/auth/session.ts`, and `app/api/internal/auth/revoke/route.ts`
+- [X] T030 [P] Refine Polish copy and generic messaging consistency across `src/app/auth/sign-in/page.tsx`, `src/app/auth/sign-up/page.tsx`, `src/app/auth/verify-email/page.tsx`, `src/app/auth/reset-password/page.tsx`, `src/app/auth/access-denied/page.tsx`, and `src/app/auth/unavailable/page.tsx`
+- [X] T031 Remove duplication and simplify shared auth abstractions in `src/lib/auth.ts`, `src/lib/auth/session.ts`, and `src/components/auth/`
+- [X] T032 Review auth comments and keep only TODO or security exceptions in `src/lib/auth.ts`, `src/lib/auth/session.ts`, and `src/app/api/internal/auth/revoke/route.ts`
 - [ ] T033 Validate the documented manual verification flow in `specs/001-app-auth/quickstart.md`
 
 ---

@@ -2,24 +2,24 @@
 
 ## Public Routes
 
-- `/sign-in`
+- `/auth/sign-in`
   - Always accessible to unauthenticated users.
   - Presents the default native sign-in form.
   - Accepts email or username.
   - May show the Keycloak SSO button only when explicit configuration enables it.
 
-- `/sign-up`
+- `/auth/sign-up`
   - Public by default in the first slice.
   - Requires email, password, and consent acceptance.
   - Accepts an optional username.
-  - Redirects to `/sign-in` and hides related UI when sign-up is disabled by configuration.
+  - Redirects to `/auth/sign-in` and hides related UI when sign-up is disabled by configuration.
 
-- `/verify-email`
+- `/auth/verify-email`
   - App-owned verification completion route reached from Laravel-delivered email links.
   - Completes verification through Better Auth-controlled token validation.
   - Continues directly into Laravel provisioning or access resolution on success.
 
-- `/reset-password`
+- `/auth/reset-password`
   - App-owned password reset route reached from Laravel-delivered email links.
   - Completes Better Auth-controlled reset token validation and password update.
 
@@ -34,11 +34,11 @@
 
 ## Error and Recovery Routes
 
-- `/access-denied`
+- `/auth/access-denied`
   - Used for generic denied or unlinked access outcomes.
   - Does not expose the exact backend denial reason.
 
-- `/auth-unavailable`
+- `/auth/unavailable`
   - Used when Laravel access resolution or provisioning is temporarily unavailable.
   - Fails closed and offers retry guidance.
 
@@ -47,7 +47,7 @@
 - Protected route requests preserve intended destinations only when the target is a validated internal path.
 - Successful sign-in, verification, and SSO return to the preserved internal destination when available.
 - If no safe destination is present, successful auth returns to `/dashboard`.
-- Authenticated users visiting `/sign-in` or `/sign-up` are redirected away from those routes.
+- Authenticated users visiting `/auth/sign-in` or `/auth/sign-up` are redirected away from those routes.
 
 ## Session Rules
 

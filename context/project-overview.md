@@ -5,8 +5,8 @@
 This repository contains the frontend for `CI-PRS Web Platform`.
 
 Today it serves two concrete purposes:
-- a polished landing page in `app/page.tsx`
-- a dashboard-style internal UI in `app/dashboard/page.tsx`
+- a polished landing page in `src/app/page.tsx`
+- a dashboard-style internal UI in `src/app/dashboard/page.tsx`
 
 The app is built to be presentable immediately while staying easy to connect to a real backend without rewriting page-level UI.
 
@@ -37,19 +37,21 @@ The current product direction is a calm, high-trust web experience that:
 
 ## Current App Shape
 
-- `app/` contains routes, layouts, loading states, and global CSS
-- `components/` contains shared feature and UI components
-- `components/ui/` contains shadcn-style primitives
-- `hooks/` contains small reusable client hooks
-- `lib/` contains utilities and the server-first API integration layer
+- `src/app/` contains routes, layouts, loading states, and global CSS
+- `src/app/auth/` contains app-owned authentication and access outcome routes
+- `src/components/` contains shared feature and UI components
+- `src/components/ui/` contains shadcn-style primitives
+- `src/hooks/` contains small reusable client hooks
+- `src/lib/` contains utilities and the server-first API integration layer
 - `docs/api/` contains backend integration notes used by the frontend
 
 ## Integration Direction
 
 This project prefers a server-first frontend architecture:
 - server components fetch data
-- shared HTTP behavior lives in `lib/api/core/`
+- shared HTTP behavior lives in `src/lib/api/core/`
 - domain contracts and mappers isolate backend DTOs from UI models
 - pages render mapped frontend models instead of raw API payloads
+- feature routes, UI, and helpers are grouped by domain where a bounded context is clear
 
 That pattern is already visible in the landing page content flow and should remain the default for new backend integrations.

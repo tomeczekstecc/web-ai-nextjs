@@ -13,7 +13,7 @@ import type {
   AuthUserAccessResult,
 } from "@/lib/api/domains/auth-user/contract";
 import { auth, authPool } from "@/lib/auth";
-import { buildSignInHref } from "@/lib/auth/redirects";
+import { AUTH_ROUTES, buildSignInHref } from "@/lib/auth/redirects";
 
 type AuthAccountRow = {
   provider_id: string;
@@ -129,10 +129,10 @@ export async function requireAuthorizedAppSession(returnTo?: string | null) {
   }
 
   if (access.status === "unavailable") {
-    redirect("/auth-unavailable");
+    redirect(AUTH_ROUTES.unavailable);
   }
 
-  redirect("/access-denied");
+  redirect(AUTH_ROUTES.accessDenied);
 }
 
 export async function redirectIfAuthenticated() {

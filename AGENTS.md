@@ -15,12 +15,13 @@ repo-local status tracker.
 - Current active implementation plan: `specs/001-app-auth/plan.md`
 
 Project-specific adjustments for this repository:
-- Prefer the real repo structure over generic shared examples. This project uses root-level `app/`, `components/`, `hooks/`, `lib/`, and `docs/` folders, not `src/`.
+- Prefer the real repo structure over generic shared examples. This project uses `src/app/`, `src/components/`, `src/hooks/`, `src/lib/`, and root-level `docs/`.
 - The current stack is Next.js 16 App Router, React 19, Tailwind CSS v4, and shadcn/ui with the `base-nova` style in `components.json`.
 - Use the existing package scripts for local work: `pnpm dev`, `pnpm build`, and `pnpm lint`.
 - Default to server components and add `'use client'` only for interactive leaves or browser-only APIs.
-- Follow the server-first API pattern documented in `README.md` and implemented under `lib/api/`; pages and components should consume domain queries and mapped models instead of raw backend DTOs.
-- Preserve existing UI and utility patterns in `app/`, `components/`, `hooks/`, and `lib/` unless a task explicitly calls for a broader refactor.
+- Follow domain-driven placement: feature routes belong under `src/app/<domain>/`, feature UI under `src/components/<domain>/`, and domain helpers under `src/lib/<domain>/` or `src/lib/api/domains/<domain>/`. Auth-facing pages live under `src/app/auth/`.
+- Follow the server-first API pattern documented in `README.md` and implemented under `src/lib/api/`; pages and components should consume domain queries and mapped models instead of raw backend DTOs.
+- Preserve existing UI and utility patterns in `src/app/`, `src/components/`, `src/hooks/`, and `src/lib/` unless a task explicitly calls for a broader refactor.
 - If a local-context rule conflicts with the live codebase, follow the codebase and update local docs when appropriate.
 <!-- SPECKIT END -->
 

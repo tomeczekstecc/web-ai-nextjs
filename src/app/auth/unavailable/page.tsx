@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { AuthShell } from "@/components/auth/auth-shell";
 import { buttonVariants } from "@/components/ui/button";
+import { AUTH_ROUTES } from "@/lib/auth/redirects";
 
 export default function AuthUnavailablePage() {
   return (
@@ -17,7 +18,7 @@ export default function AuthUnavailablePage() {
           <Link className={buttonVariants({ variant: "default" })} href="/dashboard">
             Sprobuj ponownie
           </Link>
-          <Link className={buttonVariants({ variant: "outline" })} href="/sign-in">
+          <Link className={buttonVariants({ variant: "outline" })} href={AUTH_ROUTES.signIn}>
             Wroc do logowania
           </Link>
         </div>

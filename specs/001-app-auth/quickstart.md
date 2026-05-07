@@ -34,11 +34,11 @@ Configure the following values before implementation verification:
 ## Implementation Order
 
 1. Install Better Auth and the chosen database adapter for the auth store.
-2. Create `lib/auth.ts`, `lib/auth-client.ts`, and `app/api/auth/[...all]/route.ts`.
+2. Create `src/lib/auth.ts`, `src/lib/auth-client.ts`, and `src/app/api/auth/[...all]/route.ts`.
 3. Configure native auth with email or username sign-in, optional username, required email verification, password reset, session lifetime, and password policy.
 4. Create the Better Auth schema or migration required for the isolated auth namespace.
-5. Add app-owned routes for sign-in, sign-up, verify-email, reset-password, blocked access, and temporary auth unavailability.
-6. Add Laravel current-user and provisioning or upsert integration under `lib/api/domains/auth-user/`.
+5. Add app-owned routes under `src/app/auth/` for sign-in, sign-up, verify-email, reset-password, blocked access, and temporary auth unavailability.
+6. Add Laravel current-user and provisioning or upsert integration under `src/lib/api/domains/auth-user/`.
 7. Add internal Laravel mail-delivery handoff for verification and reset emails.
 8. Add the internal Laravel-triggered session revocation route.
 9. Protect `/dashboard` and nested internal dashboard routes.
@@ -47,13 +47,13 @@ Configure the following values before implementation verification:
 
 ## Manual Verification
 
-1. Open `/dashboard` while signed out and confirm the app redirects to `/sign-in` before dashboard content appears.
+1. Open `/dashboard` while signed out and confirm the app redirects to `/auth/sign-in` before dashboard content appears.
 2. Register a new account, confirm the app requires email verification before normal access, and confirm the verification link lands on an app-owned route.
 3. Sign in with email, and if a username exists, confirm sign-in also works with username.
 4. Confirm the app continues through synchronous Laravel provisioning or access resolution before rendering protected content.
-5. Confirm denied users land on `/access-denied` and unavailable backend states land on `/auth-unavailable`.
+5. Confirm denied users land on `/auth/access-denied` and unavailable backend states land on `/auth/unavailable`.
 6. Trigger password reset and confirm other active sessions are revoked after the reset succeeds.
-7. Confirm already-authenticated users are redirected away from `/sign-in` and `/sign-up`.
+7. Confirm already-authenticated users are redirected away from `/auth/sign-in` and `/auth/sign-up`.
 8. If SSO is enabled, use the Keycloak button and confirm the user returns through the same access-provisioning path as native users.
 9. Confirm local logout ends app access without forcing global Keycloak logout.
 10. Verify all auth screens and outcomes in both light and dark themes on desktop and mobile widths.

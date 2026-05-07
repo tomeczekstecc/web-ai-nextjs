@@ -10,7 +10,7 @@ Add app-first authentication by introducing Better Auth as the app-facing auth l
 ## Technical Context
 
 **Language/Version**: TypeScript 5.8.x, React 19, Next.js 16 App Router  
-**Primary Dependencies**: Better Auth, Better Auth Next.js handler, Better Auth username capability, Better Auth Generic OAuth for Keycloak, shadcn/ui, existing `lib/api` transport layer, Zod for form and contract shaping if needed  
+**Primary Dependencies**: Better Auth, Better Auth Next.js handler, Better Auth username capability, Better Auth Generic OAuth for Keycloak, shadcn/ui, existing `src/lib/api` transport layer, Zod for form and contract shaping if needed  
 **Storage**: Better Auth auth database in an isolated auth schema or table namespace, secure HTTP-only cookies for browser sessions, Laravel APIs for current-user, provisioning, authorization, and mail delivery  
 **Testing**: N/A - constitution forbids automated tests  
 **Target Platform**: Modern desktop and mobile browsers  
@@ -52,23 +52,24 @@ specs/001-app-auth/
 `- tasks.md
 ```
 
-### Source Code (repository root)
+### Source Code (`src/`)
 
 ```text
-app/
+src/app/
 |- api/
 |  |- auth/[...all]/route.ts
 |  `- internal/auth/revoke/route.ts
+|- auth/
+|  |- sign-in/page.tsx
+|  |- sign-up/page.tsx
+|  |- verify-email/page.tsx
+|  |- reset-password/page.tsx
+|  |- access-denied/page.tsx
+|  `- unavailable/page.tsx
 |- dashboard/
 |  `- page.tsx
-|- sign-in/page.tsx
-|- sign-up/page.tsx
-|- verify-email/page.tsx
-|- reset-password/page.tsx
-|- access-denied/page.tsx
-`- auth-unavailable/page.tsx
 
-components/
+src/components/
 |- auth/
 |  |- sign-in-form.tsx
 |  |- sign-up-form.tsx
@@ -78,7 +79,7 @@ components/
 |- app-sidebar.tsx
 `- nav-user.tsx
 
-lib/
+src/lib/
 |- auth.ts
 |- auth-client.ts
 |- auth/
@@ -94,7 +95,7 @@ lib/
          `- mutations.ts
 ```
 
-**Structure Decision**: Keep auth-specific UI and helpers in the existing root-level `app/`, `components/`, and `lib/` folders. Reuse the server-first API domain pattern for Laravel current-user, provisioning, and related auth integration instead of building a parallel transport layer.
+**Structure Decision**: Keep auth-specific routes under `src/app/auth/`, UI under `src/components/auth/`, and helpers under `src/lib/auth/`. Reuse the server-first API domain pattern for Laravel current-user, provisioning, and related auth integration instead of building a parallel transport layer.
 
 ## Phase 0: Research Outcomes
 

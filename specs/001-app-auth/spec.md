@@ -115,7 +115,7 @@ As a user whose organization uses Keycloak, I want an optional SSO path that wor
 - **FR-030**: The system MUST apply basic rate limiting to sign-in, sign-up, resend-verification, and password-reset flows in the first slice.
 - **FR-031**: The system MUST generate app-owned verification and reset links while allowing Laravel to deliver the branded emails through an internal mail-delivery API.
 - **FR-032**: The system MUST keep account-linking capability in the data model and contracts for future account-management flows without requiring that user-facing UI in the first slice.
-- **FR-033**: The system MUST allow self-service sign-up to be disabled by configuration later, and when disabled it MUST hide sign-up actions and redirect `/sign-up` requests to `/sign-in`.
+- **FR-033**: The system MUST allow self-service sign-up to be disabled by configuration later, and when disabled it MUST hide sign-up actions and redirect `/auth/sign-up` requests to `/auth/sign-in`.
 - **FR-034**: Better Auth secrets, Keycloak settings, database connection settings, internal server-to-server auth secrets, and related auth runtime configuration MUST be provided through the app's `.env` file rather than hard-coded configuration.
 
 ### Key Entities *(include if feature involves data)*

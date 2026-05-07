@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { AuthShell } from "@/components/auth/auth-shell";
 import { buttonVariants } from "@/components/ui/button";
+import { AUTH_ROUTES } from "@/lib/auth/redirects";
 
 export default function AccessDeniedPage() {
   return (
@@ -14,7 +15,7 @@ export default function AccessDeniedPage() {
           Zalogowanie powiodlo sie, ale nie mozemy udostepnic panelu dla tego konta.
         </div>
         <div className="flex flex-col gap-3 sm:flex-row">
-          <Link className={buttonVariants({ variant: "default" })} href="/sign-in">
+          <Link className={buttonVariants({ variant: "default" })} href={AUTH_ROUTES.signIn}>
             Wroc do logowania
           </Link>
           <Link className={buttonVariants({ variant: "outline" })} href="/">

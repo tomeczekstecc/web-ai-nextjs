@@ -8,7 +8,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
-import { buildAuthSuccessHref, buildSignUpHref, sanitizeReturnTo } from "@/lib/auth/redirects";
+import { AUTH_ROUTES, buildAuthSuccessHref, buildSignUpHref, sanitizeReturnTo } from "@/lib/auth/redirects";
 import { cn } from "@/lib/utils";
 
 const genericError = "Nie udalo sie zalogowac. Sprawdz dane i sprobuj ponownie.";
@@ -91,7 +91,7 @@ export function SignInForm() {
             <Label htmlFor="password">Haslo</Label>
             <Link
               className={cn(buttonVariants({ variant: "link", size: "sm" }), "h-auto px-0 text-sm")}
-              href={`/reset-password?returnTo=${encodeURIComponent(returnTo)}`}
+              href={`${AUTH_ROUTES.resetPassword}?returnTo=${encodeURIComponent(returnTo)}`}
             >
               Nie pamietasz hasla?
             </Link>

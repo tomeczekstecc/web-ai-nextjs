@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { authClient } from "@/lib/auth-client";
+import { AUTH_ROUTES } from "@/lib/auth/redirects";
 import {
   Avatar,
   AvatarFallback,
@@ -62,7 +63,7 @@ export function NavUser({
   async function handleSignOut() {
     setPending(true);
     await authClient.signOut();
-    router.replace("/sign-in");
+    router.replace(AUTH_ROUTES.signIn);
     router.refresh();
   }
 
