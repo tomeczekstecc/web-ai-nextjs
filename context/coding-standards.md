@@ -12,6 +12,8 @@
 - Use functional components only.
 - Default to server components.
 - Add `'use client'` only when hooks, browser APIs, or interactive state are required.
+- Extract reusable logic only after a real repetition appears.
+- Extract client-side logic, tend to use `use client` for only the necessary parts.
 - Keep components focused and extract reusable logic only after a real repetition appears.
 
 ## Next.js
@@ -32,8 +34,9 @@
 
 ## Styling
 
+- Treat Shadcn/ui components as the primary base components, always refer to Context7  docs for Shadcn/ui - mcp.
 - Use Tailwind CSS v4 through `app/globals.css`.
-- Do not add a `tailwind.config.*` file.
+- Do not add a `tailwind.config.*` file (deprecated in v4).
 - Reuse existing shadcn/ui primitives before inventing parallel base components.
 - Match the current visual language: clean spacing, strong hierarchy, and restrained surfaces.
 - Keep both light and dark mode working unless a task explicitly narrows scope.
