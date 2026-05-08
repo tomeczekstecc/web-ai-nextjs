@@ -1,5 +1,88 @@
 # CI-PRS Web
 
+## Prerequisites
+
+- Node.js 20 or later
+- pnpm (install via `npm install -g pnpm` if not already available)
+- A running instance of the backend API (default: `http://127.0.0.1:8000`)
+- PostgreSQL database accessible via connection string
+
+## Getting started
+
+### 1. Install dependencies
+
+```bash
+pnpm install
+```
+
+### 2. Configure environment variables
+
+Copy the example environment file and fill in the required values:
+
+```bash
+cp .env.example .env.local
+```
+
+Open `.env.local` and set the following:
+
+| Variable | Required | Description |
+|---|---|---|
+| `API_URL` | Yes | URL of the backend API (default: `http://127.0.0.1:8000`) |
+| `BETTER_AUTH_SECRET` | Yes | Random secret string for session signing (generate with `openssl rand -hex 32`) |
+| `BETTER_AUTH_URL` | Yes | Public URL of this Next.js app (default: `http://127.0.0.1:3000`) |
+| `DATABASE_URL` | Yes | PostgreSQL connection string (e.g. `postgresql://user:pass@localhost:5432/dbname`) |
+| `LARAVEL_INTERNAL_AUTH_TOKEN` | Yes | Internal token for backend auth calls |
+| `LARAVEL_INTERNAL_AUTH_MAIL_TOKEN` | Yes | Internal token for backend mail auth calls |
+| `LARAVEL_INTERNAL_AUTH_REVOKE_TOKEN` | Yes | Internal token for backend revoke auth calls |
+| `AUTH_SIGNUP_ENABLED` | No | Enable or disable user self-registration (default: `true`) |
+| `AUTH_SSO_ENABLED` | No | Enable SSO login (default: `false`) |
+| `AUTH_SUPPORT_LABEL` | No | Label shown on the support link on auth pages |
+| `AUTH_SUPPORT_URL` | No | URL for the support link on auth pages |
+| `KEYCLOAK_CLIENT_ID` | No | Keycloak client ID (required when `AUTH_SSO_ENABLED=true`) |
+| `KEYCLOAK_CLIENT_SECRET` | No | Keycloak client secret (required when `AUTH_SSO_ENABLED=true`) |
+| `KEYCLOAK_ISSUER` | No | Keycloak issuer URL (required when `AUTH_SSO_ENABLED=true`) |
+
+### 3. Run the development server
+
+```bash
+pnpm dev
+```
+
+The app will be available at [http://localhost:3000](http://localhost:3000).
+
+## Available scripts
+
+| Script | Description |
+|---|---|
+| `pnpm dev` | Start the Next.js development server with hot reload |
+| `pnpm build` | Build the app for production |
+| `pnpm start` | Start the production server (requires `pnpm build` first) |
+| `pnpm lint` | Run ESLint across the project |
+
+## Project structure
+
+```text
+src/
+  app/           Next.js App Router routes (domain folders under src/app/<domain>/)
+  components/    Shared and domain UI components (src/components/<domain>/)
+  hooks/         Shared React hooks
+  lib/
+    api/         Server-first API layer (see API integration pattern below)
+```
+
+## Tech stack
+
+- **Next.js 16** App Router with React 19 and server components by default
+- **TypeScript 5** with strict mode
+- **Tailwind CSS v4** for styling
+- **shadcn/ui** (`base-nova` style) for UI primitives
+- **better-auth** for authentication
+- **TanStack Table v8** and **TanStack Query v5** for data-heavy screens
+- **Zod v4** for schema validation
+- **PostgreSQL** via `pg`
+
+---
+
 ## API integration pattern
 
 This project uses a server-first API layer in `src/lib/api` so page and component code stay small even when backend integration grows.

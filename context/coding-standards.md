@@ -45,6 +45,19 @@
 - Pages and components should consume mapped models, not raw DTOs.
 - Avoid wiring transport logic directly into route components when a domain module is the better fit.
 
+## TanStack Query
+
+- Use TanStack Query v5 for dynamic CRUD surfaces with tables, filters, pagination, optimistic updates, and background refresh.
+- Keep server-first API calls (`queries.ts`, `commands.ts`) for route entry, auth gates, redirects, and server-only secure calls.
+- Add browser-safe `client.ts` fetchers for domains that need client server-state; these must not import `server-only` modules or `src/lib/api/core/http.ts`.
+- Define stable query keys per domain in `query-keys.ts` using the factory pattern: `all`, `lists()`, `list(params)`, `details()`, `detail(id)`.
+- Define reusable query options in `query-options.ts` with balanced `staleTime`, retry policy, and optional `refetchInterval`.
+- Prefetch important first-screen queries in the server component with `prefetchQuery` and wrap client components with `HydrationBoundary`.
+- After mutations, invalidate the smallest related surfaces; prefer `queryClient.invalidateQueries({ queryKey })` over broad cache clears.
+- Use optimistic updates with rollback for low-latency status changes; snapshot previous data in `onMutate`, restore in `onError`, and settle in `onSettled`.
+- Keep the app-wide `QueryClientProvider` in `src/components/providers/query-provider.tsx`; include dev-only Devtools.
+- Do not add TanStack Query to static public pages, auth screens, or simple one-shot server-rendered data.
+
 ## Validation
 
 - Use Zod as the project standard for all runtime validation and schema definition.

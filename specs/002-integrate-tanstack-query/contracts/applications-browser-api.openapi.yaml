@@ -1,0 +1,337 @@
+openapi: 3.1.0
+info:
+  title: Applications Browser API Contract
+  version: 0.1.0
+  description: Browser-safe contract for the applications pilot CRUD surface. Real backend endpoints are preferred; local or mock endpoints must preserve this contract.
+servers:
+  - url: https://backend.example.test
+    description: Browser-accessible backend API placeholder
+paths:
+  /api/applications:
+    get:
+      summary: List applications
+      description: Returns a backend-shaped, paginated, searchable, filterable, and sortable applications list.
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PageSize"
+        - $ref: "#/components/parameters/Search"
+        - $ref: "#/components/parameters/Status"
+        - $ref: "#/components/parameters/Sort"
+      responses:
+        "200":
+          description: Applications page
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApplicationListResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+        "500":
+          $ref: "#/components/responses/ServerError"
+    post:
+      summary: Create application
+      description: Creates an application and returns the server-confirmed record.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateApplicationRequest"
+      responses:
+        "201":
+          description: Created application
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Application"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+        "500":
+          $ref: "#/components/responses/ServerError"
+  /api/applications/{applicationId}:
+    parameters:
+      - $ref: "#/components/parameters/ApplicationId"
+    get:
+      summary: Get application detail
+      description: Returns one application record. Detail use is supported by query keys even if the first UI increment is table-first.
+      responses:
+        "200":
+          description: Application detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Application"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/ServerError"
+    patch:
+      summary: Update application
+      description: Updates editable application fields and returns the server-confirmed record.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateApplicationRequest"
+      responses:
+        "200":
+          description: Updated application
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Application"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+        "500":
+          $ref: "#/components/responses/ServerError"
+    delete:
+      summary: Delete application
+      description: Deletes an application record. The frontend must recover if the current page becomes empty.
+      responses:
+        "204":
+          description: Application deleted
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/ServerError"
+  /api/applications/{applicationId}/status:
+    parameters:
+      - $ref: "#/components/parameters/ApplicationId"
+    patch:
+      summary: Change application status
+      description: Performs the low-risk reversible status mutation used to prove optimistic UI behavior.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateApplicationStatusRequest"
+      responses:
+        "200":
+          description: Updated application
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Application"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+        "500":
+          $ref: "#/components/responses/ServerError"
+components:
+  parameters:
+    ApplicationId:
+      name: applicationId
+      in: path
+      required: true
+      schema:
+        type: string
+    Page:
+      name: page
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+    PageSize:
+      name: pageSize
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 10
+    Search:
+      name: search
+      in: query
+      required: false
+      schema:
+        type: string
+        maxLength: 120
+    Status:
+      name: status
+      in: query
+      required: false
+      schema:
+        $ref: "#/components/schemas/ApplicationStatus"
+    Sort:
+      name: sort
+      in: query
+      required: false
+      description: Field and direction, for example updatedAt:desc.
+      schema:
+        type: string
+        enum:
+          - label:asc
+          - label:desc
+          - status:asc
+          - status:desc
+          - createdAt:asc
+          - createdAt:desc
+          - updatedAt:asc
+          - updatedAt:desc
+  schemas:
+    ApplicationStatus:
+      type: string
+      enum:
+        - draft
+        - submitted
+        - archived
+    Application:
+      type: object
+      required:
+        - id
+        - label
+        - status
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+        label:
+          type: string
+        status:
+          $ref: "#/components/schemas/ApplicationStatus"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    ApplicationListResponse:
+      type: object
+      required:
+        - items
+        - page
+        - pageSize
+        - totalItems
+        - totalPages
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/Application"
+        page:
+          type: integer
+          minimum: 1
+        pageSize:
+          type: integer
+          minimum: 1
+        totalItems:
+          type: integer
+          minimum: 0
+        totalPages:
+          type: integer
+          minimum: 0
+    CreateApplicationRequest:
+      type: object
+      required:
+        - label
+      properties:
+        label:
+          type: string
+          minLength: 1
+          maxLength: 120
+    UpdateApplicationRequest:
+      type: object
+      required:
+        - label
+      properties:
+        label:
+          type: string
+          minLength: 1
+          maxLength: 120
+    UpdateApplicationStatusRequest:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          $ref: "#/components/schemas/ApplicationStatus"
+    ErrorResponse:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          type:
+            - object
+            - array
+            - string
+            - "null"
+  responses:
+    Unauthorized:
+      description: Browser session missing or expired
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    Forbidden:
+      description: User does not have product access to this operation
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    NotFound:
+      description: Application record not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    Conflict:
+      description: Operation conflicts with current application state
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    ValidationError:
+      description: Request failed validation
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    ServerError:
+      description: Unexpected backend failure
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"

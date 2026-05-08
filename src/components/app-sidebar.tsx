@@ -29,6 +29,7 @@ import {
   SearchIcon,
   Settings2Icon,
   UsersIcon,
+  FileTextIcon,
 } from "lucide-react";
 
 const navigation = {
@@ -37,6 +38,11 @@ const navigation = {
       title: "Dashboard",
       url: "/dashboard",
       icon: <LayoutDashboardIcon />,
+    },
+    {
+      title: "Aplikacje",
+      url: "/applications",
+      icon: <FileTextIcon />,
     },
     {
       title: "Lifecycle",

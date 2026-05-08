@@ -1,6 +1,98 @@
 # CI-PRS Web
 
-## API integration pattern
+A Next.js web application for managing CI pull requests, built on a server-first API layer.
+
+## Prerequisites
+
+- Node.js 20+
+- pnpm 9+
+- PostgreSQL database
+- A running backend API (defaults to `http://127.0.0.1:8000`)
+
+## Getting Started
+
+```bash
+git clone <repo-url>
+cd web
+cp .env.example .env   # fill in required values
+pnpm install
+pnpm dev
+```
+
+The app will be available at `http://localhost:3000`.
+
+## Environment Variables
+
+Copy `.env.example` to `.env` and fill in the required values. Never commit real secrets.
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `API_URL` | Yes | Base URL for the backend API (e.g. `http://127.0.0.1:8000`) |
+| `BETTER_AUTH_SECRET` | Yes | Secret key used by Better Auth to sign sessions |
+| `BETTER_AUTH_URL` | Yes | Public URL of this app, used by Better Auth (e.g. `http://127.0.0.1:3000`) |
+| `DATABASE_URL` | Yes | PostgreSQL connection string |
+| `LARAVEL_INTERNAL_AUTH_TOKEN` | Yes | Internal token for Laravel backend auth |
+| `LARAVEL_INTERNAL_AUTH_MAIL_TOKEN` | No | Internal token for mail-related backend calls |
+| `LARAVEL_INTERNAL_AUTH_REVOKE_TOKEN` | No | Internal token for revoking backend auth |
+| `AUTH_SIGNUP_ENABLED` | No | Set to `true` to enable self-service sign-up (default: `true`) |
+| `AUTH_SSO_ENABLED` | No | Set to `true` to enable SSO login (default: `false`) |
+| `AUTH_SUPPORT_LABEL` | No | Display label for the support link on auth pages |
+| `AUTH_SUPPORT_URL` | No | URL for the support link on auth pages |
+| `KEYCLOAK_CLIENT_ID` | No | Keycloak client ID (required when SSO is enabled) |
+| `KEYCLOAK_CLIENT_SECRET` | No | Keycloak client secret (required when SSO is enabled) |
+| `KEYCLOAK_ISSUER` | No | Keycloak issuer URL (required when SSO is enabled) |
+
+## Available Scripts
+
+| Script | Description |
+|--------|-------------|
+| `pnpm dev` | Start the development server with hot reload |
+| `pnpm build` | Compile and type-check a production build |
+| `pnpm start` | Serve the production build locally |
+| `pnpm lint` | Run ESLint across the project |
+
+## Project Structure
+
+```
+src/
+  app/            Next.js App Router pages, layouts, and route handlers
+  components/     Shared UI components (shadcn/ui + custom)
+  hooks/          Reusable React hooks
+  lib/            Business logic, API clients, and utilities
+    api/          Server-first API layer (see Architecture below)
+context/          Project documentation for AI and human contributors
+specs/            Spec Kit feature artifacts and implementation plans
+```
+
+For product goals, feature scope, coding standards, and collaboration expectations, see the `context/` folder:
+
+- `context/project-overview.md` — product goals, users, and UX direction
+- `context/project-spec.md` — feature scope, data model, and roadmap
+- `context/coding-standards.md` — TypeScript, React, Next.js, and Tailwind rules
+- `context/ai-interaction.md` — collaboration, testing, and commit expectations
+
+## Architecture Overview
+
+- **Server components by default.** Add `'use client'` only at interactive leaves or when browser-only APIs are needed.
+- **Auth-facing pages** live under `src/app/auth/`.
+- **Feature placement:** routes under `src/app/<domain>/`, UI under `src/components/<domain>/`, helpers under `src/lib/<domain>/` or `src/lib/api/domains/<domain>/`.
+- **API layer follows CQRS:** reads in `queries.ts`, writes in `commands.ts`. See the full API pattern below.
+
+## Tech Stack
+
+| Technology | Version |
+|------------|---------|
+| Next.js | 16.2.2 |
+| React | 19 |
+| TypeScript | 5.8 |
+| Tailwind CSS | 4.x |
+| shadcn/ui | 4.x (base-nova style) |
+| Better Auth | 1.3 |
+| TanStack Table | 8.x |
+| Zod | 4.x |
+| PostgreSQL (via `pg`) | 8.x |
+
+## API Integration Pattern
 
 This project uses a server-first API layer in `src/lib/api` so page and component code stay small even when backend integration grows.
 
@@ -91,38 +183,6 @@ src/lib/api/domains/<domain>/
 
 Keep `contract.ts` and `mapper.ts` as the shared boundary for backend DTOs and frontend models. Browser-safe `client.ts` functions should use public backend endpoints or Next.js route handlers; they must not import server-only helpers such as `src/lib/api/core/http.ts`.
 
-Define stable query keys per domain from the first CRUD screen:
-
-```ts
-export const applicationsKeys = {
-  all: ["applications"] as const,
-  lists: () => [...applicationsKeys.all, "list"] as const,
-  list: (filters: ApplicationFilters) =>
-    [...applicationsKeys.lists(), filters] as const,
-  detail: (id: string) => [...applicationsKeys.all, "detail", id] as const,
-};
-```
-
-After mutations, invalidate the smallest related surfaces that must reflect the write:
-
-```ts
-const queryClient = useQueryClient();
-
-useMutation({
-  mutationFn: updateApplication,
-  onSuccess: async (_, variables) => {
-    await Promise.all([
-      queryClient.invalidateQueries({ queryKey: applicationsKeys.lists() }),
-      queryClient.invalidateQueries({
-        queryKey: applicationsKeys.detail(variables.id),
-      }),
-    ]);
-  },
-});
-```
-
-Add the TanStack Query provider and hydration setup when the first real CRUD domain needs it. Avoid adding global Query usage for static landing content, route-level auth gates, or simple one-shot server-rendered data.
-
 ### Example: adding a new endpoint
 
 If you need a new `users` integration, add:
@@ -144,108 +204,11 @@ Then:
 - call `apiRequest()` in `commands.ts` for writes
 - import the query from the page or server component
 
-If the endpoint belongs to an interactive CRUD surface, also add:
-
-```text
-src/lib/api/domains/users/
-  client.ts
-  query-keys.ts
-  query-options.ts
-```
-
-Then:
-
-- keep browser-safe fetchers in `client.ts`
-- keep stable query key factories in `query-keys.ts`
-- keep reusable TanStack Query options in `query-options.ts`
-- invalidate list and detail keys after successful writes
-
 ### Example: command
 
 For write flows, add a `commands.ts` file to the domain. A typical command keeps the request DTO, response DTO, and mapped frontend model inside the same domain boundary.
 
 This repo now includes a concrete example in `src/lib/api/domains/applications/`.
-
-```ts
-// src/lib/api/domains/applications/commands.ts
-import "server-only";
-
-import { apiRequest } from "@/lib/api/core/http";
-import type { ApiResult } from "@/lib/api/contracts/common";
-import { mapApplication } from "@/lib/api/domains/applications/mapper";
-import type {
-  Application,
-  ApplicationPayload,
-  CreateApplicationInput,
-} from "@/lib/api/domains/applications/contract";
-
-export async function createApplication(
-  input: CreateApplicationInput,
-): Promise<ApiResult<Application>> {
-  const result = await apiRequest<ApplicationPayload, CreateApplicationInput>({
-    path: "/api/applications",
-    method: "POST",
-    body: input,
-  });
-
-  if (!result.ok) {
-    return result;
-  }
-
-  return {
-    ok: true,
-    status: result.status,
-    data: mapApplication(result.data),
-  };
-}
-```
-
-Example contract shape:
-
-```ts
-// src/lib/api/domains/applications/contract.ts
-export type CreateApplicationInput = {
-  firstName: string;
-  lastName: string;
-  email: string;
-};
-
-export type ApplicationPayload = {
-  id: string;
-  first_name: string;
-  last_name: string;
-  email: string;
-  status: "draft" | "submitted";
-};
-
-export type Application = {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  status: "draft" | "submitted";
-};
-```
-
-Example mapper:
-
-```ts
-// src/lib/api/domains/applications/mapper.ts
-import type {
-  Application,
-  ApplicationPayload,
-} from "@/lib/api/domains/applications/contract";
-
-export function mapApplication(payload: ApplicationPayload): Application {
-  return {
-    id: payload.id,
-    firstName: payload.first_name,
-    lastName: payload.last_name,
-    email: payload.email,
-    status: payload.status,
-  };
-}
-```
 
 CQRS rule of thumb:
 
@@ -259,3 +222,7 @@ CQRS rule of thumb:
 ### Transitional compatibility
 
 Legacy flat files such as `src/lib/api/client.ts` and `src/lib/api/contracts.ts` currently re-export the new modules. That keeps the refactor incremental while new code moves to the domain-folder pattern.
+
+## Deployment
+
+CI deploys the `main` branch automatically. Check the CI configuration at `.github/workflows/` for pipeline details.
