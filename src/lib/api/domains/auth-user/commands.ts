@@ -9,6 +9,10 @@ import type {
   ProvisionAuthUserSuccessPayload,
 } from "@/lib/api/domains/auth-user/contract";
 import { mapLaravelAppUser } from "@/lib/api/domains/auth-user/mapper";
+import {
+  getMockAuthAccess,
+  isLaravelAuthMockEnabled,
+} from "@/lib/api/domains/auth-user/mock";
 
 const endpoint = "/auth/provision";
 
@@ -31,6 +35,10 @@ function mapProvisionBody(identity: AuthIdentity): ProvisionAuthUserRequest {
 export async function provisionAuthUser(
   identity: AuthIdentity,
 ): Promise<AuthUserAccessResult> {
+  if (isLaravelAuthMockEnabled()) {
+    return getMockAuthAccess(identity, "created");
+  }
+
   const result = await apiRequest<
     ProvisionAuthUserSuccessPayload | ProvisionAuthUserDeniedPayload,
     ProvisionAuthUserRequest

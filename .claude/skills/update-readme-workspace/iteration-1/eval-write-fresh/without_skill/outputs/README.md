@@ -75,7 +75,7 @@ A server-first Next.js frontend for the CI-PRS Web Platform. It provides a publi
    pnpm dev
    ```
 
-   The app is available at [http://localhost:3000](http://localhost:3000).
+   The app is available at [http://localhost:3600](http://localhost:6000).
 
 ---
 

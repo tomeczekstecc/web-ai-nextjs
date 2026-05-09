@@ -20,7 +20,7 @@ pnpm install
 pnpm dev
 ```
 
-The dev server starts at `http://localhost:3000`.
+The dev server starts at `http://localhost:3600`.
 
 ## Environment Variables
 

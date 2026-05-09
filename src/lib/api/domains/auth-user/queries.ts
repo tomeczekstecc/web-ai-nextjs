@@ -7,6 +7,10 @@ import type {
   LaravelAppUserPayload,
 } from "@/lib/api/domains/auth-user/contract";
 import { mapLaravelAppUser } from "@/lib/api/domains/auth-user/mapper";
+import {
+  getMockAuthAccess,
+  isLaravelAuthMockEnabled,
+} from "@/lib/api/domains/auth-user/mock";
 
 const endpoint = "/me";
 
@@ -31,6 +35,10 @@ function buildCurrentUserHeaders(identity: AuthIdentity): HeadersInit {
 export async function getCurrentAuthUser(
   identity: AuthIdentity,
 ): Promise<AuthUserAccessResult> {
+  if (isLaravelAuthMockEnabled()) {
+    return getMockAuthAccess(identity, "confirmed");
+  }
+
   const result = await apiRequest<LaravelAppUserPayload>({
     path: endpoint,
     method: "GET",
