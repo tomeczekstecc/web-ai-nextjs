@@ -1,7 +1,10 @@
 .next
 node_modules
 .vercel
+.claude/worktrees
+.playwright-mcp
 dist
+build
 coverage
 *.log
 .env*
