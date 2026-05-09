@@ -5,7 +5,8 @@
       "Bash(python *)",
       "Bash(pnpm lint *)",
       "Bash(grep -v \"^$\")",
-      "Bash(git *)"
+      "Bash(git *)",
+      "Bash(powershell.exe -File \".specify/scripts/powershell/check-prerequisites.ps1\" -Json)"
     ]
   }
 }
