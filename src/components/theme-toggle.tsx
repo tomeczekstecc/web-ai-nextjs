@@ -22,7 +22,7 @@ export function ThemeToggle() {
       variant="outline"
       size="icon"
       className="rounded-full"
-      aria-label={isDark ? "Przelacz na jasny motyw" : "Przelacz na ciemny motyw"}
+      aria-label={isDark ? "Przełącz na jasny motyw" : "Przełącz na ciemny motyw"}
       onClick={() => setTheme(isDark ? "light" : "dark")}
     >
       {isDark ? <SunMedium /> : <Moon />}

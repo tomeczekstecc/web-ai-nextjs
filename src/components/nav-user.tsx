@@ -1,7 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useTheme } from "next-themes";
+import { useState, useSyncExternalStore } from "react";
 
 import { authClient } from "@/lib/auth-client";
 import { AUTH_ROUTES } from "@/lib/auth/redirects";
@@ -31,6 +32,8 @@ import {
   CreditCardIcon,
   EllipsisVerticalIcon,
   LogOutIcon,
+  Moon,
+  Sun,
 } from "lucide-react";
 
 function getInitials(name: string) {
@@ -59,6 +62,13 @@ export function NavUser({
   const router = useRouter();
   const { isMobile } = useSidebar();
   const [pending, setPending] = useState(false);
+  const { resolvedTheme, setTheme } = useTheme();
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
+  const isDark = mounted && resolvedTheme === "dark";
 
   async function handleSignOut() {
     setPending(true);
@@ -121,6 +131,13 @@ export function NavUser({
               <DropdownMenuItem>
                 <BellIcon />
                 Powiadomienia
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                aria-label={isDark ? "Przełącz na jasny motyw" : "Przełącz na ciemny motyw"}
+                onClick={() => setTheme(isDark ? "light" : "dark")}
+              >
+                {isDark ? <Sun /> : <Moon />}
+                {isDark ? "Jasny" : "Ciemny"}
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
