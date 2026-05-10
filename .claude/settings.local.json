@@ -26,7 +26,10 @@
       "Bash(powershell.exe -File \".specify/extensions/git/scripts/powershell/auto-commit.ps1\" after_implement)",
       "Bash(powershell -File \".specify/extensions/git/scripts/powershell/create-new-feature.ps1\" -Json -ShortName \"wizard-data-layer\" \"Wizard Phase 2 - Data layer with TanStack Query hooks and MSW mock handlers\")",
       "Bash(powershell -File \".specify/scripts/powershell/setup-plan.ps1\" -Json)",
-      "Bash(powershell.exe -File \".specify/extensions/git/scripts/powershell/create-new-feature.ps1\" -Json -ShortName \"wizard-data-layer\" \"Phase 2 Data Layer TanStack Query and MSW\")"
+      "Bash(powershell.exe -File \".specify/extensions/git/scripts/powershell/create-new-feature.ps1\" -Json -ShortName \"wizard-data-layer\" \"Phase 2 Data Layer TanStack Query and MSW\")",
+      "Bash(powershell.exe -File \".specify/extensions/git/scripts/powershell/create-new-feature.ps1\" -Json -ShortName \"wizard-field-inputs\" \"Phase 3 Field Input Components Wiz inputs and useWizardField hook\")",
+      "Bash(pnpm dlx *)",
+      "Bash(pnpm exec *)"
     ]
   }
 }

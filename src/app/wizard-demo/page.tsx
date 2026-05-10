@@ -2,27 +2,37 @@
 
 import { Wizard } from '@/components/wizard/Wizard'
 import { useWizard } from '@/hooks/wizard/useWizard'
+import { useWizardField } from '@/hooks/wizard/useWizardField'
+import { InputWiz } from '@/components/wizard/inputs/InputWiz'
 
 const MAPPING_URL = '/api/wizard-demo/mapping'
 const DATA_URL = '/api/wizard-demo/data'
 const SAVE_URL = '/api/wizard-demo/save'
 
 function Krok1() {
-  const { form, setValue } = useWizard()
   return (
     <div className="flex flex-col gap-4 p-4 border rounded-lg">
       <h2 className="text-lg font-semibold">Krok 1 — Start</h2>
-      <div className="flex flex-col gap-1">
-        <label htmlFor="tytul" className="text-sm font-medium">Tytuł</label>
-        <input
-          id="tytul"
-          className="border rounded-md px-3 py-2 text-sm bg-background"
-          value={(form.tytul as string) ?? ''}
-          onChange={e => setValue('tytul', e.target.value)}
-          placeholder="Wpisz tytuł…"
-        />
-        <p className="text-xs text-muted-foreground">Przejdź do Kroku 2 i wróć — tytuł powinien zostać.</p>
-      </div>
+      <InputWiz keyName="tytul" />
+      <p className="text-xs text-muted-foreground">Przejdź do Kroku 2 i wróć — tytuł powinien zostać.</p>
+    </div>
+  )
+}
+
+function CustomWizField({ keyName }: { keyName: string }) {
+  const f = useWizardField(keyName)
+  if (f.hidden) return null
+  return (
+    <div className="flex flex-col gap-1">
+      <label className="text-sm font-medium">{f.label}</label>
+      <textarea
+        className="border rounded-md px-3 py-2 text-sm bg-background resize-none min-h-[80px] disabled:opacity-50 disabled:cursor-not-allowed"
+        value={f.value as string}
+        onChange={e => f.onChange(e.target.value)}
+        disabled={f.disabled}
+        placeholder="Wpisz opis…"
+      />
+      {f.error && <p className="text-sm text-destructive">{f.error}</p>}
     </div>
   )
 }
@@ -30,11 +40,12 @@ function Krok1() {
 function Krok2() {
   const { form } = useWizard()
   return (
-    <div className="p-4 border rounded-lg flex flex-col gap-2">
+    <div className="p-4 border rounded-lg flex flex-col gap-4">
       <h2 className="text-lg font-semibold">Krok 2 — Szczegóły</h2>
       <p className="text-sm text-muted-foreground">
         Tytuł z Kroku 1: <strong>{(form.tytul as string) || '(brak)'}</strong>
       </p>
+      <CustomWizField keyName="opis" />
     </div>
   )
 }
