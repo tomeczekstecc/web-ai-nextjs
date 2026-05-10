@@ -14,7 +14,9 @@
       "mcp__plugin_context7_context7__query-docs",
       "Bash(node -e \"require\\('msw'\\)\")",
       "Bash(powershell.exe -File \".specify/scripts/powershell/check-prerequisites.ps1\" -Json -RequireTasks -IncludeTasks)",
-      "Bash(pnpm build *)"
+      "Bash(pnpm build *)",
+      "Bash(pnpm tsc *)",
+      "Bash(tasklist /FI \"IMAGENAME eq node.exe\" /NH)"
     ]
   }
 }
