@@ -15,6 +15,10 @@ Review the codebase for cleanup tasks:
 7. Find `@ts-ignore` comments that might be stale
 8. Run `/ai-artifacts-sync` to keep `.claude/` and `.agents/` skill directories in sync
 9. Run `@agent-seo-checker` to audit SEO coverage — check for missing metadata exports, robots.ts, sitemap.ts, and unindexed protected routes
+10. Audit dead Tailwind classes — find utility classes referencing removed components or conflicting with Tailwind v4 syntax
+11. Verify env var consumption — check that every variable declared in `.env.example` is actually used somewhere in `src/`
+12. Find `any` type sprawl — locate `any` casts beyond known intentional ones
+13. Find unused dependencies — flag packages in `package.json` that are imported nowhere in `src/`
 
 **Mode: $ARGUMENTS**
 
