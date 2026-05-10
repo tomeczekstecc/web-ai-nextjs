@@ -4,6 +4,7 @@ import { IBM_Plex_Mono, Inter } from "next/font/google";
 import { MSWProvider } from "@/components/providers/msw-provider";
 import { QueryProvider } from "@/components/providers/query-provider";
 import { ThemeProvider } from "@/components/theme-provider";
+import { Toaster } from "@/components/ui/sonner";
 import { cn } from "@/lib/utils";
 
 import "./globals.css";
@@ -46,6 +47,7 @@ export default function RootLayout({
           <MSWProvider>
             <QueryProvider>{children}</QueryProvider>
           </MSWProvider>
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>

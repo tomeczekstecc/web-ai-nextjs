@@ -23,7 +23,10 @@
       "Bash(powershell.exe -File \".specify/extensions/git/scripts/powershell/create-new-feature.ps1\" -Json -ShortName \"wizard-foundation\" \"Wizard System Phase 1 - Foundation: global Zustand store, WizardProvider engine, Wizard shell with vertical side nav and navigation\")",
       "Bash(powershell.exe -File \".specify/scripts/powershell/setup-plan.ps1\" -Json)",
       "Bash(pnpm add *)",
-      "Bash(powershell.exe -File \".specify/extensions/git/scripts/powershell/auto-commit.ps1\" after_implement)"
+      "Bash(powershell.exe -File \".specify/extensions/git/scripts/powershell/auto-commit.ps1\" after_implement)",
+      "Bash(powershell -File \".specify/extensions/git/scripts/powershell/create-new-feature.ps1\" -Json -ShortName \"wizard-data-layer\" \"Wizard Phase 2 - Data layer with TanStack Query hooks and MSW mock handlers\")",
+      "Bash(powershell -File \".specify/scripts/powershell/setup-plan.ps1\" -Json)",
+      "Bash(powershell.exe -File \".specify/extensions/git/scripts/powershell/create-new-feature.ps1\" -Json -ShortName \"wizard-data-layer\" \"Phase 2 Data Layer TanStack Query and MSW\")"
     ]
   }
 }

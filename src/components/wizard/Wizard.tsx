@@ -74,7 +74,7 @@ function NavButtons({
 }
 
 function WizardShell<T extends Record<string, unknown>>(props: WizardConfig<T>) {
-  const { page, mapping, nav, busy, mode, summary } = useWizard()
+  const { page, mapping, nav, busy, loading, mode, summary } = useWizard()
 
   const pages = props.pages
   const isFirst = page === 0
@@ -85,7 +85,7 @@ function WizardShell<T extends Record<string, unknown>>(props: WizardConfig<T>) 
     page,
     isFirst,
     isLast,
-    busy,
+    busy: busy || loading,
     mode,
     summary,
     onNav: nav,

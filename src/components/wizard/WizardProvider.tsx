@@ -1,21 +1,32 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { WizardContext } from './WizardContext'
 import { useStore } from '@/lib/store'
+import { useWizardMapping } from '@/hooks/wizard/useWizardMapping'
+import { useWizardData } from '@/hooks/wizard/useWizardData'
+import { useWizardSave } from '@/hooks/wizard/useWizardSave'
 import type { WizardAPI, WizardConfig, PageMapping, SummaryResult } from '@/lib/wizard/types'
 import type { ValidationItem } from '@/lib/store/types'
+
+function findField(mapping: PageMapping[], field: string, pg?: string) {
+  const pages = pg ? mapping.filter(m => m.name === pg) : mapping
+  return pages.flatMap(m => m.fields).find(f => f.name === field)
+}
 
 export function WizardProvider<T extends Record<string, unknown>>({
   name,
   mode,
   pages,
+  mappingUrl,
+  dataUrl,
+  saveUrl,
+  saveOnPageChange,
+  saveAndQuitCallback,
   children,
 }: WizardConfig<T> & { children: React.ReactNode }) {
   const [page, setPage] = useState(0)
   const [busy, setBusy] = useState(false)
-  const [loading] = useState(false)
-  const [mapping] = useState<PageMapping[]>([])
   const [summary] = useState<SummaryResult | null>(null)
   const scrollToRef = useRef<string | null>(null)
 
@@ -24,12 +35,25 @@ export function WizardProvider<T extends Record<string, unknown>>({
   const form = wizardEntry.form as T
   const validation = wizardEntry.meta.validation
 
+  const { data: mappingData, isLoading: mappingLoading } = useWizardMapping(mappingUrl)
+  const mapping = useMemo(() => mappingData ?? [], [mappingData])
+
+  const { data: fetchedData, isLoading: dataLoading, refetch } = useWizardData(dataUrl)
+
+  const saveMutation = useWizardSave(saveUrl)
+
+  const loading = mappingLoading || dataLoading
+
   const pageKey = pages[page]?.name ?? ''
 
   useEffect(() => {
     clearWizard(name)
     return () => { clearWizard(name) }
   }, [name, clearWizard])
+
+  useEffect(() => {
+    if (fetchedData) setWizardData(name, fetchedData)
+  }, [fetchedData, name, setWizardData])
 
   useEffect(() => {
     if (scrollToRef.current) {
@@ -74,10 +98,22 @@ export function WizardProvider<T extends Record<string, unknown>>({
 
   const nav = useCallback(async (toPage: number) => {
     setBusy(true)
+    if (saveOnPageChange && mode === 'edit' && saveUrl) {
+      await saveMutation.mutateAsync(form as Record<string, unknown>).catch(() => {})
+    }
     setWizardValidation(name, [])
     setPage(toPage)
     setBusy(false)
-  }, [name, setWizardValidation])
+  }, [saveOnPageChange, mode, saveUrl, saveMutation, form, name, setWizardValidation])
+
+  const save = useCallback(async () => {
+    await saveMutation.mutateAsync(form as Record<string, unknown>)
+  }, [saveMutation, form])
+
+  const saveAndQuit = useCallback(async () => {
+    await saveMutation.mutateAsync(form as Record<string, unknown>)
+    saveAndQuitCallback?.()
+  }, [saveMutation, form, saveAndQuitCallback])
 
   const api: WizardAPI<T> = {
     form,
@@ -86,24 +122,24 @@ export function WizardProvider<T extends Record<string, unknown>>({
     appendData,
     clearFields,
     mapping,
-    getLabel: (field) => `[${field}]`,
-    getType: () => 'input',
-    getDisplay: () => true,
-    getMax: () => undefined,
-    getDecimal: () => 2,
+    getLabel: (field, pg) => findField(mapping, field, pg)?.label ?? field,
+    getType: (field, pg) => findField(mapping, field, pg)?.type ?? 'input',
+    getDisplay: (field, pg) => findField(mapping, field, pg)?.display ?? true,
+    getMax: (field, pg) => findField(mapping, field, pg)?.max,
+    getDecimal: (field, pg) => findField(mapping, field, pg)?.decimal ?? 2,
     page,
     pageKey,
     setPageByName,
     nav,
-    save: async () => {},
-    saveAndQuit: async () => {},
+    save,
+    saveAndQuit,
     validation,
     setValidation,
     summary,
     mode,
     loading,
     busy,
-    refetch: () => {},
+    refetch: () => { void refetch() },
   }
 
   return (

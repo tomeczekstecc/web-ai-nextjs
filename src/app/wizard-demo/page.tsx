@@ -3,6 +3,10 @@
 import { Wizard } from '@/components/wizard/Wizard'
 import { useWizard } from '@/hooks/wizard/useWizard'
 
+const MAPPING_URL = '/api/wizard-demo/mapping'
+const DATA_URL = '/api/wizard-demo/data'
+const SAVE_URL = '/api/wizard-demo/save'
+
 function Krok1() {
   const { form, setValue } = useWizard()
   return (
@@ -44,6 +48,12 @@ function Krok3() {
   )
 }
 
+const demoPages = [
+  { name: 'krok-1', form: <Krok1 /> },
+  { name: 'krok-2', form: <Krok2 /> },
+  { name: 'krok-3', form: <Krok3 /> },
+]
+
 export default function WizardDemoPage() {
   return (
     <div className="p-8 max-w-4xl mx-auto flex flex-col gap-12">
@@ -52,14 +62,11 @@ export default function WizardDemoPage() {
         <Wizard
           name="demo-edit"
           mode="edit"
-          pages={[
-            { name: 'krok-1', form: <Krok1 /> },
-            { name: 'krok-2', form: <Krok2 /> },
-            { name: 'krok-3', form: <Krok3 /> },
-          ]}
-          mappingUrl=""
-          dataUrl=""
-          saveOnPageChange={false}
+          pages={demoPages}
+          mappingUrl={MAPPING_URL}
+          dataUrl={DATA_URL}
+          saveUrl={SAVE_URL}
+          saveOnPageChange={true}
         />
       </section>
 
@@ -68,13 +75,9 @@ export default function WizardDemoPage() {
         <Wizard
           name="demo-view"
           mode="view"
-          pages={[
-            { name: 'krok-1', form: <Krok1 /> },
-            { name: 'krok-2', form: <Krok2 /> },
-            { name: 'krok-3', form: <Krok3 /> },
-          ]}
-          mappingUrl=""
-          dataUrl=""
+          pages={demoPages}
+          mappingUrl={MAPPING_URL}
+          dataUrl={DATA_URL}
           saveOnPageChange={false}
         />
       </section>
