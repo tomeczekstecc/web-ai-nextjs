@@ -18,7 +18,7 @@
 
 **Purpose**: No new dependencies or scaffolding required. Zod is already installed. Confirm it is available before proceeding.
 
-- [ ] T001 Confirm `zod` is listed in `package.json` dependencies and available for import; if missing, add with `pnpm add zod`
+- [x] T001 Confirm `zod` is listed in `package.json` dependencies and available for import; if missing, add with `pnpm add zod`
 
 ---
 
@@ -26,9 +26,9 @@
 
 **Purpose**: Pure utility module and context extension that both user story phases depend on.
 
-- [ ] T002 [P] Create `src/lib/wizard/validation.ts` — export `runPageSchema<T>(schema: z.ZodSchema<T>, form: T): ValidationItem[]` that calls `schema.safeParse(form)`, groups issues by `String(issue.path[0])` as key, and returns one `ValidationItem` per unique key with `type: 'error'` and all matching messages in `msgs`
-- [ ] T003 [P] Add `parseSummaryResult(result: SummaryResult): ValidationItem[]` to `src/lib/wizard/validation.ts` — iterates `result.error` entries as `type: 'error'`, then `result.warning` entries as `type: 'warning'` skipping any key that already has an error entry; excludes `dicts_msg` (rendered separately by WizardSummary from the raw summary object)
-- [ ] T004 Add `summary` local state (`useState<SummaryResult | null>(null)`) to `src/components/wizard/WizardProvider.tsx` and include `summary` and `setSummary` in the value passed to `WizardContext` — replace the current hardcoded `summary: null` in the context value
+- [x] T002 [P] Create `src/lib/wizard/validation.ts` — export `runPageSchema<T>(schema: z.ZodSchema<T>, form: T): ValidationItem[]` that calls `schema.safeParse(form)`, groups issues by `String(issue.path[0])` as key, and returns one `ValidationItem` per unique key with `type: 'error'` and all matching messages in `msgs`
+- [x] T003 [P] Add `parseSummaryResult(result: SummaryResult): ValidationItem[]` to `src/lib/wizard/validation.ts` — iterates `result.error` entries as `type: 'error'`, then `result.warning` entries as `type: 'warning'` skipping any key that already has an error entry; excludes `dicts_msg` (rendered separately by WizardSummary from the raw summary object)
+- [x] T004 Add `summary` local state (`useState<SummaryResult | null>(null)`) to `src/components/wizard/WizardProvider.tsx` and include `summary` and `setSummary` in the value passed to `WizardContext` — replace the current hardcoded `summary: null` in the context value
 
 **Checkpoint**: `validation.ts` exports both functions; `WizardProvider` exposes `summary` state via context. US1 and US2 implementation can now proceed.
 
@@ -42,8 +42,8 @@
 
 ### Implementation for User Story 1
 
-- [ ] T005 [US1] In `src/components/wizard/WizardProvider.tsx`, update the `nav(toPage)` function: before navigating, read `pages[page].schema`; if it exists, call `runPageSchema(schema, form)` — if the result is non-empty, call `setWizardValidation(name, errors)` and return early (blocking navigation); if empty or no schema, call `setWizardValidation(name, [])` then proceed — this replaces the current unconditional `setWizardValidation(name, [])` call
-- [ ] T006 [P] [US1] Add a Zod schema to the `krok-1` page entry in `src/app/wizard-demo/page.tsx`: `schema: z.object({ tytul: z.string().min(3, 'Tytuł musi mieć co najmniej 3 znaki') })` — add `import { z } from 'zod'` at the top of the file
+- [x] T005 [US1] In `src/components/wizard/WizardProvider.tsx`, update the `nav(toPage)` function: before navigating, read `pages[page].schema`; if it exists, call `runPageSchema(schema, form)` — if the result is non-empty, call `setWizardValidation(name, errors)` and return early (blocking navigation); if empty or no schema, call `setWizardValidation(name, [])` then proceed — this replaces the current unconditional `setWizardValidation(name, [])` call
+- [x] T006 [P] [US1] Add a Zod schema to the `krok-1` page entry in `src/app/wizard-demo/page.tsx`: `schema: z.object({ tytul: z.string().min(3, 'Tytuł musi mieć co najmniej 3 znaki') })` — add `import { z } from 'zod'` at the top of the file
 - [ ] T007 [US1] Verify T005 + T006: start the dev server (`pnpm dev`), navigate to `/wizard-demo`, leave tytul blank, click Next — confirm error appears on tytul input, navigation is blocked; fill in 3+ chars, click Next — confirm navigation proceeds and error clears
 
 **Checkpoint**: US1 is fully functional. Client-side Zod validation blocks navigation and shows inline field errors.
@@ -58,10 +58,10 @@
 
 ### Implementation for User Story 2
 
-- [ ] T008 [P] [US2] Create `src/components/wizard/WizardSummary.tsx` as a `'use client'` component — read `summary`, `validation`, `mapping`, `setPageByName`, and `acceptButtons` from `useWizard()`; derive status (`hasErrors` checks both `summary.error` and `summary.dicts_msg?.error`; `hasWarnings` checks `validation` for warning type); render a shadcn `<Alert>` at the top matching the status; group validation items by page by filtering `validation` against each page's `mapping.fields`; render per-page groups with a "Przejdź do strony" `<Button variant="outline" size="sm">` that calls `setPageByName(page.name)` and per-field buttons "Przejdź do pola" that call `setPageByName(page.name, page.name + '.' + item.key)`; render `acceptButtons(summary)` at the bottom only when `!hasErrors`; do NOT render the dicts_msg section yet (added in US3)
-- [ ] T009 [P] [US2] In `src/components/wizard/WizardProvider.tsx`, wire the `validationUrl` fetch after `setPage(toPage)`: if `pages[toPage].isSummaryPage` and `validationUrl` exist, `await fetch(validationUrl)`, parse the JSON as `SummaryResult`, call `setSummary(result)` and `setWizardValidation(name, parseSummaryResult(result))`; wrap in try/catch (non-blocking — on error, leave summary as null); import `parseSummaryResult` from `@/lib/wizard/validation`
-- [ ] T010 [P] [US2] Update the MSW demo validation fixture in `src/mocks/handlers/wizard.ts` — locate the `createWizardValidationHandler` call for `/api/wizard-demo/validate` and set its fixture to: `{ error: { tytul: ['Tytuł jest wymagany i musi mieć co najmniej 3 znaki.'] }, warning: { opis: ['Opis jest bardzo krótki. Rozważ dodanie więcej szczegółów.'] }, dicts_msg: { error: { formularz: ['Formularz zawiera błędy, które muszą zostać poprawione przed zapisem.'] }, warning: {} } }`
-- [ ] T011 [US2] In `src/app/wizard-demo/page.tsx`, add a fourth page to the pages array: `{ name: 'krok-4', isSummaryPage: true, form: <WizardSummary /> }`; add `validationUrl="/api/wizard-demo/validate"` and `acceptButtons={(summary) => <Button>Wyślij</Button>}` to both the edit and view wizard config props; add `import { WizardSummary } from '@/components/wizard/WizardSummary'`
+- [x] T008 [P] [US2] Create `src/components/wizard/WizardSummary.tsx` as a `'use client'` component — read `summary`, `validation`, `mapping`, `setPageByName`, and `acceptButtons` from `useWizard()`; derive status (`hasErrors` checks both `summary.error` and `summary.dicts_msg?.error`; `hasWarnings` checks `validation` for warning type); render a shadcn `<Alert>` at the top matching the status; group validation items by page by filtering `validation` against each page's `mapping.fields`; render per-page groups with a "Przejdź do strony" `<Button variant="outline" size="sm">` that calls `setPageByName(page.name)` and per-field buttons "Przejdź do pola" that call `setPageByName(page.name, page.name + '.' + item.key)`; render `acceptButtons(summary)` at the bottom only when `!hasErrors`; do NOT render the dicts_msg section yet (added in US3)
+- [x] T009 [P] [US2] In `src/components/wizard/WizardProvider.tsx`, wire the `validationUrl` fetch after `setPage(toPage)`: if `pages[toPage].isSummaryPage` and `validationUrl` exist, `await fetch(validationUrl)`, parse the JSON as `SummaryResult`, call `setSummary(result)` and `setWizardValidation(name, parseSummaryResult(result))`; wrap in try/catch (non-blocking — on error, leave summary as null); import `parseSummaryResult` from `@/lib/wizard/validation`
+- [x] T010 [P] [US2] Update the MSW demo validation fixture in `src/mocks/handlers/wizard.ts` — locate the `createWizardValidationHandler` call for `/api/wizard-demo/validate` and set its fixture to: `{ error: { tytul: ['Tytuł jest wymagany i musi mieć co najmniej 3 znaki.'] }, warning: { opis: ['Opis jest bardzo krótki. Rozważ dodanie więcej szczegółów.'] }, dicts_msg: { error: { formularz: ['Formularz zawiera błędy, które muszą zostać poprawione przed zapisem.'] }, warning: {} } }`
+- [x] T011 [US2] In `src/app/wizard-demo/page.tsx`, add a fourth page to the pages array: `{ name: 'krok-4', isSummaryPage: true, form: <WizardSummary /> }`; add `validationUrl="/api/wizard-demo/validate"` and `acceptButtons={(summary) => <Button>Wyślij</Button>}` to both the edit and view wizard config props; add `import { WizardSummary } from '@/components/wizard/WizardSummary'`
 - [ ] T012 [US2] Verify T008–T011: navigate to krok-4 in the demo — confirm the status alert is red, the tytul error group shows for krok-1 with "Przejdź do pola" button, the opis warning group shows, acceptButtons is hidden; click "Przejdź do pola" for tytul — confirm navigation to krok-1 and scroll to the tytul field; fix tytul, navigate back to krok-4 — confirm acceptButtons appears when no errors remain
 
 **Checkpoint**: US2 is fully functional. Server summary validation with grouped jump links works end-to-end.
@@ -76,7 +76,7 @@
 
 ### Implementation for User Story 3
 
-- [ ] T013 [US3] In `src/components/wizard/WizardSummary.tsx`, add the dicts_msg section: after the per-page groups, check if `Object.keys(summary?.dicts_msg?.error ?? {}).length > 0` or warnings; if so, render a section with heading "Błędy systemowe" (or "Ostrzeżenia systemowe" for warnings-only) and a list of messages — no jump buttons; the dicts_msg warning entries follow the same de-duplication rule (suppress warning if the same key has an error)
+- [x] T013 [US3] In `src/components/wizard/WizardSummary.tsx`, add the dicts_msg section: after the per-page groups, check if `Object.keys(summary?.dicts_msg?.error ?? {}).length > 0` or warnings; if so, render a section with heading "Błędy systemowe" (or "Ostrzeżenia systemowe" for warnings-only) and a list of messages — no jump buttons; the dicts_msg warning entries follow the same de-duplication rule (suppress warning if the same key has an error)
 - [ ] T014 [US3] Verify T013: navigate to krok-4 in the demo — confirm the "Błędy systemowe" section appears with the formularz message, no jump button is rendered for it, and it is visually distinct from the per-field error groups
 
 **Checkpoint**: US3 complete. All three WizardSummary sections (field errors, field warnings, dicts_msg) render correctly.
@@ -87,10 +87,10 @@
 
 **Purpose**: UI quality, theme parity, and responsiveness pass across all deliverables.
 
-- [ ] T015 [P] Review all Polish-language strings in `src/components/wizard/WizardSummary.tsx` for correctness and consistency with existing wizard copy
+- [x] T015 [P] Review all Polish-language strings in `src/components/wizard/WizardSummary.tsx` for correctness and consistency with existing wizard copy
 - [ ] T016 [P] Verify `WizardSummary` renders correctly in dark mode: toggle theme in the demo, confirm the Alert variants, Button styles, and section headings maintain proper contrast and colour
 - [ ] T017 Verify `WizardSummary` on mobile viewport (375px width): confirm no horizontal overflow, buttons are tappable, and grouped sections stack cleanly
-- [ ] T018 Run `pnpm build` and resolve any TypeScript errors in `validation.ts`, `WizardProvider.tsx`, `WizardSummary.tsx`, and `wizard-demo/page.tsx`
+- [x] T018 Run `pnpm build` and resolve any TypeScript errors in `validation.ts`, `WizardProvider.tsx`, `WizardSummary.tsx`, and `wizard-demo/page.tsx`
 
 ---
 
