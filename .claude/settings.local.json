@@ -29,7 +29,8 @@
       "Bash(powershell.exe -File \".specify/extensions/git/scripts/powershell/create-new-feature.ps1\" -Json -ShortName \"wizard-data-layer\" \"Phase 2 Data Layer TanStack Query and MSW\")",
       "Bash(powershell.exe -File \".specify/extensions/git/scripts/powershell/create-new-feature.ps1\" -Json -ShortName \"wizard-field-inputs\" \"Phase 3 Field Input Components Wiz inputs and useWizardField hook\")",
       "Bash(pnpm dlx *)",
-      "Bash(pnpm exec *)"
+      "Bash(pnpm exec *)",
+      "Bash(powershell -File \".specify/extensions/git/scripts/powershell/create-new-feature.ps1\" -Json -ShortName \"wizard-validation\" \"Phase 4 - Validation System: client-side Zod validation per page and server-side 422-driven summary page for the wizard engine\")"
     ]
   }
 }

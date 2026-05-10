@@ -1,13 +1,17 @@
 'use client'
 
+import { z } from 'zod'
 import { Wizard } from '@/components/wizard/Wizard'
+import { WizardSummary } from '@/components/wizard/WizardSummary'
 import { useWizard } from '@/hooks/wizard/useWizard'
 import { useWizardField } from '@/hooks/wizard/useWizardField'
 import { InputWiz } from '@/components/wizard/inputs/InputWiz'
+import { Button } from '@/components/ui/button'
 
 const MAPPING_URL = '/api/wizard-demo/mapping'
 const DATA_URL = '/api/wizard-demo/data'
 const SAVE_URL = '/api/wizard-demo/save'
+const VALIDATION_URL = '/api/wizard-demo/validate'
 
 function Krok1() {
   return (
@@ -53,16 +57,21 @@ function Krok2() {
 function Krok3() {
   return (
     <div className="p-4 border rounded-lg">
-      <h2 className="text-lg font-semibold">Krok 3 — Podsumowanie</h2>
-      <p className="text-sm text-muted-foreground">Ostatni krok wizarda.</p>
+      <h2 className="text-lg font-semibold">Krok 3 — Szczegóły końcowe</h2>
+      <p className="text-sm text-muted-foreground">Sprawdź dane i przejdź do podsumowania.</p>
     </div>
   )
 }
 
+const krok1Schema = z.object({
+  tytul: z.string().min(3, 'Tytuł musi mieć co najmniej 3 znaki'),
+})
+
 const demoPages = [
-  { name: 'krok-1', form: <Krok1 /> },
+  { name: 'krok-1', form: <Krok1 />, schema: krok1Schema },
   { name: 'krok-2', form: <Krok2 /> },
   { name: 'krok-3', form: <Krok3 /> },
+  { name: 'krok-4', form: <WizardSummary />, isSummaryPage: true },
 ]
 
 export default function WizardDemoPage() {
@@ -77,7 +86,16 @@ export default function WizardDemoPage() {
           mappingUrl={MAPPING_URL}
           dataUrl={DATA_URL}
           saveUrl={SAVE_URL}
+          validationUrl={VALIDATION_URL}
           saveOnPageChange={true}
+          acceptButtons={(summary) => (
+            <Button
+              variant="default"
+              onClick={() => console.log('submit', summary)}
+            >
+              Wyślij formularz
+            </Button>
+          )}
         />
       </section>
 
@@ -89,6 +107,7 @@ export default function WizardDemoPage() {
           pages={demoPages}
           mappingUrl={MAPPING_URL}
           dataUrl={DATA_URL}
+          validationUrl={VALIDATION_URL}
           saveOnPageChange={false}
         />
       </section>

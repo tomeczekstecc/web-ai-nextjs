@@ -8,6 +8,7 @@ import { useWizardData } from '@/hooks/wizard/useWizardData'
 import { useWizardSave } from '@/hooks/wizard/useWizardSave'
 import type { WizardAPI, WizardConfig, PageMapping, SummaryResult } from '@/lib/wizard/types'
 import type { ValidationItem } from '@/lib/store/types'
+import { runPageSchema, parseSummaryResult } from '@/lib/wizard/validation'
 
 function findField(mapping: PageMapping[], field: string, pg?: string) {
   const pages = pg ? mapping.filter(m => m.name === pg) : mapping
@@ -21,13 +22,14 @@ export function WizardProvider<T extends Record<string, unknown>>({
   mappingUrl,
   dataUrl,
   saveUrl,
+  validationUrl,
   saveOnPageChange,
   saveAndQuitCallback,
   children,
 }: WizardConfig<T> & { children: React.ReactNode }) {
   const [page, setPage] = useState(0)
   const [busy, setBusy] = useState(false)
-  const [summary] = useState<SummaryResult | null>(null)
+  const [summary, setSummary] = useState<SummaryResult | null>(null)
   const scrollToRef = useRef<string | null>(null)
 
   const { wizards, setWizardData, setWizardValidation, clearWizard } = useStore()
@@ -91,20 +93,41 @@ export function WizardProvider<T extends Record<string, unknown>>({
     const idx = mapping.findIndex(m => m.name === pageName)
     if (idx !== -1) {
       if (scrollTo) scrollToRef.current = scrollTo
-      setWizardValidation(name, [])
       setPage(idx)
     }
-  }, [mapping, name, setWizardValidation])
+  }, [mapping])
 
   const nav = useCallback(async (toPage: number) => {
+    const currentPage = pages[page]
+    if (currentPage?.schema) {
+      const errors = runPageSchema(currentPage.schema, form)
+      if (errors.length > 0) {
+        setWizardValidation(name, errors)
+        return
+      }
+    }
+
     setBusy(true)
     if (saveOnPageChange && mode === 'edit' && saveUrl) {
       await saveMutation.mutateAsync(form as Record<string, unknown>).catch(() => {})
     }
     setWizardValidation(name, [])
     setPage(toPage)
+
+    const targetPage = pages[toPage]
+    if (targetPage?.isSummaryPage && validationUrl) {
+      try {
+        const res = await fetch(validationUrl)
+        const result = await res.json() as SummaryResult
+        setSummary(result)
+        setWizardValidation(name, parseSummaryResult(result))
+      } catch {
+        // non-blocking
+      }
+    }
+
     setBusy(false)
-  }, [saveOnPageChange, mode, saveUrl, saveMutation, form, name, setWizardValidation])
+  }, [saveOnPageChange, mode, saveUrl, saveMutation, form, name, setWizardValidation, pages, page, validationUrl])
 
   const save = useCallback(async () => {
     await saveMutation.mutateAsync(form as Record<string, unknown>)
