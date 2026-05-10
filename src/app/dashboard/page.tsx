@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+
 import { AppSidebar } from "@/components/app-sidebar";
 import { ChartAreaInteractive } from "@/components/chart-area-interactive";
 import { DashboardDataTable } from "@/components/dashboard/dashboard-data-table";
@@ -5,6 +7,10 @@ import { SectionCards } from "@/components/section-cards";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { requireAuthorizedAppSession } from "@/lib/auth/session";
+
+export const metadata: Metadata = {
+  robots: { index: false },
+};
 
 export default async function DashboardPage() {
   const appSession = await requireAuthorizedAppSession("/dashboard");

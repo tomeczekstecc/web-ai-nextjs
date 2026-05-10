@@ -1,9 +1,14 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 import { AuthShell } from "@/components/auth/auth-shell";
 import { SignUpForm } from "@/components/auth/sign-up-form";
 import { AUTH_ROUTES } from "@/lib/auth/redirects";
 import { redirectIfAuthenticated } from "@/lib/auth/session";
+
+export const metadata: Metadata = {
+  robots: { index: false },
+};
 
 export default async function SignUpPage() {
   if (process.env.AUTH_SIGNUP_ENABLED === "false") {

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 
 import { AppSidebar } from "@/components/app-sidebar";
@@ -7,6 +8,10 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { applicationsListOptions } from "@/lib/api/domains/applications/query-options";
 import { requireAuthorizedAppSession } from "@/lib/auth/session";
 import { getQueryClient } from "@/lib/query/client";
+
+export const metadata: Metadata = {
+  robots: { index: false },
+};
 
 const DEFAULT_LIST_PARAMS = {
   page: 1,

@@ -1,7 +1,13 @@
+import type { Metadata } from "next";
+
 import { AuthShell } from "@/components/auth/auth-shell";
 import { SignInForm } from "@/components/auth/sign-in-form";
 import { SsoButton } from "@/components/auth/sso-button";
 import { redirectIfAuthenticated } from "@/lib/auth/session";
+
+export const metadata: Metadata = {
+  robots: { index: false },
+};
 
 export default async function SignInPage() {
   await redirectIfAuthenticated();

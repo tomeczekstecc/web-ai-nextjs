@@ -1,8 +1,13 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 
 import { AuthShell } from "@/components/auth/auth-shell";
 import { buttonVariants } from "@/components/ui/button";
 import { AUTH_ROUTES } from "@/lib/auth/redirects";
+
+export const metadata: Metadata = {
+  robots: { index: false },
+};
 
 export default function AuthUnavailablePage() {
   return (

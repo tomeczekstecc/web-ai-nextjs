@@ -19,7 +19,7 @@ const ibmPlexMono = IBM_Plex_Mono({
 export const metadata: Metadata = {
   title: "CI-PRS AI Spec-Driven-Development for Web",
   description:
-    "Frontend template for CI-PRS with Next.js App Router, shadcn/ui, and light/dark theme support.",
+    "CI-PRS frontend template with Next.js 16 App Router, shadcn/ui, and Tailwind CSS v4. Server-first API layer with light/dark themes, MSW mocking, and TanStack Query for type-safe data fetching.",
 };
 
 export default function RootLayout({

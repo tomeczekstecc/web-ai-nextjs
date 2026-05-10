@@ -14,6 +14,7 @@ Review the codebase for cleanup tasks:
 6. Keep `.env` and `.env.example` in sync — compare variable names (not values); whichever file has more variables wins, add any missing keys to the other.
 7. Find `@ts-ignore` comments that might be stale
 8. Run `/ai-artifacts-sync` to keep `.claude/` and `.agents/` skill directories in sync
+9. Run `@agent-seo-checker` to audit SEO coverage — check for missing metadata exports, robots.ts, sitemap.ts, and unindexed protected routes
 
 **Mode: $ARGUMENTS**
 

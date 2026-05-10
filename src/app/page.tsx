@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -13,6 +14,25 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getLandingPageContent } from "@/lib/api/domains/landing-page/queries";
+
+export const metadata: Metadata = {
+  title: "CI-PRS Web Platform — Server-First API Layer",
+  description:
+    "Server-first API layer for modern web applications built with Next.js App Router, shadcn/ui, and type-safe data fetching.",
+  openGraph: {
+    title: "CI-PRS Web Platform",
+    description:
+      "Server-first API layer for modern web applications with Next.js App Router, shadcn/ui, and type-safe data fetching.",
+    type: "website",
+    locale: "pl_PL",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "CI-PRS Web Platform",
+    description:
+      "Server-first API layer for modern web applications with Next.js App Router, shadcn/ui, and type-safe data fetching.",
+  },
+};
 
 export const dynamic = "force-dynamic";
 
