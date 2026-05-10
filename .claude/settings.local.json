@@ -16,7 +16,14 @@
       "Bash(powershell.exe -File \".specify/scripts/powershell/check-prerequisites.ps1\" -Json -RequireTasks -IncludeTasks)",
       "Bash(pnpm build *)",
       "Bash(pnpm tsc *)",
-      "Bash(tasklist /FI \"IMAGENAME eq node.exe\" /NH)"
+      "Bash(tasklist /FI \"IMAGENAME eq node.exe\" /NH)",
+      "Bash(C:\\\\Users\\\\stect\\\\.claude\\\\plugins\\\\cache\\\\claude-plugins-official\\\\superpowers\\\\5.1.0\\\\scripts\\\\start-server.sh --project-dir C:/dev/tmpl/ai/ci-prs/1/web)",
+      "Bash(ls \"/c/Users/stect/.claude/plugins/cache/claude-plugins-official/superpowers/5.1.0/scripts/\")",
+      "Bash(find \"/c/Users/stect/.claude/plugins/cache/claude-plugins-official/superpowers/5.1.0/\" -name \"start-server.sh\" 2>/dev/null)",
+      "Bash(powershell.exe -File \".specify/extensions/git/scripts/powershell/create-new-feature.ps1\" -Json -ShortName \"wizard-foundation\" \"Wizard System Phase 1 - Foundation: global Zustand store, WizardProvider engine, Wizard shell with vertical side nav and navigation\")",
+      "Bash(powershell.exe -File \".specify/scripts/powershell/setup-plan.ps1\" -Json)",
+      "Bash(pnpm add *)",
+      "Bash(powershell.exe -File \".specify/extensions/git/scripts/powershell/auto-commit.ps1\" after_implement)"
     ]
   }
 }
