@@ -13,6 +13,7 @@ const config = [
       "build/**",
       ".claude/worktrees/**",
       ".playwright-mcp/**",
+      "public/mockServiceWorker.js",
     ],
   },
 ];

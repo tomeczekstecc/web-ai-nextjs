@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useQuery } from "@tanstack/react-query"
 import type { ColumnDef } from "@tanstack/react-table"
 import {
   CircleCheckIcon,
@@ -55,6 +56,10 @@ import {
 } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import {
+  dashboardQueueOptions,
+  dashboardReviewItemsOptions,
+} from "@/lib/api/domains/dashboard/query-options"
 
 export type DashboardTableRow = {
   id: number
@@ -73,30 +78,6 @@ type ReviewQueueRow = {
   priority: string
 }
 
-type DashboardDataTableProps = {
-  data: DashboardTableRow[]
-}
-
-const reviewRows: ReviewQueueRow[] = [
-  {
-    id: "qa-1",
-    name: "Przegląd narracji",
-    owner: "Eddie Lake",
-    priority: "Wysoki",
-  },
-  {
-    id: "qa-2",
-    name: "Materiały techniczne",
-    owner: "Jamik Tashpulatov",
-    priority: "Średni",
-  },
-  {
-    id: "qa-3",
-    name: "Dokumenty fokusowe",
-    owner: "Emily Whalen",
-    priority: "Niski",
-  },
-]
 
 const chartData = [
   {
@@ -363,7 +344,9 @@ const reviewColumns: ColumnDef<ReviewQueueRow>[] = [
   },
 ]
 
-export function DashboardDataTable({ data }: DashboardDataTableProps) {
+export function DashboardDataTable() {
+  const { data: reviewItemsData } = useQuery(dashboardReviewItemsOptions())
+  const { data: queueData } = useQuery(dashboardQueueOptions())
   const [reorderedIds, setReorderedIds] = React.useState<string[]>([])
 
   function handleReorder(result: DataTableReorderResult<DashboardTableRow>) {
@@ -417,7 +400,7 @@ export function DashboardDataTable({ data }: DashboardDataTableProps) {
         className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6"
       >
         <DataTable
-          data={data}
+          data={reviewItemsData?.items ?? []}
           columns={dashboardColumns}
           getRowId={(row) => `${row.id}`}
           search={{
@@ -469,7 +452,7 @@ export function DashboardDataTable({ data }: DashboardDataTableProps) {
         className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6"
       >
         <DataTable
-          data={reviewRows}
+          data={queueData?.items ?? []}
           columns={reviewColumns}
           getRowId={(row) => row.id}
           search={{

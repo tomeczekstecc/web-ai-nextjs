@@ -6,7 +6,15 @@
       "Bash(pnpm lint *)",
       "Bash(grep -v \"^$\")",
       "Bash(git *)",
-      "Bash(powershell.exe -File \".specify/scripts/powershell/check-prerequisites.ps1\" -Json)"
+      "Bash(powershell.exe -File \".specify/scripts/powershell/check-prerequisites.ps1\" -Json)",
+      "Bash(xargs -I{} git push {} HEAD)",
+      "Bash(xargs grep -l \"mock\\\\|Mock\\\\|fixture\\\\|Fixture\")",
+      "Bash(xargs grep -l \"export.*const.*=\")",
+      "mcp__plugin_context7_context7__resolve-library-id",
+      "mcp__plugin_context7_context7__query-docs",
+      "Bash(node -e \"require\\('msw'\\)\")",
+      "Bash(powershell.exe -File \".specify/scripts/powershell/check-prerequisites.ps1\" -Json -RequireTasks -IncludeTasks)",
+      "Bash(pnpm build *)"
     ]
   }
 }

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { IBM_Plex_Mono, Inter } from "next/font/google";
 
+import { MSWProvider } from "@/components/providers/msw-provider";
 import { QueryProvider } from "@/components/providers/query-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { cn } from "@/lib/utils";
@@ -42,7 +43,9 @@ export default function RootLayout({
           themes={["light", "dark"]}
           disableTransitionOnChange
         >
-          <QueryProvider>{children}</QueryProvider>
+          <MSWProvider>
+            <QueryProvider>{children}</QueryProvider>
+          </MSWProvider>
         </ThemeProvider>
       </body>
     </html>
