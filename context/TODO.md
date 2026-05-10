@@ -24,8 +24,8 @@ Project-level follow-ups captured by agents.
   - Branch: `master`
   - Domain: landing-page
 
-- [ ] Build a reusable data table component using TanStack Table with server-side pagination, search, sort, column visibility, drag-and-drop row support, and a per-usage config file.
+- [ ] Dodac wizarda.
   - Priority: high
-  - Date: 2026-05-08
-  - Branch: `002-integrate-tanstack-query`
+  - Date: 2026-05-10
+  - Branch: `master`
   - Domain: ui

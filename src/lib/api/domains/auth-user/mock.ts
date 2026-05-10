@@ -10,6 +10,20 @@ export function isLaravelAuthMockEnabled() {
   return process.env.AUTH_LARAVEL_MOCK_ENABLED === "true";
 }
 
+export function isSessionBypassEnabled() {
+  return process.env.AUTH_SESSION_BYPASS_ENABLED === "true";
+}
+
+const BYPASS_IDENTITY: AuthIdentity = {
+  email: "dev@localhost",
+  emailVerified: true,
+  provider: "password",
+  providerSubject: null,
+  username: "dev",
+  displayName: "Dev User",
+  image: null,
+};
+
 function getDisplayName(identity: AuthIdentity) {
   return (
     identity.displayName?.trim() ||
@@ -40,5 +54,17 @@ export function getMockAuthAccess(
     status: "authorized",
     appUser: buildMockAuthUser(identity),
     createdOrUpdated,
+  };
+}
+
+export function getMockBypassSession() {
+  return {
+    authSession: {} as import("@/lib/auth/session").BetterAuthSession,
+    authIdentity: BYPASS_IDENTITY,
+    access: {
+      status: "authorized" as const,
+      appUser: buildMockAuthUser(BYPASS_IDENTITY),
+      createdOrUpdated: "confirmed" as const,
+    },
   };
 }

@@ -14,6 +14,10 @@ import type {
 } from "@/lib/api/domains/auth-user/contract";
 import { auth, authPool } from "@/lib/auth";
 import { AUTH_ROUTES, buildSignInHref } from "@/lib/auth/redirects";
+import {
+  getMockBypassSession,
+  isSessionBypassEnabled,
+} from "@/lib/api/domains/auth-user/mock";
 
 type AuthAccountRow = {
   provider_id: string;
@@ -112,6 +116,10 @@ export async function resolveAuthAccessForSession(
 }
 
 export async function requireAuthorizedAppSession(returnTo?: string | null) {
+  if (isSessionBypassEnabled()) {
+    return getMockBypassSession();
+  }
+
   const session = await getBetterAuthSession();
 
   if (!session) {
