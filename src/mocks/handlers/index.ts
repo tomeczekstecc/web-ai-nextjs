@@ -1,4 +1,5 @@
 import { applicationsHandlers } from "@/mocks/handlers/applications";
+import { taskWizardHandlers } from "@/mocks/handlers/tasks-wizard";
 import { dashboardHandlers } from "@/mocks/handlers/dashboard";
 import {
   createWizardMappingHandler,
@@ -64,4 +65,5 @@ export const handlers = [
   ...dashboardHandlers,
   ...applicationsHandlers,
   ...wizardDemoHandlers,
+  ...taskWizardHandlers,
 ];

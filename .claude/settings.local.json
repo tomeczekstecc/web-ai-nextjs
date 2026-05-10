@@ -31,7 +31,9 @@
       "Bash(pnpm dlx *)",
       "Bash(pnpm exec *)",
       "Bash(powershell -File \".specify/extensions/git/scripts/powershell/create-new-feature.ps1\" -Json -ShortName \"wizard-validation\" \"Phase 4 - Validation System: client-side Zod validation per page and server-side 422-driven summary page for the wizard engine\")",
-      "Bash(Remove-Item -Force \".next\\\\build-manifest.json\" -ErrorAction SilentlyContinue)"
+      "Bash(Remove-Item -Force \".next\\\\build-manifest.json\" -ErrorAction SilentlyContinue)",
+      "Bash(powershell -Command \"& '.specify/extensions/git/scripts/powershell/create-new-feature.ps1' -Json -ShortName 'wizard-advanced-features' 'Phase 5 advanced wizard features: calc, clearFields, appendData, acceptButtons, customButtons, cancelCallback'\")",
+      "Bash(mkdir -p src/components/tasks-wizard/pages src/app/wizard-demo/new \"src/app/wizard-demo/[id]/view\")"
     ]
   }
 }
