@@ -29,3 +29,9 @@ Project-level follow-ups captured by agents.
   - Date: 2026-05-10
   - Branch: `master`
   - Domain: ui
+
+- [ ] Add breadcrumbs navigation to the app.
+  - Priority: high
+  - Date: 2026-05-11
+  - Branch: `012-tasks-showcase-module`
+  - Domain: ui
