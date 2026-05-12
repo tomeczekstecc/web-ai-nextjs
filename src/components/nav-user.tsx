@@ -1,5 +1,8 @@
 "use client"
 
+import * as React from "react"
+import { useRouter } from "next/navigation"
+
 import {
   Avatar,
   AvatarFallback,
@@ -20,25 +23,46 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
-import { ChevronsUpDownIcon, SparklesIcon, BadgeCheckIcon, CreditCardIcon, BellIcon, LogOutIcon } from "lucide-react"
+import { ChevronsUpDownIcon } from "lucide-react"
+import type { SettingsItem } from "@/lib/api/domains/menu/contract"
+import { resolveIcon } from "@/lib/menu/icons"
+import { authClient } from "@/lib/auth-client"
+import { AUTH_ROUTES } from "@/lib/auth/redirects"
+
+type User = {
+  name: string
+  email: string
+  avatar: string
+}
 
 export function NavUser({
   user,
+  settings,
 }: {
-  user: {
-    name: string
-    email: string
-    avatar: string
-  }
+  user: User
+  settings: SettingsItem[]
 }) {
   const { isMobile } = useSidebar()
+  const router = useRouter()
+
+  async function handleItemClick(item: SettingsItem) {
+    if (item.action === "logout") {
+      await authClient.signOut()
+      router.push(AUTH_ROUTES.signIn)
+      return
+    }
+    if (item.to) {
+      router.push(item.to)
+    }
+  }
+
   return (
     <SidebarMenu>
       <SidebarMenuItem>
         <DropdownMenu>
           <DropdownMenuTrigger
             render={
-              <SidebarMenuButton size="lg" className="aria-expanded:bg-muted" />
+              <SidebarMenuButton size="lg" tooltip={user.name} className="aria-expanded:bg-muted" />
             }
           >
             <Avatar>
@@ -73,36 +97,24 @@ export function NavUser({
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <SparklesIcon
-                />
-                Upgrade to Pro
-              </DropdownMenuItem>
+              {settings.map((item) => {
+                const Icon = resolveIcon(item.icon)
+                const isInteractive = !!(item.to || item.action)
+                const isLogout = item.action === "logout"
+                return (
+                  <React.Fragment key={item.key}>
+                    {isLogout && <DropdownMenuSeparator />}
+                    <DropdownMenuItem
+                      disabled={!isInteractive}
+                      onClick={isInteractive ? () => handleItemClick(item) : undefined}
+                    >
+                      <Icon />
+                      {item.label}
+                    </DropdownMenuItem>
+                  </React.Fragment>
+                )
+              })}
             </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <BadgeCheckIcon
-                />
-                Account
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <CreditCardIcon
-                />
-                Billing
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <BellIcon
-                />
-                Notifications
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <LogOutIcon
-              />
-              Log out
-            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>

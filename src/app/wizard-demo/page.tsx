@@ -29,9 +29,7 @@ export default function WizardDemoPage() {
     <div className="p-8 max-w-4xl mx-auto flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Zadania</h1>
-        <Button asChild>
-          <Link href="/wizard-demo/new">Nowe zadanie</Link>
-        </Button>
+        <Button render={<Link href="/wizard-demo/new" />}>Nowe zadanie</Button>
       </div>
 
       <Table>
@@ -59,11 +57,11 @@ export default function WizardDemoPage() {
               <TableCell>{PRIORITY_LABELS[task.priority] ?? task.priority}</TableCell>
               <TableCell>{task.deadline}</TableCell>
               <TableCell className="text-right flex justify-end gap-2">
-                <Button variant="outline" size="sm" asChild>
-                  <Link href={`/wizard-demo/${task.id}`}>Edytuj</Link>
+                <Button variant="outline" size="sm" render={<Link href={`/wizard-demo/${task.id}`} />}>
+                  Edytuj
                 </Button>
-                <Button variant="ghost" size="sm" asChild>
-                  <Link href={`/wizard-demo/${task.id}/view`}>Podgląd</Link>
+                <Button variant="ghost" size="sm" render={<Link href={`/wizard-demo/${task.id}/view`} />}>
+                  Podgląd
                 </Button>
               </TableCell>
             </TableRow>

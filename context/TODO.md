@@ -35,3 +35,9 @@ Project-level follow-ups captured by agents.
   - Date: 2026-05-11
   - Branch: `012-tasks-showcase-module`
   - Domain: ui
+
+- [ ] Implement RBAC (role-based access control).
+  - Priority: critical
+  - Date: 2026-05-12
+  - Branch: `014-json-menu-gen`
+  - Domain: auth

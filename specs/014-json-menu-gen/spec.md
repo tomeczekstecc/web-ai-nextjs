@@ -10,6 +10,18 @@ Replace the hardcoded navigation data in `app-sidebar.tsx` with a fully server-d
 
 ---
 
+## Clarifications
+
+### Session 2026-05-12
+
+- Q: When should the menu config be refetched? → A: Refetch only on explicit sign-in or sign-out event; rely on TanStack Query cache invalidation between those events.
+- Q: How should active route matching work for sub-items? → A: Prefix match — a sub-item is highlighted when the current pathname starts with `item.to`.
+- Q: Should the parent feature item auto-expand when a child sub-item matches the active route? → A: Yes — auto-expand the parent feature item on initial page load when any of its sub-items matches the current route via prefix match.
+- Q: What happens to `TeamSwitcher` and `NavProjects`? → A: Both are removed from the sidebar as part of this feature.
+- Q: Should the Zustand menu store be explicitly cleared on sign-out? → A: No — rely on TanStack Query cache invalidation at next sign-in; the fresh fetch overwrites the cached value.
+
+---
+
 ## User Scenarios *(mandatory)*
 
 Każda historia użytkownika musi być niezależnie wartościowa i możliwa do zaprezentowania jako przyrost funkcji.
@@ -57,9 +69,10 @@ A user navigating between pages sees the current page's menu item visually highl
 
 **Acceptance Scenarios**:
 
-1. **Given** the user navigates to a route matching a sub-item's `to` value, **When** the sidebar renders, **Then** that sub-item is visually marked as active.
-2. **Given** a sub-item is active, **When** its parent feature item is collapsed, **Then** the parent item itself receives an active indicator so the user knows the current page lives under it.
-3. **Given** no menu item matches the current route, **When** the sidebar renders, **Then** no item is highlighted (no false positive active states).
+1. **Given** the user navigates to a route whose pathname starts with a sub-item's `to` value (prefix match), **When** the sidebar renders, **Then** that sub-item is visually marked as active.
+2. **Given** the app loads on a route that prefix-matches a sub-item (e.g., `/playground/history/123` matches `/playground/history`), **When** the sidebar renders, **Then** the parent feature group is automatically expanded and the matching sub-item is highlighted.
+3. **Given** a sub-item is active, **When** its parent feature item is collapsed, **Then** the parent item itself receives an active indicator so the user knows the current page lives under it.
+4. **Given** no menu item prefix-matches the current route, **When** the sidebar renders, **Then** no item is highlighted (no false positive active states).
 
 ---
 
@@ -114,7 +127,7 @@ A developer or operator can set `NEXT_PUBLIC_NAV_LAYOUT=sidebar` (default) or `t
 - **FR-002**: The menu API response MUST be mocked with MSW during development so the application works without a live backend.
 - **FR-003**: Users MUST see the settings section (avatar, display name, email, dropdown actions) pinned to the bottom of the sidebar at all times, populated from the `settings` array in the menu JSON combined with the authenticated user's session data.
 - **FR-004**: The sidebar layout and behavior (collapsible, icon-collapse mode, rail, inset variant) MUST be preserved exactly as it operates today.
-- **FR-005**: Navigation items MUST reflect the currently active route with a visual highlight, updating on every client-side route change.
+- **FR-005**: Navigation items MUST reflect the currently active route with a visual highlight using prefix matching — a sub-item is highlighted when the current pathname starts with `item.to`. The parent feature group containing the active sub-item MUST be automatically expanded on initial page load. Highlighting updates on every client-side route change.
 - **FR-006**: Menu items MUST be filtered client-side based on the user's session permissions. Items where the user does not satisfy the `perms` check MUST NOT be rendered.
 - **FR-007**: Menu items MUST be filtered based on the `display` field matching the user's role. Items where the user's role is not in the `display` array MUST NOT be rendered.
 - **FR-008**: The layout mode (sidebar vs. top-menu) MUST be configurable via the `NEXT_PUBLIC_NAV_LAYOUT` environment variable. `sidebar` MUST be the default when the variable is absent or invalid.
@@ -156,7 +169,7 @@ A developer or operator can set `NEXT_PUBLIC_NAV_LAYOUT=sidebar` (default) or `t
 **Scope**: Fetch the menu config via TanStack Query, cache it, and expose it to the rest of the app via a Zustand store slice.
 
 **Deliverables**:
-- `src/hooks/menu/useMenuConfig.ts` — TanStack Query hook that fetches `/api/config/menu`, caches with a stable key, returns `{ data: MenuConfig | undefined, isLoading, isError }`
+- `src/hooks/menu/useMenuConfig.ts` — TanStack Query hook that fetches `/api/config/menu`, caches with a stable key, disables window-focus refetch (`refetchOnWindowFocus: false`), triggers a fresh fetch on sign-in and invalidates on sign-out; returns `{ data: MenuConfig | undefined, isLoading, isError }`
 - `src/lib/store/menu.slice.ts` — Zustand slice: `{ menu: MenuConfig | null, setMenu: (m: MenuConfig) => void }` — written on successful fetch
 - `src/lib/store/index.ts` updated — merges menu slice alongside existing wizard slice
 
@@ -170,9 +183,9 @@ A developer or operator can set `NEXT_PUBLIC_NAV_LAYOUT=sidebar` (default) or `t
 
 **Deliverables**:
 - `src/hooks/menu/useNavLayout.ts` — reads `getNavLayout()`, exports the active mode
-- `src/components/nav-main.tsx` refactored — accepts `FeatureItem[]`, renders collapsible groups (submenu) or direct links (no submenu), highlights active route via `usePathname()`
+- `src/components/nav-main.tsx` refactored — accepts `FeatureItem[]`, renders collapsible groups (submenu) or direct links (no submenu), highlights active sub-item via prefix match (`pathname.startsWith(item.to)`), auto-expands the parent group on initial load when a child sub-item prefix-matches the current route
 - `src/components/nav-user.tsx` refactored — accepts `SettingsItem[]` + user session data; dropdown items driven by `settings` array; `action: "logout"` triggers sign-out
-- `src/components/app-sidebar.tsx` refactored — calls `useMenuConfig()` (or reads from Zustand); passes `features` to `NavMain` and `settings` + user to `NavUser`; removes all hardcoded `data` object
+- `src/components/app-sidebar.tsx` refactored — calls `useMenuConfig()` (or reads from Zustand); passes `features` to `NavMain` and `settings` + user to `NavUser`; removes all hardcoded `data` object; removes `TeamSwitcher` and `NavProjects` from the component tree entirely
 - `src/lib/menu/icons.ts` — dynamic lucide icon resolver: maps icon name string to component, returns fallback `CircleIcon` for unknown names
 - Loading state: sidebar body shows a skeleton group during initial fetch
 
@@ -213,9 +226,9 @@ A developer or operator can set `NEXT_PUBLIC_NAV_LAYOUT=sidebar` (default) or `t
 - Lucide React is already installed and available as the icon library for this project.
 - TanStack Query and Zustand are already configured in the app (wizard feature established this).
 - MSW is already running in development mode (established in earlier features).
-- `TeamSwitcher` and `NavProjects` are out of scope — they may be removed or left as-is without being driven by the menu JSON.
+- `TeamSwitcher` and `NavProjects` are removed from the sidebar as part of this feature and will not be driven by the menu JSON.
 - The `settings` section does not include a team/organization switcher in this feature; that remains its own concern.
 - Sub-items have a maximum nesting depth of 1 (no sub-sub-menus) based on the current JSON shape.
 - The `top-menu` layout is not rendered in this feature — only its type definitions and the layout-switch seam are established.
-- The menu config is fetched once per session load and cached; no real-time polling or WebSocket updates are in scope.
+- The menu config is fetched on sign-in and refetched on sign-out/sign-in events. Between those events, TanStack Query serves from cache with window-focus refetch disabled. The Zustand menu store is not explicitly cleared on sign-out — the next sign-in fetch overwrites it. No background polling or WebSocket updates are in scope.
 - Permission data available on the client is trusted (already validated server-side at session creation) — no additional server roundtrip for permission checks during rendering.
