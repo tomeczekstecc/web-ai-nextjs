@@ -1,16 +1,10 @@
-"use client";
+"use client"
 
-import { useRouter } from "next/navigation";
-import { useTheme } from "next-themes";
-import { useState, useSyncExternalStore } from "react";
-
-import { authClient } from "@/lib/auth-client";
-import { AUTH_ROUTES } from "@/lib/auth/redirects";
 import {
   Avatar,
   AvatarFallback,
   AvatarImage,
-} from "@/components/ui/avatar";
+} from "@/components/ui/avatar"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,66 +13,25 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@/components/ui/dropdown-menu"
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-} from "@/components/ui/sidebar";
-import {
-  BellIcon,
-  CircleUserRoundIcon,
-  CreditCardIcon,
-  EllipsisVerticalIcon,
-  LogOutIcon,
-  Moon,
-  Sun,
-} from "lucide-react";
-
-function getInitials(name: string) {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-
-  if (parts.length === 0) {
-    return "CI";
-  }
-
-  return parts
-    .slice(0, 2)
-    .map((part) => part[0])
-    .join("")
-    .toUpperCase();
-}
+} from "@/components/ui/sidebar"
+import { ChevronsUpDownIcon, SparklesIcon, BadgeCheckIcon, CreditCardIcon, BellIcon, LogOutIcon } from "lucide-react"
 
 export function NavUser({
   user,
 }: {
   user: {
-    name: string;
-    email: string;
-    avatar: string;
-  };
-}) {
-  const router = useRouter();
-  const { isMobile } = useSidebar();
-  const [pending, setPending] = useState(false);
-  const { resolvedTheme, setTheme } = useTheme();
-  const mounted = useSyncExternalStore(
-    () => () => {},
-    () => true,
-    () => false,
-  );
-  const isDark = mounted && resolvedTheme === "dark";
-
-  async function handleSignOut() {
-    setPending(true);
-    await authClient.signOut();
-    router.replace(AUTH_ROUTES.signIn);
-    router.refresh();
+    name: string
+    email: string
+    avatar: string
   }
-
-  const initials = getInitials(user.name);
-
+}) {
+  const { isMobile } = useSidebar()
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -88,18 +41,18 @@ export function NavUser({
               <SidebarMenuButton size="lg" className="aria-expanded:bg-muted" />
             }
           >
-            <Avatar className="size-8 rounded-lg grayscale">
+            <Avatar>
               <AvatarImage src={user.avatar} alt={user.name} />
-              <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
+              <AvatarFallback>CN</AvatarFallback>
             </Avatar>
             <div className="grid flex-1 text-left text-sm leading-tight">
               <span className="truncate font-medium">{user.name}</span>
-              <span className="truncate text-xs text-foreground/70">{user.email}</span>
+              <span className="truncate text-xs">{user.email}</span>
             </div>
-            <EllipsisVerticalIcon className="ml-auto size-4" />
+            <ChevronsUpDownIcon className="ml-auto size-4" />
           </DropdownMenuTrigger>
           <DropdownMenuContent
-            className="min-w-56"
+            className="min-w-56 rounded-lg"
             side={isMobile ? "bottom" : "right"}
             align="end"
             sideOffset={4}
@@ -107,13 +60,13 @@ export function NavUser({
             <DropdownMenuGroup>
               <DropdownMenuLabel className="p-0 font-normal">
                 <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                  <Avatar className="size-8">
+                  <Avatar>
                     <AvatarImage src={user.avatar} alt={user.name} />
-                    <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
+                    <AvatarFallback>CN</AvatarFallback>
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight">
                     <span className="truncate font-medium">{user.name}</span>
-                    <span className="truncate text-xs text-muted-foreground">{user.email}</span>
+                    <span className="truncate text-xs">{user.email}</span>
                   </div>
                 </div>
               </DropdownMenuLabel>
@@ -121,33 +74,38 @@ export function NavUser({
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem>
-                <CircleUserRoundIcon />
-                Konto
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <CreditCardIcon />
-                Rozliczenia
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <BellIcon />
-                Powiadomienia
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                aria-label={isDark ? "Przełącz na jasny motyw" : "Przełącz na ciemny motyw"}
-                onClick={() => setTheme(isDark ? "light" : "dark")}
-              >
-                {isDark ? <Sun /> : <Moon />}
-                {isDark ? "Jasny" : "Ciemny"}
+                <SparklesIcon
+                />
+                Upgrade to Pro
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem disabled={pending} onClick={handleSignOut}>
-              <LogOutIcon />
-              {pending ? "Wylogowywanie..." : "Wyloguj"}
+            <DropdownMenuGroup>
+              <DropdownMenuItem>
+                <BadgeCheckIcon
+                />
+                Account
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <CreditCardIcon
+                />
+                Billing
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <BellIcon
+                />
+                Notifications
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>
+              <LogOutIcon
+              />
+              Log out
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>
     </SidebarMenu>
-  );
+  )
 }

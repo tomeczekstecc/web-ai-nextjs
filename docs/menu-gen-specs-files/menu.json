@@ -1,0 +1,321 @@
+{
+  "features": [
+    {
+      "playground": {
+        "display": [
+          "user"
+        ],
+        "icon": "terminal",
+        "label": "Playground",
+        "perms": {
+          "list": [
+            "playground_view"
+          ],
+          "mode": "all"
+        },
+        "submenu": [
+          {
+            "history": {
+              "label": "History",
+              "perms": {
+                "list": [
+                  "playground_view"
+                ],
+                "mode": "all"
+              },
+              "to": "/playground/history"
+            }
+          },
+          {
+            "starred": {
+              "label": "Starred",
+              "perms": {
+                "list": [
+                  "playground_view"
+                ],
+                "mode": "all"
+              },
+              "to": "/playground/starred"
+            }
+          },
+          {
+            "settings": {
+              "label": "Settings",
+              "perms": {
+                "list": [
+                  "playground_manage"
+                ],
+                "mode": "all"
+              },
+              "to": "/playground/settings"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "models": {
+        "display": [
+          "user"
+        ],
+        "icon": "cpu",
+        "label": "Models",
+        "perms": {
+          "list": [
+            "models_view"
+          ],
+          "mode": "all"
+        },
+        "submenu": [
+          {
+            "genesis": {
+              "label": "Genesis",
+              "perms": {
+                "list": [
+                  "models_view"
+                ],
+                "mode": "all"
+              },
+              "to": "/models/genesis"
+            }
+          },
+          {
+            "explorer": {
+              "label": "Explorer",
+              "perms": {
+                "list": [
+                  "models_view"
+                ],
+                "mode": "all"
+              },
+              "to": "/models/explorer"
+            }
+          },
+          {
+            "quantum": {
+              "label": "Quantum",
+              "perms": {
+                "list": [
+                  "models_view",
+                  "models_advanced"
+                ],
+                "mode": "all"
+              },
+              "to": "/models/quantum"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "documentation": {
+        "display": [
+          "user"
+        ],
+        "icon": "book",
+        "label": "Documentation",
+        "perms": {
+          "list": [
+            "docs_view"
+          ],
+          "mode": "all"
+        },
+        "submenu": [
+          {
+            "introduction": {
+              "label": "Introduction",
+              "perms": {
+                "list": [
+                  "docs_view"
+                ],
+                "mode": "all"
+              },
+              "to": "/docs/introduction"
+            }
+          },
+          {
+            "getStarted": {
+              "label": "Get Started",
+              "perms": {
+                "list": [
+                  "docs_view"
+                ],
+                "mode": "all"
+              },
+              "to": "/docs/get-started"
+            }
+          },
+          {
+            "tutorials": {
+              "label": "Tutorials",
+              "perms": {
+                "list": [
+                  "docs_view"
+                ],
+                "mode": "all"
+              },
+              "to": "/docs/tutorials"
+            }
+          },
+          {
+            "changelog": {
+              "label": "Changelog",
+              "perms": {
+                "list": [
+                  "docs_view"
+                ],
+                "mode": "all"
+              },
+              "to": "/docs/changelog"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "projects": {
+        "display": [
+          "user"
+        ],
+        "icon": "folder",
+        "label": "Projects",
+        "perms": {
+          "list": [
+            "projects_view"
+          ],
+          "mode": "all"
+        },
+        "submenu": [
+          {
+            "designEngineering": {
+              "icon": "layout",
+              "label": "Design Engineering",
+              "perms": {
+                "list": [
+                  "projects_view"
+                ],
+                "mode": "all"
+              },
+              "to": "/projects/design-engineering"
+            }
+          },
+          {
+            "salesMarketing": {
+              "icon": "trending-up",
+              "label": "Sales & Marketing",
+              "perms": {
+                "list": [
+                  "projects_view"
+                ],
+                "mode": "all"
+              },
+              "to": "/projects/sales-marketing"
+            }
+          },
+          {
+            "travel": {
+              "icon": "map",
+              "label": "Travel",
+              "perms": {
+                "list": [
+                  "projects_view"
+                ],
+                "mode": "all"
+              },
+              "to": "/projects/travel"
+            }
+          },
+          {
+            "more": {
+              "icon": "more-horizontal",
+              "label": "More",
+              "perms": {
+                "list": [
+                  "projects_view"
+                ],
+                "mode": "all"
+              },
+              "to": "/projects"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "settings": [
+    {
+      "upgradeToPro": {
+        "display": [
+          "user"
+        ],
+        "icon": "sparkles",
+        "label": "Upgrade to Pro",
+        "perms": {
+          "list": [
+            "billing_view"
+          ],
+          "mode": "all"
+        },
+        "to": "/upgrade"
+      }
+    },
+    {
+      "account": {
+        "display": [
+          "user"
+        ],
+        "icon": "circle-user",
+        "label": "Account",
+        "perms": {
+          "list": [
+            "account_view"
+          ],
+          "mode": "all"
+        },
+        "to": "/account"
+      }
+    },
+    {
+      "billing": {
+        "display": [
+          "user"
+        ],
+        "icon": "credit-card",
+        "label": "Billing",
+        "perms": {
+          "list": [
+            "billing_view"
+          ],
+          "mode": "all"
+        },
+        "to": "/billing"
+      }
+    },
+    {
+      "notifications": {
+        "display": [
+          "user"
+        ],
+        "icon": "bell",
+        "label": "Notifications",
+        "perms": {
+          "list": [
+            "account_view"
+          ],
+          "mode": "all"
+        },
+        "to": "/notifications"
+      }
+    },
+    {
+      "logout": {
+        "display": [
+          "user"
+        ],
+        "icon": "log-out",
+        "label": "Log out",
+        "action": "logout"
+      }
+    }
+  ]
+}

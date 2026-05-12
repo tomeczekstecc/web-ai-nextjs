@@ -1,149 +1,194 @@
-"use client";
+"use client"
 
-import * as React from "react";
+import * as React from "react"
 
-import { NavDocuments } from "@/components/nav-documents";
-import { NavMain } from "@/components/nav-main";
-import { NavSecondary } from "@/components/nav-secondary";
-import { NavUser } from "@/components/nav-user";
+import { NavMain } from "@/components/nav-main"
+import { NavProjects } from "@/components/nav-projects"
+import { NavUser } from "@/components/nav-user"
+import { TeamSwitcher } from "@/components/team-switcher"
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-} from "@/components/ui/sidebar";
-import {
-  CameraIcon,
-  ChartBarIcon,
-  CircleHelpIcon,
-  CommandIcon,
-  DatabaseIcon,
-  FileChartColumnIcon,
-  FileIcon,
-  FolderIcon,
-  LayoutDashboardIcon,
-  ListIcon,
-  SearchIcon,
-  Settings2Icon,
-  UsersIcon,
-  FileTextIcon,
-} from "lucide-react";
+  SidebarRail,
+} from "@/components/ui/sidebar"
+import { GalleryVerticalEndIcon, AudioLinesIcon, TerminalIcon, TerminalSquareIcon, BotIcon, BookOpenIcon, Settings2Icon, FrameIcon, PieChartIcon, MapIcon } from "lucide-react"
 
-const navigation = {
+// This is sample data.
+const data = {
+  user: {
+    name: "shadcn",
+    email: "m@example.com",
+    avatar: "/avatars/shadcn.jpg",
+  },
+  teams: [
+    {
+      name: "Acme Inc",
+      logo: (
+        <GalleryVerticalEndIcon
+        />
+      ),
+      plan: "Enterprise",
+    },
+    {
+      name: "Acme Corp.",
+      logo: (
+        <AudioLinesIcon
+        />
+      ),
+      plan: "Startup",
+    },
+    {
+      name: "Evil Corp.",
+      logo: (
+        <TerminalIcon
+        />
+      ),
+      plan: "Free",
+    },
+  ],
   navMain: [
     {
-      title: "Dashboard",
-      url: "/dashboard",
-      icon: <LayoutDashboardIcon />,
-    },
-    {
-      title: "Aplikacje",
-      url: "/applications",
-      icon: <FileTextIcon />,
-    },
-    {
-      title: "Lifecycle",
+      title: "Playground",
       url: "#",
-      icon: <ListIcon />,
+      icon: (
+        <TerminalSquareIcon
+        />
+      ),
+      isActive: true,
+      items: [
+        {
+          title: "History",
+          url: "#",
+        },
+        {
+          title: "Starred",
+          url: "#",
+        },
+        {
+          title: "Settings",
+          url: "#",
+        },
+      ],
     },
     {
-      title: "Analityka",
+      title: "Models",
       url: "#",
-      icon: <ChartBarIcon />,
+      icon: (
+        <BotIcon
+        />
+      ),
+      items: [
+        {
+          title: "Genesis",
+          url: "#",
+        },
+        {
+          title: "Explorer",
+          url: "#",
+        },
+        {
+          title: "Quantum",
+          url: "#",
+        },
+      ],
     },
     {
-      title: "Projekty",
+      title: "Documentation",
       url: "#",
-      icon: <FolderIcon />,
+      icon: (
+        <BookOpenIcon
+        />
+      ),
+      items: [
+        {
+          title: "Introduction",
+          url: "#",
+        },
+        {
+          title: "Get Started",
+          url: "#",
+        },
+        {
+          title: "Tutorials",
+          url: "#",
+        },
+        {
+          title: "Changelog",
+          url: "#",
+        },
+      ],
     },
     {
-      title: "Zespol",
+      title: "Settings",
       url: "#",
-      icon: <UsersIcon />,
+      icon: (
+        <Settings2Icon
+        />
+      ),
+      items: [
+        {
+          title: "General",
+          url: "#",
+        },
+        {
+          title: "Team",
+          url: "#",
+        },
+        {
+          title: "Billing",
+          url: "#",
+        },
+        {
+          title: "Limits",
+          url: "#",
+        },
+      ],
     },
   ],
-  navSecondary: [
+  projects: [
     {
-      title: "Ustawienia",
+      name: "Design Engineering",
       url: "#",
-      icon: <Settings2Icon />,
+      icon: (
+        <FrameIcon
+        />
+      ),
     },
     {
-      title: "Pomoc",
+      name: "Sales & Marketing",
       url: "#",
-      icon: <CircleHelpIcon />,
+      icon: (
+        <PieChartIcon
+        />
+      ),
     },
     {
-      title: "Szukaj",
+      name: "Travel",
       url: "#",
-      icon: <SearchIcon />,
-    },
-  ],
-  documents: [
-    {
-      name: "Biblioteka danych",
-      url: "#",
-      icon: <DatabaseIcon />,
-    },
-    {
-      name: "Raporty",
-      url: "#",
-      icon: <FileChartColumnIcon />,
-    },
-    {
-      name: "Asystent dokumentow",
-      url: "#",
-      icon: <FileIcon />,
-    },
-    {
-      name: "Zrodla wejscia",
-      url: "#",
-      icon: <CameraIcon />,
+      icon: (
+        <MapIcon
+        />
+      ),
     },
   ],
-};
+}
 
-export type AppSidebarUser = {
-  name: string;
-  email: string;
-  avatar: string;
-  organizationName?: string | null;
-};
-
-export function AppSidebar({
-  user,
-  ...props
-}: React.ComponentProps<typeof Sidebar> & {
-  user: AppSidebarUser;
-}) {
+export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar collapsible="offcanvas" {...props}>
+    <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              className="data-[slot=sidebar-menu-button]:p-1.5!"
-              render={<a href="/dashboard" />}
-            >
-              <CommandIcon className="size-5!" />
-              <span className="text-base font-semibold">
-                {user.organizationName || "CI-PRS"}
-              </span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+        <TeamSwitcher teams={data.teams} />
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={navigation.navMain} />
-        <NavDocuments items={navigation.documents} />
-        <NavSecondary items={navigation.navSecondary} className="mt-auto" />
+        <NavMain items={data.navMain} />
+        <NavProjects projects={data.projects} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={user} />
+        <NavUser user={data.user} />
       </SidebarFooter>
+      <SidebarRail />
     </Sidebar>
-  );
+  )
 }
