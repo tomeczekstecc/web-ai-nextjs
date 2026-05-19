@@ -27,7 +27,7 @@ export default async function DashboardPage() {
         user={{
           name: appSession.access.appUser.displayName,
           email: appSession.access.appUser.email,
-          avatar: appSession.access.appUser.avatarUrl || "/avatars/shadcn.jpg",
+          avatar: appSession.access.appUser.avatarUrl || "/avatars/shadcn.svg",
           organizationName: appSession.access.appUser.organizationName ?? undefined,
           roles: appSession.access.appUser.roles,
           permissions: appSession.access.appUser.permissions,

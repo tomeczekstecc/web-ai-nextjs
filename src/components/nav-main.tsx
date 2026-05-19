@@ -38,8 +38,7 @@ export function NavMain({ items }: { items: FeatureItem[] }) {
 
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Platform</SidebarGroupLabel>
-      <SidebarMenu>
+      <SidebarMenu className="gap-1.5">
         {validItems.map((item) => {
           const Icon = resolveIcon(item.icon)
           const hasSubmenu = item.submenu && item.submenu.length > 0

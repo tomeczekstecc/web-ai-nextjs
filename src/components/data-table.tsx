@@ -151,7 +151,7 @@ export type DataTableProps<TData> = {
   pagination?: false | DataTablePaginationOptions
   sorting?: false | DataTableSortingOptions
   reorder?: false | DataTableReorderOptions<TData>
-  persistence?: DataTablePersistenceOptions
+  persistence?: DataTablePersistenceOptions | false
   toolbar?: DataTableToolbarOptions
   emptyState?: React.ReactNode
   noResultsState?: React.ReactNode
@@ -253,20 +253,28 @@ function useControlledState<TState>(
   const [localValue, setLocalValue] = React.useState(defaultValue)
   const value = controlledValue ?? localValue
 
+  const valueRef = React.useRef(value)
+  valueRef.current = value
+
+  const onChangeRef = React.useRef(onControlledChange)
+  onChangeRef.current = onControlledChange
+
+  const isControlled = controlledValue !== undefined
+
   const setValue = React.useCallback<OnChangeFn<TState>>(
     (updater) => {
       const nextValue =
         typeof updater === "function"
-          ? (updater as (old: TState) => TState)(value)
+          ? (updater as (old: TState) => TState)(valueRef.current)
           : updater
 
-      if (controlledValue === undefined) {
+      if (!isControlled) {
         setLocalValue(nextValue)
       }
 
-      onControlledChange?.(nextValue)
+      onChangeRef.current?.(nextValue)
     },
-    [controlledValue, onControlledChange, value]
+    [isControlled]
   )
 
   return [value, setValue] as const
@@ -347,7 +355,7 @@ export function DataTable<TData>({
   pagination,
   sorting,
   reorder,
-  persistence,
+  persistence: persistenceRaw,
   toolbar,
   emptyState = "Brak danych.",
   noResultsState = "Brak wyników.",
@@ -356,6 +364,7 @@ export function DataTable<TData>({
   isLoading = false,
   error,
 }: DataTableProps<TData>) {
+  const persistence = persistenceRaw === false ? undefined : persistenceRaw
   const sortableId = React.useId()
   const sensors = useSensors(
     useSensor(MouseSensor, {}),
@@ -380,10 +389,15 @@ export function DataTable<TData>({
     [columnIds, columns]
   )
 
-  const initialPreferences = React.useMemo(
-    () => readPreferences(persistence?.key),
-    [persistence?.key]
-  )
+  const [initialPreferences, setInitialPreferences] = React.useState<DataTablePreferences>({})
+  const hasLoadedPreferences = React.useRef(false)
+
+  React.useEffect(() => {
+    if (persistence?.key && !hasLoadedPreferences.current) {
+      hasLoadedPreferences.current = true
+      setInitialPreferences(readPreferences(persistence.key))
+    }
+  }, [persistence?.key])
 
   const searchOptions = search === false ? undefined : search
   const isSearchEnabled = Boolean(searchOptions?.enabled)
@@ -394,15 +408,19 @@ export function DataTable<TData>({
   const [localSearchValue, setLocalSearchValue] = React.useState(initialSearchValue)
   const searchValue = searchOptions?.value ?? localSearchValue
 
+  const searchOnChangeRef = React.useRef(searchOptions?.onChange)
+  searchOnChangeRef.current = searchOptions?.onChange
+  const isSearchControlled = searchOptions?.value !== undefined
+
   const setSearchValue = React.useCallback(
     (value: string) => {
-      if (searchOptions?.value === undefined) {
+      if (!isSearchControlled) {
         setLocalSearchValue(value)
       }
 
-      searchOptions?.onChange?.(value)
+      searchOnChangeRef.current?.(value)
     },
-    [searchOptions]
+    [isSearchControlled]
   )
 
   const validatedInitialVisibility = React.useMemo(() => {
@@ -523,9 +541,12 @@ export function DataTable<TData>({
   }, [
     columnVisibility,
     paginationState.pageSize,
-    persistence,
-    requiredColumnIds,
+    persistence?.key,
+    persistence?.search,
+    persistence?.columnVisibility,
+    persistence?.pageSize,
     searchValue,
+    // Note: requiredColumnIds removed from deps - it's derived from columns which is stable
   ])
 
   const orderedData = React.useMemo(() => {
@@ -567,7 +588,10 @@ export function DataTable<TData>({
   }, [
     isSearchEnabled,
     orderedData,
-    searchOptions,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    searchOptions?.getSearchValues,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    searchOptions?.compare,
     searchValue,
     searchableColumns,
   ])
@@ -710,16 +734,20 @@ export function DataTable<TData>({
       }
 
       const nextIds = arrayMove(currentIds, oldIndex, newIndex)
-      const rowsById = new Map(
-        data.map((row, index) => [getRowId(row, index), row] as const)
-      )
-      const rows = nextIds
-        .map((id) => rowsById.get(id))
-        .filter((row): row is TData => Boolean(row))
-
-      if (reorderOptions) {
-        reorderOptions.onReorder?.({ orderedIds: nextIds, rows })
-      }
+      
+      // Call onReorder after state update completes
+      queueMicrotask(() => {
+        if (reorderOptions) {
+          const rowsById = new Map(
+            data.map((row, index) => [getRowId(row, index), row] as const)
+          )
+          const rows = nextIds
+            .map((id) => rowsById.get(id))
+            .filter((row): row is TData => Boolean(row))
+          
+          reorderOptions.onReorder?.({ orderedIds: nextIds, rows })
+        }
+      })
 
       return nextIds
     })
@@ -886,12 +914,7 @@ export function DataTable<TData>({
                   Wierszy na stronę
                 </Label>
                 <Select
-                  value={`${table.getState().pagination.pageSize}`}
-                  onValueChange={(value) => table.setPageSize(Number(value))}
-                  items={pageSizeOptions.map((pageSize) => ({
-                    label: `${pageSize}`,
-                    value: `${pageSize}`,
-                  }))}
+                  defaultValue={`${table.getState().pagination.pageSize}`}
                 >
                   <SelectTrigger
                     size="sm"

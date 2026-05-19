@@ -54,7 +54,16 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
 
   return (
     <Sidebar collapsible="icon" {...props}>
-      <SidebarHeader />
+      <SidebarHeader>
+        <div className="flex items-center gap-2 px-2 py-1">
+          <span className="text-lg font-bold tracking-tight group-data-[collapsible=icon]:hidden">
+            eNGO
+          </span>
+          <span className="hidden text-lg font-bold group-data-[collapsible=icon]:block">
+            eN
+          </span>
+        </div>
+      </SidebarHeader>
       <SidebarContent>
         {isLoading ? (
           <SidebarMenu>

@@ -23,7 +23,8 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
-import { ChevronsUpDownIcon } from "lucide-react"
+import { ChevronsUpDownIcon, MoonIcon, SunIcon } from "lucide-react"
+import { useTheme } from "next-themes"
 import type { SettingsItem } from "@/lib/api/domains/menu/contract"
 import { resolveIcon } from "@/lib/menu/icons"
 import { authClient } from "@/lib/auth-client"
@@ -35,6 +36,15 @@ type User = {
   avatar: string
 }
 
+function getInitials(name: string): string {
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0].toUpperCase())
+    .join("")
+}
+
 export function NavUser({
   user,
   settings,
@@ -42,8 +52,11 @@ export function NavUser({
   user: User
   settings: SettingsItem[]
 }) {
+  const initials = getInitials(user.name)
   const { isMobile } = useSidebar()
   const router = useRouter()
+  const { resolvedTheme, setTheme } = useTheme()
+  const isDark = resolvedTheme === "dark"
 
   async function handleItemClick(item: SettingsItem) {
     if (item.action === "logout") {
@@ -67,7 +80,7 @@ export function NavUser({
           >
             <Avatar>
               <AvatarImage src={user.avatar} alt={user.name} />
-              <AvatarFallback>CN</AvatarFallback>
+              <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
             </Avatar>
             <div className="grid flex-1 text-left text-sm leading-tight">
               <span className="truncate font-medium">{user.name}</span>
@@ -86,7 +99,7 @@ export function NavUser({
                 <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                   <Avatar>
                     <AvatarImage src={user.avatar} alt={user.name} />
-                    <AvatarFallback>CN</AvatarFallback>
+                    <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight">
                     <span className="truncate font-medium">{user.name}</span>
@@ -94,6 +107,13 @@ export function NavUser({
                   </div>
                 </div>
               </DropdownMenuLabel>
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              <DropdownMenuItem onClick={() => setTheme(isDark ? "light" : "dark")}>
+                {isDark ? <SunIcon /> : <MoonIcon />}
+                {isDark ? "Jasny motyw" : "Ciemny motyw"}
+              </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>

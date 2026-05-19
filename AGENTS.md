@@ -7,6 +7,11 @@ Use these files selectively:
 - `project-overview.md` for product goals, users, and UX direction
 - `project-spec.md` for feature scope, data model, and roadmap details
 - `coding-standards.md` for baseline TypeScript, React, Next.js, and Tailwind rules
+- `nextjs-patterns.md` for Next.js 16 App Router patterns and Server Components guidance
+- `component-patterns.md` for refactoring complex client components and custom hooks
+- `accessibility.md` for semantic HTML, ARIA, and inclusive design
+- `performance.md` for bundle size, optimization, and Web Vitals
+- `ui-patterns.md` for visual hierarchy, spacing, and design system
 - `ai-interaction.md` for collaboration, testing, and commit expectations
 
 For feature execution workflow, use Spec Kit artifacts in `specs/[feature]/`

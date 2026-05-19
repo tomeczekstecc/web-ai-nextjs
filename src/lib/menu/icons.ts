@@ -17,6 +17,10 @@ import {
   Cpu,
   Circle,
   LayoutDashboard,
+  Trophy,
+  FileText,
+  Calendar,
+  BarChart3,
 } from "lucide-react";
 
 const iconMap: Record<string, LucideIcon> = {
@@ -37,6 +41,10 @@ const iconMap: Record<string, LucideIcon> = {
   Cpu,
   Circle,
   LayoutDashboard,
+  Trophy,
+  FileText,
+  Calendar,
+  BarChart3,
 };
 
 function kebabToPascal(str: string): string {

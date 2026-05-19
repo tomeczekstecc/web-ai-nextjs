@@ -1,0 +1,56 @@
+import { NextResponse } from "next/server";
+import type { DashboardReviewItemsResponse } from "@/lib/api/domains/dashboard/contract";
+
+export async function GET() {
+  const response: DashboardReviewItemsResponse = {
+    items: [
+      {
+        id: 1,
+        header: "Konkurs na rozwój społeczeństwa obywatelskiego",
+        type: "Społeczne",
+        status: "Złożony",
+        target: "50 000",
+        limit: "30.06.2026",
+        reviewer: "Anna Kowalska",
+      },
+      {
+        id: 2,
+        header: "Program wsparcia inicjatyw lokalnych",
+        type: "Lokalne",
+        status: "Przyznany",
+        target: "100 000",
+        limit: "15.07.2026",
+        reviewer: "Marek Nowak",
+      },
+      {
+        id: 3,
+        header: "Dotacje na edukację ekologiczną",
+        type: "Ekologia",
+        status: "Do poprawy",
+        target: "25 000",
+        limit: "01.08.2026",
+        reviewer: "Assign reviewer",
+      },
+      {
+        id: 4,
+        header: "Konkurs dla organizacji młodzieżowych",
+        type: "Młodzież",
+        status: "W trakcie",
+        target: "75 000",
+        limit: "20.06.2026",
+        reviewer: "Anna Kowalska",
+      },
+      {
+        id: 5,
+        header: "Wsparcie projektów na rzecz seniorów",
+        type: "Seniorzy",
+        status: "Złożony",
+        target: "40 000",
+        limit: "10.07.2026",
+        reviewer: "Katarzyna Wiśniewska",
+      },
+    ],
+  };
+
+  return NextResponse.json(response);
+}

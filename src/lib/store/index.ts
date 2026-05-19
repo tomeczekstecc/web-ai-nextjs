@@ -7,7 +7,6 @@ export const useStore = create<StoreState>()(
   devtools(
     (...a) => ({
       ...createWizardSlice(...a),
-      // TODO: future slices here
     }),
     { name: 'ci-prs-store' }
   )

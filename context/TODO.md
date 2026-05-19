@@ -47,3 +47,9 @@ Project-level follow-ups captured by agents.
   - Date: 2026-05-19
   - Branch: `014-json-menu-gen`
   - Domain: docs
+
+- [ ] Demo live coding na prezentacji: strona /account (Moje Konto). MSW gotowe — GET /api/account/profile (profil: Jan Kowalski, email, telefon, organizacja, role, daty), PATCH /api/account/profile (edycja first_name/last_name, przelicza display_name), DELETE /api/account (wymaga confirmation: "USUŃ KONTO", 422 jeśli złe). Pliki: src/mocks/data/account.ts, src/mocks/handlers/account.ts.
+  - Priority: high
+  - Date: 2026-05-19
+  - Branch: `014-json-menu-gen`
+  - Domain: account

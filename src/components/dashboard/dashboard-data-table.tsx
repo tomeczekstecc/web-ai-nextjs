@@ -16,7 +16,6 @@ import { toast } from "sonner"
 import {
   DataTable,
   type DataTableColumnMeta,
-  type DataTableReorderResult,
 } from "@/components/data-table"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { Badge } from "@/components/ui/badge"
@@ -55,9 +54,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
-  dashboardQueueOptions,
   dashboardReviewItemsOptions,
 } from "@/lib/api/domains/dashboard/query-options"
 
@@ -69,13 +66,6 @@ export type DashboardTableRow = {
   target: string
   limit: string
   reviewer: string
-}
-
-type ReviewQueueRow = {
-  id: string
-  name: string
-  owner: string
-  priority: string
 }
 
 
@@ -126,11 +116,11 @@ const chartConfig = {
 const dashboardColumns: ColumnDef<DashboardTableRow>[] = [
   {
     accessorKey: "header",
-    header: "Sekcja",
+    header: "Konkurs",
     cell: ({ row }) => <TableCellViewer item={row.original} />,
     enableHiding: false,
     meta: {
-      label: "Sekcja",
+      label: "Konkurs",
       required: true,
       searchable: true,
       getSearchValue: (row) => row.header,
@@ -138,7 +128,7 @@ const dashboardColumns: ColumnDef<DashboardTableRow>[] = [
   },
   {
     accessorKey: "type",
-    header: "Typ",
+    header: "Kategoria",
     cell: ({ row }) => (
       <div className="w-36">
         <Badge variant="outline" className="px-1.5 text-muted-foreground">
@@ -147,7 +137,7 @@ const dashboardColumns: ColumnDef<DashboardTableRow>[] = [
       </div>
     ),
     meta: {
-      label: "Typ",
+      label: "Kategoria",
       searchable: true,
       getSearchValue: (row) => row.type,
     } satisfies DataTableColumnMeta<DashboardTableRow>,
@@ -157,7 +147,7 @@ const dashboardColumns: ColumnDef<DashboardTableRow>[] = [
     header: "Status",
     cell: ({ row }) => (
       <Badge variant="outline" className="px-1.5 text-muted-foreground">
-        {row.original.status === "Done" ? (
+        {row.original.status === "Przyznany" ? (
           <CircleCheckIcon className="fill-green-500 dark:fill-green-400" />
         ) : (
           <LoaderIcon />
@@ -173,7 +163,7 @@ const dashboardColumns: ColumnDef<DashboardTableRow>[] = [
   },
   {
     accessorKey: "target",
-    header: () => <div className="w-full text-right">Cel</div>,
+    header: () => <div className="w-full text-right">Kwota (PLN)</div>,
     cell: ({ row }) => (
       <form
         onSubmit={(event) => {
@@ -186,22 +176,22 @@ const dashboardColumns: ColumnDef<DashboardTableRow>[] = [
         }}
       >
         <Label htmlFor={`${row.original.id}-target`} className="sr-only">
-          Cel
+          Kwota (PLN)
         </Label>
         <Input
-          className="h-8 w-16 border-transparent bg-transparent text-right shadow-none hover:bg-input/30 focus-visible:border focus-visible:bg-background dark:bg-transparent dark:hover:bg-input/30 dark:focus-visible:bg-input/30"
+          className="h-8 w-28 border-transparent bg-transparent text-right shadow-none hover:bg-input/30 focus-visible:border focus-visible:bg-background dark:bg-transparent dark:hover:bg-input/30 dark:focus-visible:bg-input/30"
           defaultValue={row.original.target}
           id={`${row.original.id}-target`}
         />
       </form>
     ),
     meta: {
-      label: "Cel",
+      label: "Kwota (PLN)",
     } satisfies DataTableColumnMeta<DashboardTableRow>,
   },
   {
     accessorKey: "limit",
-    header: () => <div className="w-full text-right">Limit</div>,
+    header: () => <div className="w-full text-right">Termin</div>,
     cell: ({ row }) => (
       <form
         onSubmit={(event) => {
@@ -214,22 +204,22 @@ const dashboardColumns: ColumnDef<DashboardTableRow>[] = [
         }}
       >
         <Label htmlFor={`${row.original.id}-limit`} className="sr-only">
-          Limit
+          Termin
         </Label>
         <Input
-          className="h-8 w-16 border-transparent bg-transparent text-right shadow-none hover:bg-input/30 focus-visible:border focus-visible:bg-background dark:bg-transparent dark:hover:bg-input/30 dark:focus-visible:bg-input/30"
+          className="h-8 w-28 border-transparent bg-transparent text-right shadow-none hover:bg-input/30 focus-visible:border focus-visible:bg-background dark:bg-transparent dark:hover:bg-input/30 dark:focus-visible:bg-input/30"
           defaultValue={row.original.limit}
           id={`${row.original.id}-limit`}
         />
       </form>
     ),
     meta: {
-      label: "Limit",
+      label: "Termin",
     } satisfies DataTableColumnMeta<DashboardTableRow>,
   },
   {
     accessorKey: "reviewer",
-    header: "Recenzent",
+    header: "Opiekun",
     cell: ({ row }) => {
       const isAssigned = row.original.reviewer !== "Assign reviewer"
 
@@ -240,27 +230,21 @@ const dashboardColumns: ColumnDef<DashboardTableRow>[] = [
       return (
         <>
           <Label htmlFor={`${row.original.id}-reviewer`} className="sr-only">
-            Recenzent
+            Opiekun
           </Label>
-          <Select
-            items={[
-              { label: "Eddie Lake", value: "Eddie Lake" },
-              { label: "Jamik Tashpulatov", value: "Jamik Tashpulatov" },
-            ]}
-          >
+          <Select>
             <SelectTrigger
               className="w-38 **:data-[slot=select-value]:block **:data-[slot=select-value]:truncate"
               size="sm"
               id={`${row.original.id}-reviewer`}
             >
-              <SelectValue placeholder="Przypisz recenzenta" />
+              <SelectValue placeholder="Przypisz opiekuna" />
             </SelectTrigger>
             <SelectContent align="end">
               <SelectGroup>
-                <SelectItem value="Eddie Lake">Eddie Lake</SelectItem>
-                <SelectItem value="Jamik Tashpulatov">
-                  Jamik Tashpulatov
-                </SelectItem>
+                <SelectItem value="Anna Kowalska">Anna Kowalska</SelectItem>
+                <SelectItem value="Marek Nowak">Marek Nowak</SelectItem>
+                <SelectItem value="Katarzyna Wiśniewska">Katarzyna Wiśniewska</SelectItem>
               </SelectGroup>
             </SelectContent>
           </Select>
@@ -268,7 +252,7 @@ const dashboardColumns: ColumnDef<DashboardTableRow>[] = [
       )
     },
     meta: {
-      label: "Recenzent",
+      label: "Opiekun",
       searchable: true,
       getSearchValue: (row) => row.reviewer,
     } satisfies DataTableColumnMeta<DashboardTableRow>,
@@ -308,170 +292,48 @@ const dashboardColumns: ColumnDef<DashboardTableRow>[] = [
   },
 ]
 
-const reviewColumns: ColumnDef<ReviewQueueRow>[] = [
-  {
-    accessorKey: "name",
-    header: "Zadanie",
-    meta: {
-      label: "Zadanie",
-      required: true,
-      searchable: true,
-      getSearchValue: (row) => row.name,
-    } satisfies DataTableColumnMeta<ReviewQueueRow>,
-  },
-  {
-    accessorKey: "owner",
-    header: "Właściciel",
-    meta: {
-      label: "Właściciel",
-      searchable: true,
-      getSearchValue: (row) => row.owner,
-    } satisfies DataTableColumnMeta<ReviewQueueRow>,
-  },
-  {
-    accessorKey: "priority",
-    header: "Priorytet",
-    cell: ({ row }) => (
-      <Badge variant="secondary" className="px-1.5">
-        {row.original.priority}
-      </Badge>
-    ),
-    meta: {
-      label: "Priorytet",
-      searchable: true,
-      getSearchValue: (row) => row.priority,
-    } satisfies DataTableColumnMeta<ReviewQueueRow>,
-  },
-]
-
 export function DashboardDataTable() {
   const { data: reviewItemsData } = useQuery(dashboardReviewItemsOptions())
-  const { data: queueData } = useQuery(dashboardQueueOptions())
-  const [reorderedIds, setReorderedIds] = React.useState<string[]>([])
 
-  function handleReorder(result: DataTableReorderResult<DashboardTableRow>) {
-    setReorderedIds(result.orderedIds)
+  if (!reviewItemsData) {
+    return (
+      <div className="px-4 lg:px-6 py-8 text-muted-foreground">Ładowanie...</div>
+    )
   }
 
   return (
-    <Tabs defaultValue="outline" className="w-full flex-col justify-start gap-6">
-      <div className="flex items-center justify-between px-4 lg:px-6">
-        <Label htmlFor="view-selector" className="sr-only">
-          Widok
-        </Label>
-        <Select
-          defaultValue="outline"
-          items={[
-            { label: "Konspekt", value: "outline" },
-            { label: "Wyniki", value: "past-performance" },
-            { label: "Zespół", value: "key-personnel" },
-            { label: "Dokumenty", value: "focus-documents" },
-          ]}
-        >
-          <SelectTrigger
-            className="flex w-fit @4xl/main:hidden"
-            size="sm"
-            id="view-selector"
-          >
-            <SelectValue placeholder="Wybierz widok" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              <SelectItem value="outline">Konspekt</SelectItem>
-              <SelectItem value="past-performance">Wyniki</SelectItem>
-              <SelectItem value="key-personnel">Zespół</SelectItem>
-              <SelectItem value="focus-documents">Dokumenty</SelectItem>
-            </SelectGroup>
-          </SelectContent>
-        </Select>
-        <TabsList className="hidden **:data-[slot=badge]:size-5 **:data-[slot=badge]:rounded-full **:data-[slot=badge]:bg-muted-foreground/30 **:data-[slot=badge]:px-1 @4xl/main:flex">
-          <TabsTrigger value="outline">Konspekt</TabsTrigger>
-          <TabsTrigger value="past-performance">
-            Wyniki <Badge variant="secondary">3</Badge>
-          </TabsTrigger>
-          <TabsTrigger value="key-personnel">
-            Zespół <Badge variant="secondary">2</Badge>
-          </TabsTrigger>
-          <TabsTrigger value="focus-documents">Dokumenty</TabsTrigger>
-        </TabsList>
-      </div>
-      <TabsContent
-        value="outline"
-        className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6"
-      >
-        <DataTable
-          data={reviewItemsData?.items ?? []}
-          columns={dashboardColumns}
-          getRowId={(row) => `${row.id}`}
-          search={{
-            enabled: true,
-            placeholder: "Szukaj sekcji...",
-          }}
-          visibility={{ enabled: true }}
-          selection={{ enabled: true }}
-          pagination={{
-            pageSizeOptions: [10, 20, 30, 40, 50],
-            initialPageSize: 10,
-          }}
-          persistence={{
-            key: "dashboard-outline-table",
-            search: true,
-            columnVisibility: true,
-            pageSize: true,
-          }}
-          reorder={{
-            enabled: true,
-            mode: "page",
-            onReorder: handleReorder,
-          }}
-          toolbar={{
-            left: reorderedIds.length ? (
-              <span className="text-sm text-muted-foreground">
-                Zmieniono kolejność {reorderedIds.length} sekcji.
-              </span>
-            ) : null,
-            right: (
-              <Button variant="outline" size="sm">
-                <PlusIcon />
-                <span className="hidden lg:inline">Dodaj sekcję</span>
-              </Button>
-            ),
-          }}
-          emptyState="Brak sekcji."
-          noResultsState="Brak sekcji pasujących do wyszukiwania."
-        />
-      </TabsContent>
-      <TabsContent value="past-performance" className="flex flex-col px-4 lg:px-6">
-        <div className="aspect-video w-full flex-1 rounded-lg border border-dashed" />
-      </TabsContent>
-      <TabsContent value="key-personnel" className="flex flex-col px-4 lg:px-6">
-        <div className="aspect-video w-full flex-1 rounded-lg border border-dashed" />
-      </TabsContent>
-      <TabsContent
-        value="focus-documents"
-        className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6"
-      >
-        <DataTable
-          data={queueData?.items ?? []}
-          columns={reviewColumns}
-          getRowId={(row) => row.id}
-          search={{
-            enabled: true,
-            placeholder: "Szukaj zadań...",
-          }}
-          visibility={{ enabled: true }}
-          pagination={false}
-          persistence={{
-            key: "dashboard-review-table",
-            search: false,
-            columnVisibility: false,
-            pageSize: false,
-          }}
-          emptyState="Brak zadań."
-          noResultsState="Brak zadań pasujących do wyszukiwania."
-        />
-      </TabsContent>
-    </Tabs>
+    <div className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6">
+      <h2 className="text-xl font-semibold tracking-tight">
+        Najważniejsze konkursy
+      </h2>
+      <DataTable
+        data={reviewItemsData?.items ?? []}
+        columns={dashboardColumns}
+        getRowId={(row) => `${row.id}`}
+        search={{
+          enabled: true,
+          placeholder: "Szukaj projektów...",
+        }}
+        visibility={{ enabled: true }}
+        selection={{ enabled: true }}
+        pagination={{
+          pageSizeOptions: [10, 20, 30, 40, 50],
+          initialPageSize: 10,
+        }}
+        persistence={false}
+        reorder={false}
+        toolbar={{
+          right: (
+            <Button variant="outline" size="sm">
+              <PlusIcon />
+              <span className="hidden lg:inline">Dodaj projekt</span>
+            </Button>
+          ),
+        }}
+        emptyState="Brak projektów."
+        noResultsState="Brak projektów pasujących do wyszukiwania."
+      />
+    </div>
   )
 }
 
@@ -489,7 +351,7 @@ function TableCellViewer({ item }: { item: DashboardTableRow }) {
         <DrawerHeader className="gap-1">
           <DrawerTitle>{item.header}</DrawerTitle>
           <DrawerDescription>
-            Podgląd aktywności sekcji z ostatnich 6 miesięcy
+            Podgląd aktywności projektu z ostatnich 6 miesięcy
           </DrawerDescription>
         </DrawerHeader>
         <div className="flex flex-col gap-4 overflow-y-auto px-4 text-sm">
@@ -542,7 +404,7 @@ function TableCellViewer({ item }: { item: DashboardTableRow }) {
                   <TrendingUpIcon className="size-4" />
                 </div>
                 <div className="text-muted-foreground">
-                  Sekcja pokazuje ostatnią aktywność i pomaga szybko sprawdzić
+                  Wykres pokazuje ostatnią aktywność projektu i pomaga szybko sprawdzić
                   kontekst przed edycją danych.
                 </div>
               </div>
@@ -551,49 +413,28 @@ function TableCellViewer({ item }: { item: DashboardTableRow }) {
           )}
           <form className="flex flex-col gap-4">
             <div className="flex flex-col gap-3">
-              <Label htmlFor="header">Sekcja</Label>
+              <Label htmlFor="header">Nazwa konkursu</Label>
               <Input id="header" defaultValue={item.header} />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="flex flex-col gap-3">
-                <Label htmlFor="type">Typ</Label>
+                <Label htmlFor="type">Kategoria</Label>
                 <Select
                   defaultValue={item.type}
-                  items={[
-                    { label: "Table of Contents", value: "Table of Contents" },
-                    { label: "Executive Summary", value: "Executive Summary" },
-                    {
-                      label: "Technical Approach",
-                      value: "Technical Approach",
-                    },
-                    { label: "Design", value: "Design" },
-                    { label: "Capabilities", value: "Capabilities" },
-                    { label: "Focus Documents", value: "Focus Documents" },
-                    { label: "Narrative", value: "Narrative" },
-                    { label: "Cover Page", value: "Cover Page" },
-                  ]}
                 >
                   <SelectTrigger id="type" className="w-full">
-                    <SelectValue placeholder="Wybierz typ" />
+                    <SelectValue placeholder="Wybierz kategorię" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
-                      <SelectItem value="Table of Contents">
-                        Table of Contents
-                      </SelectItem>
-                      <SelectItem value="Executive Summary">
-                        Executive Summary
-                      </SelectItem>
-                      <SelectItem value="Technical Approach">
-                        Technical Approach
-                      </SelectItem>
-                      <SelectItem value="Design">Design</SelectItem>
-                      <SelectItem value="Capabilities">Capabilities</SelectItem>
-                      <SelectItem value="Focus Documents">
-                        Focus Documents
-                      </SelectItem>
-                      <SelectItem value="Narrative">Narrative</SelectItem>
-                      <SelectItem value="Cover Page">Cover Page</SelectItem>
+                      <SelectItem value="Społeczne">Społeczne</SelectItem>
+                      <SelectItem value="Lokalne">Lokalne</SelectItem>
+                      <SelectItem value="Ekologia">Ekologia</SelectItem>
+                      <SelectItem value="Młodzież">Młodzież</SelectItem>
+                      <SelectItem value="Seniorzy">Seniorzy</SelectItem>
+                      <SelectItem value="Kultura">Kultura</SelectItem>
+                      <SelectItem value="Sport">Sport</SelectItem>
+                      <SelectItem value="Edukacja">Edukacja</SelectItem>
                     </SelectGroup>
                   </SelectContent>
                 </Select>
@@ -602,20 +443,16 @@ function TableCellViewer({ item }: { item: DashboardTableRow }) {
                 <Label htmlFor="status">Status</Label>
                 <Select
                   defaultValue={item.status}
-                  items={[
-                    { label: "Done", value: "Done" },
-                    { label: "In Process", value: "In Process" },
-                    { label: "Not Started", value: "Not Started" },
-                  ]}
                 >
                   <SelectTrigger id="status" className="w-full">
                     <SelectValue placeholder="Wybierz status" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
-                      <SelectItem value="Done">Done</SelectItem>
-                      <SelectItem value="In Process">In Process</SelectItem>
-                      <SelectItem value="Not Started">Not Started</SelectItem>
+                      <SelectItem value="Przyznany">Przyznany</SelectItem>
+                      <SelectItem value="Złożony">Żłożony</SelectItem>
+                      <SelectItem value="W trakcie">W trakcie</SelectItem>
+                      <SelectItem value="Do poprawy">Do poprawy</SelectItem>
                     </SelectGroup>
                   </SelectContent>
                 </Select>
@@ -623,34 +460,27 @@ function TableCellViewer({ item }: { item: DashboardTableRow }) {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="flex flex-col gap-3">
-                <Label htmlFor="target">Cel</Label>
+                <Label htmlFor="target">Kwota (PLN)</Label>
                 <Input id="target" defaultValue={item.target} />
               </div>
               <div className="flex flex-col gap-3">
-                <Label htmlFor="limit">Limit</Label>
+                <Label htmlFor="limit">Termin</Label>
                 <Input id="limit" defaultValue={item.limit} />
               </div>
             </div>
             <div className="flex flex-col gap-3">
-              <Label htmlFor="reviewer">Recenzent</Label>
+              <Label htmlFor="reviewer">Opiekun</Label>
               <Select
                 defaultValue={item.reviewer}
-                items={[
-                  { label: "Eddie Lake", value: "Eddie Lake" },
-                  { label: "Jamik Tashpulatov", value: "Jamik Tashpulatov" },
-                  { label: "Emily Whalen", value: "Emily Whalen" },
-                ]}
               >
                 <SelectTrigger id="reviewer" className="w-full">
-                  <SelectValue placeholder="Wybierz recenzenta" />
+                  <SelectValue placeholder="Wybierz opiekuna" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    <SelectItem value="Eddie Lake">Eddie Lake</SelectItem>
-                    <SelectItem value="Jamik Tashpulatov">
-                      Jamik Tashpulatov
-                    </SelectItem>
-                    <SelectItem value="Emily Whalen">Emily Whalen</SelectItem>
+                    <SelectItem value="Anna Kowalska">Anna Kowalska</SelectItem>
+                    <SelectItem value="Marek Nowak">Marek Nowak</SelectItem>
+                    <SelectItem value="Katarzyna Wiśniewska">Katarzyna Wiśniewska</SelectItem>
                   </SelectGroup>
                 </SelectContent>
               </Select>

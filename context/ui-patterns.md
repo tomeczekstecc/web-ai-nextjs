@@ -33,6 +33,36 @@
 
 ---
 
+## Heading Hierarchy
+
+**Rule:** Every page follows a strict heading hierarchy. Only one H1 per page (the top-level page title). Section titles within the page use H2. Subsections use H3.
+
+| Level | Element | Style | Use For |
+|-------|---------|-------|---------|
+| H1 | `<h1>` | `text-2xl font-bold tracking-tight` | Page title in `SiteHeader` — one per page |
+| H2 | `<h2>` | `text-xl font-semibold tracking-tight` | Table/section headings within the page |
+| H3 | `<h3>` | `text-lg font-medium` | Subsection or card group titles |
+
+### Example: Dashboard Page
+
+```tsx
+{/* H1 — SiteHeader */}
+<h1 className="text-2xl font-bold tracking-tight">Przegląd</h1>
+
+{/* H2 — table section */}
+<h2 className="text-xl font-semibold tracking-tight">Najważniejsze konkursy</h2>
+```
+
+### ❌ Bad: Multiple H1s or skipped levels
+
+```tsx
+<h1>Przegląd</h1>
+<h1>Najważniejsze konkursy</h1>  {/* Wrong — should be h2 */}
+<h4>Szczegóły</h4>              {/* Wrong — skipped h2, h3 */}
+```
+
+---
+
 ## Spacing System
 
 Use Tailwind's spacing scale consistently:
