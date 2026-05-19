@@ -1,3 +1,4 @@
+import { accountHandlers } from "@/mocks/handlers/account";
 import { applicationsHandlers } from "@/mocks/handlers/applications";
 import { taskWizardHandlers } from "@/mocks/handlers/tasks-wizard";
 import { dashboardHandlers } from "@/mocks/handlers/dashboard";
@@ -63,6 +64,7 @@ const wizardDemoHandlers = [
 ];
 
 export const handlers = [
+  ...accountHandlers,
   ...dashboardHandlers,
   ...applicationsHandlers,
   ...wizardDemoHandlers,

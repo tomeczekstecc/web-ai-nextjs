@@ -41,3 +41,9 @@ Project-level follow-ups captured by agents.
   - Date: 2026-05-12
   - Branch: `014-json-menu-gen`
   - Domain: auth
+
+- [ ] Prezentacja Gamma: Wykorzystanie AI w Programowaniu Frontend — https://gamma.app/docs/Wykorzystanie-AI-w-Programowaniu-Frontend-ok1e6gsjei28nc2?mode=present#card-u57b1wxbgt1pxcz
+  - Priority: high
+  - Date: 2026-05-19
+  - Branch: `014-json-menu-gen`
+  - Domain: docs
