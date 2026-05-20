@@ -1,4 +1,4 @@
-import type { DashboardTableRow } from "@/components/dashboard/dashboard-data-table";
+import type { DashboardTableRow } from "@/components/dashboard/dashboard-columns";
 
 export const dashboardReviewItems: DashboardTableRow[] = [
   { id: 1, header: "Konkurs na rozwój społeczeństwa obywatelskiego", type: "Społeczne", status: "Złożony", target: "50 000", limit: "30.06.2026", reviewer: "Anna Kowalska" },

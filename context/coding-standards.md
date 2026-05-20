@@ -69,6 +69,7 @@
 ## Forms
 
 - Use TanStack Form as the project standard for all forms (see: https://ui.shadcn.com/docs/forms/tanstack-form).
+- Install `@tanstack/react-form` only when shadcn/ui requires it (i.e. when adding the `field` component or any form-related shadcn/ui block that pulls it in). Do not add it as a standalone dependency for ad-hoc form state.
 - Define form shape with Zod and pass the schema to `useForm()` via `validators`.
 - Wire each field through `form.Field`: bind `field.state.value` to value, `field.handleChange` to onChange, and `field.handleBlur` to onBlur.
 - Show validation errors conditionally after the field is touched: `isTouched && !isValid`.
