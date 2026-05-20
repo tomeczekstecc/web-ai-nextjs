@@ -119,7 +119,7 @@ export function AppTopNav({ user }: AppTopNavProps) {
 
   return (
     <header className="sticky top-0 z-50 border-b bg-background">
-      <div className="flex h-[calc(var(--spacing)*12)] items-center gap-2 px-4 lg:px-6">
+      <div className="flex h-[calc(var(--spacing)*12)] items-center gap-10 px-4 lg:px-6">
         <Link href="/dashboard" className="text-lg font-bold tracking-tight">
           eNGO
         </Link>
