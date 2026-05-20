@@ -8,7 +8,7 @@ import { getNavLayout } from "@/lib/menu/env"
 
 interface AppShellProps {
   children: React.ReactNode
-  title: string
+  title?: string
   returnTo?: string
 }
 
@@ -29,9 +29,11 @@ export async function AppShell({ children, title, returnTo = "/" }: AppShellProp
     return (
       <div className="flex min-h-svh flex-col">
         <AppTopNav user={user} />
-        <div className="border-b px-4 py-3 lg:px-6">
-          <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
-        </div>
+        {title && (
+          <div className="border-b px-4 py-3 lg:px-6">
+            <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
+          </div>
+        )}
         <main className="flex flex-1 flex-col">{children}</main>
       </div>
     )
