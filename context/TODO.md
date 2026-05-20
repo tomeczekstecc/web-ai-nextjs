@@ -43,11 +43,12 @@ Project-level follow-ups captured by agents.
   - Branch: `master`
   - Domain: general
 
-- [ ] Review and validate DDD (Domain-Driven Design) pattern usage across the project.
+- [x] Review and validate DDD (Domain-Driven Design) pattern usage across the project.
   - Priority: critical
   - Date: 2026-05-20
   - Branch: `master`
   - Domain: general
+  - Completed: 2026-05-20 — Documented in `context/ddd-patterns.md`
 
 - [ ] Create a custom 404 not-found page.
   - Priority: medium

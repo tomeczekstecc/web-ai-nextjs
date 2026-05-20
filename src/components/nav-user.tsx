@@ -21,8 +21,8 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  useSidebar,
 } from "@/components/ui/sidebar"
+import { useIsMobile } from "@/hooks/use-mobile"
 import { ChevronsUpDownIcon, MoonIcon, SunIcon } from "lucide-react"
 import { useTheme } from "next-themes"
 import type { SettingsItem } from "@/lib/api/domains/menu/contract"
@@ -53,7 +53,7 @@ export function NavUser({
   settings: SettingsItem[]
 }) {
   const initials = getInitials(user.name)
-  const { isMobile } = useSidebar()
+  const isMobile = useIsMobile()
   const router = useRouter()
   const { resolvedTheme, setTheme } = useTheme()
   const isDark = resolvedTheme === "dark"
