@@ -18,13 +18,8 @@ Project-level follow-ups captured by agents.
   - Branch: `master`
   - Domain: agents
 
-- [ ] Apply SEO best practices across the app (meta tags, Open Graph, structured data, sitemap, robots.txt).
-  - Priority: medium
-  - Date: 2026-05-07
-  - Branch: `master`
-  - Domain: landing-page
 
-- [ ] Dodac wizarda.
+- [ ] Ogarnąć lepszy layout wizarda.
   - Priority: high
   - Date: 2026-05-10
   - Branch: `master`
@@ -42,14 +37,15 @@ Project-level follow-ups captured by agents.
   - Branch: `014-json-menu-gen`
   - Domain: auth
 
-- [ ] Prezentacja Gamma: Wykorzystanie AI w Programowaniu Frontend — https://gamma.app/docs/Wykorzystanie-AI-w-Programowaniu-Frontend-ok1e6gsjei28nc2?mode=present#card-u57b1wxbgt1pxcz
-  - Priority: high
-  - Date: 2026-05-19
-  - Branch: `014-json-menu-gen`
-  - Domain: docs
+- [ ] Create a custom (own) layout for the app.
+  - Priority: critical
+  - Date: 2026-05-20
+  - Branch: `master`
+  - Domain: general
 
-- [ ] Demo live coding na prezentacji: strona /account (Moje Konto). MSW gotowe — GET /api/account/profile (profil: Jan Kowalski, email, telefon, organizacja, role, daty), PATCH /api/account/profile (edycja first_name/last_name, przelicza display_name), DELETE /api/account (wymaga confirmation: "USUŃ KONTO", 422 jeśli złe). Pliki: src/mocks/data/account.ts, src/mocks/handlers/account.ts.
-  - Priority: high
-  - Date: 2026-05-19
-  - Branch: `014-json-menu-gen`
-  - Domain: account
+- [ ] Review and validate DDD (Domain-Driven Design) pattern usage across the project.
+  - Priority: critical
+  - Date: 2026-05-20
+  - Branch: `master`
+  - Domain: general
+
