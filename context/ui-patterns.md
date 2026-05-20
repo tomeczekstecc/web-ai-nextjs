@@ -467,6 +467,30 @@ Use consistent type sizes:
 
 ## Buttons
 
+### Variant = Context, Not Style
+
+**Rule:** Use semantic variants only when the variant carries meaning the user needs — not to add color or visual interest.
+
+The available semantic variant is `destructive`. Use it **only** when the action is irreversible or causes data loss. For everything else, use hierarchy (size + `default` / `outline` / `ghost`) to signal prominence.
+
+```tsx
+// ✅ Correct — variant signals irreversible consequence
+<Button variant="destructive">Usuń projekt</Button>
+
+// ❌ Wrong — destructive used for styling, not meaning
+<Button variant="destructive">Anuluj</Button>
+
+// ✅ Correct — cancel uses outline, not destructive
+<Button variant="outline">Anuluj</Button>
+```
+
+**Adding new semantic variants** (e.g. `success`, `warning`) is only justified when:
+- The color carries information the user cannot get from label or icon alone
+- The variant is defined via CSS custom properties in the theme (not hardcoded Tailwind colors)
+- The preset (`base-nova`) does not already provide it
+
+---
+
 ### Size and Prominence
 
 ```tsx
