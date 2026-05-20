@@ -2,6 +2,8 @@ import type {
   Application,
   ApplicationListParams,
   ApplicationListResult,
+  ApplicationListPayload,
+  ApplicationPayload,
   ApiErrorResponse,
   CreateApplicationInput,
   UpdateApplicationInput,
@@ -88,19 +90,7 @@ export async function fetchApplicationList(
   params: ApplicationListParams
 ): Promise<ApplicationListResult> {
   const query = buildListQueryParams(params);
-  const result = await browserFetch<{
-    items: Array<{
-      id: string;
-      label: string;
-      status: "draft" | "submitted" | "archived";
-      created_at: string;
-      updated_at: string;
-    }>;
-    page: number;
-    pageSize: number;
-    totalItems: number;
-    totalPages: number;
-  }>(`/applications?${query}`);
+  const result = await browserFetch<ApplicationListPayload>(`/applications?${query}`);
 
   if (!result.ok) {
     throw new Error(result.error.message);
@@ -110,13 +100,7 @@ export async function fetchApplicationList(
 }
 
 export async function fetchApplication(id: string): Promise<Application> {
-  const result = await browserFetch<{
-    id: string;
-    label: string;
-    status: "draft" | "submitted" | "archived";
-    created_at: string;
-    updated_at: string;
-  }>(`/applications/${id}`);
+  const result = await browserFetch<ApplicationPayload>(`/applications/${id}`);
 
   if (!result.ok) {
     throw new Error(result.error.message);
@@ -128,13 +112,7 @@ export async function fetchApplication(id: string): Promise<Application> {
 export async function createApplication(
   input: CreateApplicationInput
 ): Promise<Application> {
-  const result = await browserFetch<{
-    id: string;
-    label: string;
-    status: "draft" | "submitted" | "archived";
-    created_at: string;
-    updated_at: string;
-  }>("/applications", {
+  const result = await browserFetch<ApplicationPayload>("/applications", {
     method: "POST",
     body: JSON.stringify(input),
   });
@@ -149,13 +127,7 @@ export async function createApplication(
 export async function updateApplication(
   input: UpdateApplicationInput
 ): Promise<Application> {
-  const result = await browserFetch<{
-    id: string;
-    label: string;
-    status: "draft" | "submitted" | "archived";
-    created_at: string;
-    updated_at: string;
-  }>(`/applications/${input.id}`, {
+  const result = await browserFetch<ApplicationPayload>(`/applications/${input.id}`, {
     method: "PATCH",
     body: JSON.stringify({ label: input.label }),
   });
@@ -180,13 +152,7 @@ export async function deleteApplication(id: string): Promise<void> {
 export async function updateApplicationStatus(
   input: UpdateApplicationStatusInput
 ): Promise<Application> {
-  const result = await browserFetch<{
-    id: string;
-    label: string;
-    status: "draft" | "submitted" | "archived";
-    created_at: string;
-    updated_at: string;
-  }>(`/applications/${input.id}/status`, {
+  const result = await browserFetch<ApplicationPayload>(`/applications/${input.id}/status`, {
     method: "PATCH",
     body: JSON.stringify({ status: input.status }),
   });
