@@ -68,7 +68,7 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
         {isLoading ? (
           <SidebarMenu>
             {Array.from({ length: 5 }).map((_, i) => (
-              <SidebarMenuSkeleton key={i} showIcon />
+              <SidebarMenuSkeleton key={i} showIcon index={i} />
             ))}
           </SidebarMenu>
         ) : menuConfig ? (

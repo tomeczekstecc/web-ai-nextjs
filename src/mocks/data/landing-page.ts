@@ -6,7 +6,7 @@ export const landingPageFallback: LandingPagePayload = {
     title: "Buduj nowoczesny frontend",
     highlight: "szybciej i pewniej.",
     description:
-      "Minimalny, elegancki punkt startowy dla produktu w Next.js. Przejrzysty hero, mocne CTA i spokojny uklad gotowy do dalszej rozbudowy oraz integracji z Laravel.",
+      "Templatka gotowa do kodowania z AI. Next.js App Router, shadcn/ui, server-first components i kontekst przygotowany tak, zeby agent wiedzial, co robic od pierwszego prompta.",
     primary_cta_label: "Zacznij juz teraz",
     primary_cta_href: "#benefits",
     secondary_note:
@@ -14,19 +14,19 @@ export const landingPageFallback: LandingPagePayload = {
   },
   features: [
     {
-      id: "process",
-      title: "Prosty proces",
-      body: "Jasny formularz i przejrzysta sciezka przejscia od informacji do dzialania.",
+      id: "server-first",
+      title: "Server-first components",
+      body: "Dane pobierane po stronie serwera. Brak zbednego stanu po stronie klienta, szybszy czas ladowania i czystszy kod.",
     },
     {
-      id: "verification",
-      title: "Szybka weryfikacja",
-      body: "Minimum tarcia i czytelne kroki, dzieki ktorym uzytkownik wie, co dalej.",
+      id: "shadcn",
+      title: "shadcn/ui + Tailwind v4",
+      body: "Gotowe prymitywy UI z pelna kontrola nad stylem. Bez naduzywan bibliotek, bez magii — tylko Twoj kod.",
     },
     {
-      id: "support",
-      title: "Pelne wsparcie",
-      body: "Interfejs, ktory prowadzi spokojnie i nie zasypuje zbednymi decyzjami.",
+      id: "ai-ready",
+      title: "Zoptymalizowana pod AI",
+      body: "Struktura projektu, konwencje i kontekst zaprojektowane tak, zeby agent wiedzial, co robic od pierwszego prompta.",
     },
   ],
   benefits: [

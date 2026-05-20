@@ -293,11 +293,22 @@ const dashboardColumns: ColumnDef<DashboardTableRow>[] = [
 ]
 
 export function DashboardDataTable() {
-  const { data: reviewItemsData } = useQuery(dashboardReviewItemsOptions())
+  const { data: reviewItemsData, isLoading, isError, refetch } = useQuery(dashboardReviewItemsOptions())
 
-  if (!reviewItemsData) {
+  if (isLoading) {
     return (
       <div className="px-4 lg:px-6 py-8 text-muted-foreground">Ładowanie...</div>
+    )
+  }
+
+  if (isError || !reviewItemsData) {
+    return (
+      <div className="px-4 lg:px-6 py-8 flex flex-col gap-2">
+        <p className="text-muted-foreground text-sm">Nie udało się załadować danych.</p>
+        <Button variant="outline" size="sm" className="w-fit" onClick={() => refetch()}>
+          Spróbuj ponownie
+        </Button>
+      </div>
     )
   }
 
