@@ -1,12 +1,18 @@
-'use client'
+import { DomainLayout } from "@/components/domain-layout"
+import { TasksWizard } from "@/components/tasks-wizard/TasksWizard"
 
-import { TasksWizard } from '@/components/tasks-wizard/TasksWizard'
+const BREADCRUMBS = [
+  { label: "Home", href: "/dashboard" },
+  { label: "Zadania", href: "/wizard-demo" },
+  { label: "Nowe zadanie" },
+]
 
 export default function NewTaskPage() {
   return (
-    <div className="p-8 max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6">Nowe zadanie</h1>
-      <TasksWizard mode="edit" />
-    </div>
+    <DomainLayout breadcrumbs={BREADCRUMBS}>
+      <div className="px-4 pb-8 lg:px-6">
+        <TasksWizard mode="edit" />
+      </div>
+    </DomainLayout>
   )
 }

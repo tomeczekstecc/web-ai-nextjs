@@ -1,14 +1,22 @@
-'use client'
+import { DomainLayout } from "@/components/domain-layout"
+import { TasksWizard } from "@/components/tasks-wizard/TasksWizard"
 
-import { useParams } from 'next/navigation'
-import { TasksWizard } from '@/components/tasks-wizard/TasksWizard'
+export default async function ViewTaskPage({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}) {
+  const { id } = await params
 
-export default function ViewTaskPage() {
-  const params = useParams<{ id: string }>()
   return (
-    <div className="p-8 max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6">Podgląd zadania #{params.id}</h1>
-      <TasksWizard id={Number(params.id)} mode="view" />
-    </div>
+    <DomainLayout breadcrumbs={[
+      { label: "Home", href: "/dashboard" },
+      { label: "Zadania", href: "/wizard-demo" },
+      { label: `Podgląd zadania #${id}` },
+    ]}>
+      <div className="px-4 pb-8 lg:px-6">
+        <TasksWizard id={Number(id)} mode="view" />
+      </div>
+    </DomainLayout>
   )
 }

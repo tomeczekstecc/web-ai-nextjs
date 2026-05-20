@@ -1,18 +1,16 @@
 import type { AppTopNavUser } from "@/components/app-top-nav"
 import { AppTopNav } from "@/components/app-top-nav"
 import { AppSidebar } from "@/components/app-sidebar"
-import { SiteHeader } from "@/components/site-header"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { requireAuthorizedAppSession } from "@/lib/auth/session"
 import { getNavLayout } from "@/lib/menu/env"
 
 interface AppShellProps {
   children: React.ReactNode
-  title?: string
   returnTo?: string
 }
 
-export async function AppShell({ children, title, returnTo = "/" }: AppShellProps) {
+export async function AppShell({ children, returnTo = "/" }: AppShellProps) {
   const appSession = await requireAuthorizedAppSession(returnTo)
   const navLayout = getNavLayout()
 
@@ -29,11 +27,6 @@ export async function AppShell({ children, title, returnTo = "/" }: AppShellProp
     return (
       <div className="flex min-h-svh flex-col">
         <AppTopNav user={user} />
-        {title && (
-          <div className="border-b px-4 py-3 lg:px-6">
-            <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
-          </div>
-        )}
         <main className="flex flex-1 flex-col">{children}</main>
       </div>
     )
@@ -50,7 +43,6 @@ export async function AppShell({ children, title, returnTo = "/" }: AppShellProp
     >
       <AppSidebar user={user} variant="inset" />
       <SidebarInset>
-        <SiteHeader title={title} />
         <div className="flex flex-1 flex-col">{children}</div>
       </SidebarInset>
     </SidebarProvider>

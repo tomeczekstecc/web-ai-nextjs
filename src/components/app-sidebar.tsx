@@ -12,6 +12,7 @@ import {
   SidebarMenu,
   SidebarMenuSkeleton,
   SidebarRail,
+  SidebarTrigger,
 } from "@/components/ui/sidebar"
 import { useMenuConfig } from "@/hooks/menu/useMenuConfig"
 import { useNavLayout } from "@/hooks/menu/useNavLayout"
@@ -55,13 +56,13 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <div className="flex items-center gap-2 px-2 py-1">
-          <span className="text-lg font-bold tracking-tight group-data-[collapsible=icon]:hidden">
-            eNGO
-          </span>
-          <span className="hidden text-lg font-bold group-data-[collapsible=icon]:block">
-            eN
-          </span>
+        <div className="flex items-center justify-between px-2 py-1 group-data-[collapsible=icon]:justify-center">
+          <div className="flex items-center gap-2 group-data-[collapsible=icon]:hidden">
+            <span className="text-lg font-bold tracking-tight">
+              eNGO
+            </span>
+          </div>
+          <SidebarTrigger />
         </div>
       </SidebarHeader>
       <SidebarContent>

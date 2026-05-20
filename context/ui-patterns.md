@@ -35,30 +35,24 @@
 
 ## Heading Hierarchy
 
-**Rule:** Every page follows a strict heading hierarchy. Only one H1 per page (the top-level page title). Section titles within the page use H2. Subsections use H3.
+**Rule:** Every domain under `src/app/(app)/` follows a strict heading hierarchy. The brand name rendered in `AppSidebar` / `AppTopNav` occupies the implicit H1 level — no explicit `<h1>` appears in page content. The domain `layout.tsx` renders the `<h2>` as the first visible heading in the content area.
 
-| Level | Element | Style | Use For |
-|-------|---------|-------|---------|
-| H1 | `<h1>` | `text-2xl font-bold tracking-tight` | Page title in `SiteHeader` — one per page |
-| H2 | `<h2>` | `text-xl font-semibold tracking-tight` | Table/section headings within the page |
-| H3 | `<h3>` | `text-lg font-medium` | Subsection or card group titles |
+| Level | Element | Style | Rendered by |
+|-------|---------|-------|-------------|
+| H1 (implicit) | brand name in sidebar / top nav | `text-lg font-bold` | `AppSidebar` header / `AppTopNav` |
+| H2 | `<h2>` | `text-2xl font-bold tracking-tight` | Domain `layout.tsx` — one per domain |
+| H3 | `<h3>` | `text-xl font-semibold tracking-tight` | Table / section headings within a page |
+| H4 | `<h4>` | `text-lg font-medium` | Subsection or card group titles |
 
-### Example: Dashboard Page
-
-```tsx
-{/* H1 — SiteHeader */}
-<h1 className="text-2xl font-bold tracking-tight">Przegląd</h1>
-
-{/* H2 — table section */}
-<h2 className="text-xl font-semibold tracking-tight">Najważniejsze konkursy</h2>
-```
-
-### ❌ Bad: Multiple H1s or skipped levels
+### ❌ Bad: explicit h1 in content, skipped levels
 
 ```tsx
+{/* Wrong — no h1 inside (app) content */}
 <h1>Przegląd</h1>
-<h1>Najważniejsze konkursy</h1>  {/* Wrong — should be h2 */}
-<h4>Szczegóły</h4>              {/* Wrong — skipped h2, h3 */}
+
+{/* Wrong — skipped h2 */}
+<h2>Sekcja</h2>
+<h4>Szczegóły</h4>
 ```
 
 ---
@@ -900,113 +894,179 @@ const iconRegistry = {
 
 ## Domain-Scoped Page Layout
 
-**Rule:** Every page under `src/app/(app)/` MUST open its content area with two elements in this order:
+**Rule:** Every domain under `src/app/(app)/` owns its breadcrumbs and `<h2>` heading through
+`<DomainLayout>` from `@/components/domain-layout`. Consumers declare a `BREADCRUMBS` constant
+and wrap their children — nothing else. Nav-mode switching, `<h2>` derivation, and breadcrumb
+rendering are all handled internally.
 
-1. **Breadcrumbs** — wayfinding trail using `<Breadcrumb>` from `@/components/ui/breadcrumb`
-2. **Page heading** — an `<h2>` that names the current page or section
-
-These two elements are mandatory regardless of layout mode (sidebar or top-nav). They establish visual context and replace the page title that was previously rendered in `SiteHeader`.
-
-### Structure
+### `DomainLayout` API
 
 ```tsx
-// src/app/(app)/reports/page.tsx
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
+import { DomainLayout } from "@/components/domain-layout"
+import type { BreadcrumbEntry } from "@/components/site-header"
 
-export default function ReportsPage() {
+// BreadcrumbEntry = { label: string; href?: string }
+// Last entry has no href — becomes the current-page crumb AND the <h2> text.
+```
+
+### Standard case — domain `layout.tsx`
+
+Use a route-level `layout.tsx` when **all pages in the domain share the same breadcrumb trail**
+(e.g. a list-only domain, or a domain where the heading never changes).
+
+```tsx
+// src/app/(app)/applications/layout.tsx
+import { DomainLayout } from "@/components/domain-layout"
+import type { BreadcrumbEntry } from "@/components/site-header"
+
+const BREADCRUMBS: BreadcrumbEntry[] = [
+  { label: "Home",            href: "/dashboard" },
+  { label: "Applications",   href: "/applications" },
+  { label: "All Applications" },   // ← no href → BreadcrumbPage + h2 text
+]
+
+export default function ApplicationsLayout({ children }: { children: React.ReactNode }) {
+  return <DomainLayout breadcrumbs={BREADCRUMBS}>{children}</DomainLayout>
+}
+```
+
+File placement:
+
+```
+src/app/(app)/
+  <domain>/
+    layout.tsx   ← BREADCRUMBS constant + <DomainLayout> wrapper
+    page.tsx     ← content only — no headings, no breadcrumbs
+```
+
+### Sub-route case — per-page server shell
+
+Use a **server component page shell** when pages within the domain have **distinct or dynamic
+headings** (e.g. `Edycja zadania #3`). The route-level `layout.tsx` stays a structural
+pass-through (metadata only); each page owns its own `DomainLayout` call.
+
+```tsx
+// src/app/(app)/wizard-demo/[id]/page.tsx  (server component)
+import { DomainLayout } from "@/components/domain-layout"
+import { TasksWizard } from "@/components/tasks-wizard/TasksWizard"
+
+export default async function EditTaskPage({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}) {
+  const { id } = await params   // params available server-side — no useParams needed
+
   return (
-    <div className="flex flex-col gap-6 px-4 py-4 lg:px-6 lg:py-6">
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>Raporty</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-
-      <h2 className="text-2xl font-bold tracking-tight">Raporty</h2>
-
-      {/* page content */}
-    </div>
+    <DomainLayout breadcrumbs={[
+      { label: "Home",    href: "/dashboard" },
+      { label: "Zadania", href: "/wizard-demo" },
+      { label: `Edycja zadania #${id}` },   // ← dynamic last crumb → h2 text
+    ]}>
+      <div className="px-4 pb-8 lg:px-6">
+        <TasksWizard id={Number(id)} mode="edit" />
+      </div>
+    </DomainLayout>
   )
 }
 ```
 
-### Breadcrumb Rules
+Client-only logic (hooks, event handlers) must be extracted into a child client component
+and passed as `children` — the page shell itself stays a server component.
 
-- The **last item** is always `<BreadcrumbPage>` (current page, not a link)
-- Every **preceding item** is a `<BreadcrumbLink href="...">` that navigates to that level
-- Root anchor is always `Dashboard` linking to `/dashboard`
-- Use `<BreadcrumbEllipsis />` when the trail exceeds 3 levels (collapse middle items)
-- Labels match the `<h2>` of the destination page — never invent different wording
+```
+src/app/(app)/
+  <domain>/
+    layout.tsx        ← metadata only, pass-through (no DomainLayout)
+    _client-part.tsx  ← 'use client' sub-component (underscore = not a route)
+    page.tsx          ← server shell: DomainLayout + <ClientPart />
+    [id]/
+      page.tsx        ← server shell with dynamic breadcrumbs
+```
 
-### Heading Rules
+### How `DomainLayout` works internally
 
-- Use `<h2>` — **not** `<h1>`. The app shell (brand name in top nav or sidebar) occupies the H1 level semantically.
-- Style: `text-2xl font-bold tracking-tight` (matches the former `SiteHeader` H1 style)
-- The `<h2>` text must match the last `<BreadcrumbPage>` label exactly
-- Do not add a subtitle or description next to the `<h2>` unless the page design explicitly calls for one
+| Concern | Implementation |
+|---------|---------------|
+| Nav-mode check | `getNavLayout()` called once inside `DomainLayout` — never in consumers |
+| Sidebar path | Renders `<SiteHeader breadcrumbs={...} />` |
+| Top-menu path | Renders a `<div className="border-b ...">` with the same breadcrumb trail |
+| `<h2>` text | Derived from `breadcrumbs[last].label` — sync enforced structurally |
+| `<h2>` style | `text-2xl font-bold tracking-tight` applied internally |
+
+Consumers never import `SiteHeader`, `getNavLayout`, or breadcrumb primitives directly.
+
+### Sidebar collapse trigger placement
+
+`SidebarTrigger` lives in `AppSidebar`’s `SidebarHeader` — always visible, independent of
+which domain is active. `DomainLayout`, `SiteHeader`, and domain files never render it.
+
+### Breadcrumb rules
+
+- The **last item** has no `href` → `<BreadcrumbPage>` (`aria-current="page"`) + `<h2>` text
+- Every **preceding item** has an `href` → `<BreadcrumbLink>`
+- Root anchor is always **Home** linking to `/dashboard`
+- Standard trail depth is 3 levels: `Home → Domain → Current Page`
+- For dynamic sub-pages a 4th level is acceptable: `Home → Domain → Item → Action`
+- Breadcrumb labels must match the `<h2>` of their destination page
 
 ### ✅ Correct
 
 ```tsx
-<div className="flex flex-col gap-6 px-4 py-4 lg:px-6">
-  <Breadcrumb>
-    <BreadcrumbList>
-      <BreadcrumbItem><BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink></BreadcrumbItem>
-      <BreadcrumbSeparator />
-      <BreadcrumbItem><BreadcrumbLink href="/applications">Wnioski</BreadcrumbLink></BreadcrumbItem>
-      <BreadcrumbSeparator />
-      <BreadcrumbItem><BreadcrumbPage>W trakcie</BreadcrumbPage></BreadcrumbItem>
-    </BreadcrumbList>
-  </Breadcrumb>
-  <h2 className="text-2xl font-bold tracking-tight">W trakcie</h2>
-  <ApplicationsTable />
-</div>
+// layout.tsx — static domain
+const BREADCRUMBS = [
+  { label: "Home", href: "/dashboard" },
+  { label: "Raporty" },
+]
+export default function RaportyLayout({ children }) {
+  return <DomainLayout breadcrumbs={BREADCRUMBS}>{children}</DomainLayout>
+}
+
+// page.tsx — server shell with dynamic trail
+export default async function EditPage({ params }) {
+  const { id } = await params
+  return (
+    <DomainLayout breadcrumbs={[
+      { label: "Home",    href: "/dashboard" },
+      { label: "Raporty", href: "/raporty" },
+      { label: `Raport #${id}` },
+    ]}>
+      <EditClient id={id} />
+    </DomainLayout>
+  )
+}
 ```
 
 ### ❌ Wrong
 
 ```tsx
-{/* Missing breadcrumbs */}
-<div className="p-6">
-  <h2>Wnioski</h2>
-  <ApplicationsTable />
-</div>
+{/* Calling getNavLayout in the domain layout — DomainLayout does this */}
+const navLayout = getNavLayout()
 
-{/* h1 used instead of h2 */}
-<div className="p-6">
-  <Breadcrumb>...</Breadcrumb>
-  <h1>Wnioski</h1>   {/* wrong — use h2 inside (app) pages */}
-</div>
+{/* Importing SiteHeader directly in a domain layout */}
+import { SiteHeader } from "@/components/site-header"
 
-{/* Breadcrumb label differs from heading */}
-<Breadcrumb>
-  <BreadcrumbPage>Moje wnioski</BreadcrumbPage>  {/* label mismatch */}
-</Breadcrumb>
-<h2>Wnioski</h2>
+{/* Writing h2 manually */}
+<h2 className="text-2xl font-bold tracking-tight">Raporty</h2>
+
+{/* Breadcrumbs in page.tsx instead of layout.tsx or DomainLayout */}
+export default function RaportyPage() {
+  return <div><Breadcrumb>...</Breadcrumb><RaportyTable /></div>
+}
+
+{/* Using h1 */}
+<h1>Raporty</h1>
 ```
 
-### Checklist — before marking a domain page complete
+### Checklist — before marking a domain complete
 
-- [ ] `<Breadcrumb>` is the first element inside the page content wrapper
-- [ ] Last breadcrumb item uses `<BreadcrumbPage>`, not `<BreadcrumbLink>`
-- [ ] Root anchor links to `/dashboard`
-- [ ] `<h2>` follows immediately after `<Breadcrumb>`
-- [ ] `<h2>` text matches `<BreadcrumbPage>` label exactly
-- [ ] Heading style is `text-2xl font-bold tracking-tight`
-
+- [ ] Domain uses `<DomainLayout breadcrumbs={BREADCRUMBS}>` — not manual SiteHeader / nav check
+- [ ] Last `BREADCRUMBS` entry has no `href`
+- [ ] Root anchor is `{ label: "Home", href: "/dashboard" }`
+- [ ] Static domains: `DomainLayout` in `layout.tsx`; dynamic/distinct headings: server shell per page
+- [ ] Client-only logic extracted to `_name.tsx` child component
+- [ ] No `getNavLayout`, `SiteHeader`, or `<h2>` written directly in domain files
+- [ ] Pages inside a layout-based domain contain content only
 ---
 
 ## Quick Reference

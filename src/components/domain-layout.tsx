@@ -1,4 +1,5 @@
 import React from "react"
+import { SiteHeader, type BreadcrumbEntry } from "@/components/site-header"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -7,18 +8,23 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
+import { getNavLayout } from "@/lib/menu/env"
 
-export type BreadcrumbEntry = { label: string; href?: string }
-
-interface SiteHeaderProps {
-  breadcrumbs?: BreadcrumbEntry[]
+interface DomainLayoutProps {
+  breadcrumbs: BreadcrumbEntry[]
+  children: React.ReactNode
 }
 
-export function SiteHeader({ breadcrumbs = [] }: SiteHeaderProps) {
+export function DomainLayout({ breadcrumbs, children }: DomainLayoutProps) {
+  const navLayout = getNavLayout()
+  const title = breadcrumbs[breadcrumbs.length - 1]?.label ?? ""
+
   return (
-    <header className="flex h-(--header-height) shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">
-      <div className="flex w-full items-center gap-1 px-4 lg:gap-2 lg:px-6">
-        {breadcrumbs.length > 0 && (
+    <>
+      {navLayout === "sidebar" ? (
+        <SiteHeader breadcrumbs={breadcrumbs} />
+      ) : (
+        <div className="border-b px-4 py-3 lg:px-6">
           <Breadcrumb>
             <BreadcrumbList>
               {breadcrumbs.map((crumb, index) => {
@@ -40,8 +46,12 @@ export function SiteHeader({ breadcrumbs = [] }: SiteHeaderProps) {
               })}
             </BreadcrumbList>
           </Breadcrumb>
-        )}
+        </div>
+      )}
+      <div className="px-4 py-4 lg:px-6">
+        <h2 className="text-2xl font-bold tracking-tight">{title}</h2>
       </div>
-    </header>
+      {children}
+    </>
   )
 }
