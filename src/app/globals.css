@@ -127,3 +127,25 @@
     @apply font-sans;
   }
 }
+
+/* ── Landing page background blobs ──────────────────────────────────── */
+@keyframes blob-drift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%       { transform: translate(40px, -28px) scale(1.07); }
+  66%       { transform: translate(-22px, 18px) scale(0.95); }
+}
+
+.landing-blob {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(90px);
+  pointer-events: none;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .landing-blob {
+    animation: blob-drift var(--blob-duration, 22s) ease-in-out infinite;
+    animation-delay: var(--blob-delay, 0s);
+  }
+}

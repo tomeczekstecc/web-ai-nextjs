@@ -1,14 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import {
-  ArrowRight,
-  BadgeCheck,
-  Check,
-  CircleHelp,
-  Database,
-  ShieldCheck,
-  Zap,
-} from "lucide-react";
+import { ArrowRight, BadgeCheck, CircleHelp, Component, GitBranch, Globe, ShieldCheck, Zap } from "lucide-react";
 
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Badge } from "@/components/ui/badge";
@@ -16,266 +8,160 @@ import { Button } from "@/components/ui/button";
 import { getLandingPageContent } from "@/lib/api/domains/landing-page/queries";
 
 export const metadata: Metadata = {
-  title: "CI-PRS Web Platform — Server-First API Layer",
+  title: "CI-PRS Web Platform",
   description:
     "Server-first API layer for modern web applications built with Next.js App Router, shadcn/ui, and type-safe data fetching.",
-  openGraph: {
-    title: "CI-PRS Web Platform",
-    description:
-      "Server-first API layer for modern web applications with Next.js App Router, shadcn/ui, and type-safe data fetching.",
-    type: "website",
-    locale: "pl_PL",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "CI-PRS Web Platform",
-    description:
-      "Server-first API layer for modern web applications with Next.js App Router, shadcn/ui, and type-safe data fetching.",
-  },
 };
 
 export const dynamic = "force-dynamic";
 
 const featureIcons = [BadgeCheck, Zap, CircleHelp, ShieldCheck];
 
-const toneStyles = {
-  blue: {
-    badge:
-      "border-blue-200/70 bg-blue-50/90 text-blue-700 dark:border-white/10 dark:bg-white/4 dark:text-white/78",
-    icon: "bg-[#1f6feb] text-white shadow-[0_14px_30px_-18px_rgba(31,111,235,0.7)]",
-    stat: "text-sky-600 dark:text-[#7db3ff]",
-  },
-  violet: {
-    badge:
-      "border-violet-200/80 bg-violet-50/90 text-violet-700 dark:border-white/10 dark:bg-white/4 dark:text-white/78",
-    icon: "bg-[#7c3aed] text-white shadow-[0_14px_30px_-18px_rgba(124,58,237,0.72)]",
-    stat: "text-violet-600 dark:text-[#c4b5fd]",
-  },
-  emerald: {
-    badge:
-      "border-emerald-200/80 bg-emerald-50/90 text-emerald-700 dark:border-white/10 dark:bg-white/4 dark:text-white/78",
-    icon: "bg-[#059669] text-white shadow-[0_14px_30px_-18px_rgba(5,150,105,0.72)]",
-    stat: "text-emerald-600 dark:text-[#6ee7b7]",
-  },
-} as const;
-
-const getIntegrationCopy = (source: "api" | "fallback", message?: string) => {
-  if (source === "api") {
-    return {
-      label: "Backend online",
-      body: "Widok korzysta z danych pobranych po stronie serwera przez typed API helper.",
-    };
-  }
-
-  return {
-    label: "Tryb rezerwowy",
-    body:
-      message ??
-      "Brak odpowiedzi z backendu. Strona korzysta z bezpiecznego fallbacku i pozostaje gotowa do podmiany przez API_URL.",
-  };
-};
+const stackItems = [
+  { label: "Next.js",          version: "v16",   category: "Framework" },
+  { label: "React",            version: "v19",   category: "UI Runtime" },
+  { label: "TypeScript",       version: "v5.8",  category: "Language" },
+  { label: "Tailwind CSS",     version: "v4",    category: "Styling" },
+  { label: "shadcn/ui",        version: "v4",    category: "Components" },
+  { label: "TanStack Query",   version: "v5",    category: "Data Fetching" },
+  { label: "TanStack Table",   version: "v8",    category: "Tables" },
+  { label: "Zod",              version: "v4",    category: "Validation" },
+  { label: "Zustand",          version: "v5",    category: "State" },
+  { label: "better-auth",      version: "v1.3",  category: "Auth" },
+  { label: "dnd kit",          version: "v6",    category: "Drag & Drop" },
+  { label: "MSW",              version: "v2",    category: "Mocking" },
+] as const;
 
 export default async function Home() {
-  const { content, source, endpoint, error } = await getLandingPageContent();
-  const integrationCopy = getIntegrationCopy(source, error?.message);
+  const { content, source } = await getLandingPageContent();
 
   return (
-    <main
-      id="top"
-      className="relative min-h-screen overflow-hidden bg-[linear-gradient(180deg,#fcfcfd_0%,#f7f7fb_44%,#eef1f8_100%)] text-slate-950 dark:bg-[#09090b] dark:text-white"
-    >
-      <div className="pointer-events-none absolute inset-0">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.12),transparent_28%),radial-gradient(circle_at_78%_18%,rgba(139,92,246,0.1),transparent_20%)] dark:bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.05),transparent_26%),radial-gradient(circle_at_78%_18%,rgba(255,255,255,0.03),transparent_20%)]" />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.36)_0%,rgba(248,250,252,0.15)_45%,rgba(241,245,249,0.08)_100%)] dark:bg-[linear-gradient(180deg,#09090b_0%,#0b0b0f_45%,#111113_100%)]" />
-        <div className="absolute inset-x-0 top-[34rem] h-px bg-slate-900/8 dark:bg-white/6" />
+    <main className="relative min-h-screen overflow-hidden bg-background text-foreground">
+      {/* Background blobs */}
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0">
+        <div
+          className="landing-blob absolute -left-56 -top-56 size-[700px] bg-blue-300/20 dark:bg-blue-800/20"
+          style={{ "--blob-duration": "26s" } as React.CSSProperties}
+        />
+        <div
+          className="landing-blob absolute -right-48 -top-20 size-[580px] bg-violet-300/15 dark:bg-violet-800/15"
+          style={{ "--blob-duration": "32s", "--blob-delay": "-10s" } as React.CSSProperties}
+        />
+        <div
+          className="landing-blob absolute -bottom-48 left-1/2 size-[540px] -translate-x-1/2 bg-sky-200/20 dark:bg-indigo-900/30"
+          style={{ "--blob-duration": "21s", "--blob-delay": "-17s" } as React.CSSProperties}
+        />
       </div>
-
-      <div className="relative mx-auto flex min-h-screen max-w-7xl flex-col px-6 pb-20 pt-6 sm:px-8 lg:px-12">
-        <header className="flex items-center justify-between gap-4">
-          <p className="text-lg font-semibold tracking-[-0.03em] text-slate-950 dark:text-white">
-            CI-PRS Web Platform
-          </p>
+      <div className="mx-auto flex min-h-screen max-w-5xl flex-col px-6 pb-16 pt-4 sm:px-8">
+        {/* Header */}
+        <header className="flex items-center justify-between">
+          <p className="text-base font-semibold tracking-tight">CI-PRS Web Platform</p>
           <ThemeToggle />
         </header>
 
-        <section className="grid flex-1 gap-12 pt-14 lg:grid-cols-[1.05fr_0.95fr] lg:items-start lg:gap-16 lg:pt-20">
-          <div className="pt-2">
-            <Badge
+        {/* Hero */}
+        <section className="flex flex-1 flex-col items-start justify-center gap-6 pt-10 pb-10">
+          <Badge variant="outline" className="rounded-full px-5 py-2 text-sm">
+            {source === "api" ? "Backend online" : "Tryb rezerwowy"} · {content.hero.eyebrow}
+          </Badge>
+
+          <h1 className="max-w-3xl text-balance text-4xl font-semibold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
+            {content.hero.title}{" "}
+            <span className="text-muted-foreground">{content.hero.highlight}</span>
+          </h1>
+
+          <p className="max-w-xl text-balance text-lg leading-relaxed text-muted-foreground">
+            {content.hero.description}
+          </p>
+
+          <Button
+            size="lg"
+            className="mt-2 h-12 rounded-xl px-6"
+            nativeButton={false}
+            disabled
+            render={<Link href={content.hero.primaryCtaHref} />}
+          >
+            {content.hero.primaryCtaLabel}
+            <ArrowRight data-icon="inline-end" />
+          </Button>
+
+          <div className="flex flex-wrap gap-3">
+            <Button
               variant="outline"
-              className={`rounded-full border px-3 py-1 text-sm ${source === "api" ? toneStyles.blue.badge : toneStyles.violet.badge}`}
+              size="sm"
+              nativeButton={false}
+              render={<Link href="#" />}
             >
-              {content.hero.eyebrow}
-            </Badge>
+              <GitBranch className="size-4" />
+              GitLab
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              nativeButton={false}
+              render={<Link href="#" />}
+            >
+              <Globe className="size-4" />
+              Next.js
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              nativeButton={false}
+              render={<Link href="#" />}
+            >
+              <Component className="size-4" />
+              shadcn/ui
+            </Button>
+          </div>
+        </section>
 
-            <div className="mt-8 max-w-4xl">
-              <h1 className="text-balance text-5xl font-semibold leading-[0.92] tracking-[-0.08em] text-slate-950 dark:text-white sm:text-6xl lg:text-[5.8rem]">
-                {content.hero.title}
-                <span className="bg-[linear-gradient(180deg,#0f172a_0%,#4f46e5_52%,#7c3aed_100%)] bg-clip-text text-transparent dark:bg-[linear-gradient(180deg,#ffffff_10%,#d4d4d8_54%,#c4b5fd_100%)]">
-                  {" "}
-                  {content.hero.highlight}
+        {/* Features */}
+        <section className="grid gap-4 border-t pt-12 sm:grid-cols-3">
+          {content.features.map((feature, index) => {
+            const Icon = featureIcons[index % featureIcons.length];
+            return (
+              <article
+                key={feature.id}
+                className="rounded-2xl border bg-card p-5 shadow-sm"
+              >
+                <Icon className="mb-4 size-5 text-muted-foreground" />
+                <h3 className="text-sm font-semibold leading-snug tracking-tight">
+                  {feature.title}
+                </h3>
+                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+                  {feature.body}
+                </p>
+              </article>
+            );
+          })}
+        </section>
+
+        {/* Stack */}
+        <section className="border-t pt-12">
+          <h2 className="mb-6 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+            Stack
+          </h2>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+            {stackItems.map(({ label, version, category }) => (
+              <div
+                key={label}
+                className="flex flex-col gap-1 rounded-xl border bg-card px-4 py-3 shadow-sm"
+              >
+                <span className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
+                  {category}
                 </span>
-              </h1>
-
-              <p className="mt-8 max-w-2xl text-balance text-lg leading-8 text-slate-700 dark:text-zinc-300 sm:text-xl">
-                {content.hero.description}
-              </p>
-              {content.hero.secondaryNote ? (
-                <p className="mt-5 max-w-2xl text-base leading-7 text-slate-600 dark:text-zinc-400">
-                  {content.hero.secondaryNote}
-                </p>
-              ) : null}
-            </div>
-
-            <div className="relative mt-12 max-w-2xl">
-              <div className="absolute inset-x-6 top-1/2 h-20 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(99,102,241,0.18),transparent_62%)] blur-2xl dark:bg-[radial-gradient(circle,rgba(255,255,255,0.12),transparent_62%)]" />
-              <div className="relative flex flex-col items-start gap-4 sm:flex-row sm:items-center">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="lg"
-                  nativeButton={false}
-                  className="h-14 min-w-72 rounded-2xl border border-slate-300/80 bg-slate-950 text-white hover:bg-slate-800 dark:border-white/12 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
-                  render={<Link href={content.hero.primaryCtaHref} />}
-                >
-                  {content.hero.primaryCtaLabel}
-                  <ArrowRight data-icon="inline-end" />
-                </Button>
-                <p className="max-w-xs text-sm leading-6 text-slate-600 dark:text-zinc-400">
-                  Gotowe do podpiecia pod realne endpointy Laravel bez przepisywania strony.
-                </p>
+                <span className="text-sm font-semibold leading-tight">{label}</span>
+                <span className="text-xs text-muted-foreground">{version}</span>
               </div>
-            </div>
-
-            <div className="mt-14 grid gap-4 sm:grid-cols-3">
-              {content.stats.map((stat) => (
-                <article
-                  key={stat.id}
-                  className="rounded-[1.55rem] border border-slate-200/80 bg-white/70 px-5 py-5 shadow-[0_18px_60px_-42px_rgba(15,23,42,0.22)] backdrop-blur dark:border-white/10 dark:bg-white/[0.03] dark:shadow-[0_18px_60px_-42px_rgba(0,0,0,0.9)]"
-                >
-                  <p className={`text-3xl font-semibold tracking-[-0.05em] ${toneStyles[stat.tone].stat}`}>
-                    {stat.value}
-                  </p>
-                  <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-zinc-400">
-                    {stat.label}
-                  </p>
-                </article>
-              ))}
-            </div>
-          </div>
-
-          <div className="rounded-[2rem] border border-slate-200/80 bg-white/72 p-6 shadow-[0_32px_90px_-55px_rgba(15,23,42,0.25)] backdrop-blur-sm dark:border-white/12 dark:bg-white/[0.04] dark:shadow-[0_32px_90px_-55px_rgba(0,0,0,0.95)]">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <p className="text-sm font-medium uppercase tracking-[0.24em] text-slate-500 dark:text-zinc-400">
-                  Integracja backendu
-                </p>
-                <h2 className="mt-3 text-3xl font-semibold tracking-[-0.05em] text-slate-950 dark:text-white">
-                  Server-first API layer
-                </h2>
-              </div>
-              <span className="flex size-11 items-center justify-center rounded-2xl border border-slate-200 bg-slate-950/[0.03] text-slate-600 dark:border-white/10 dark:bg-white/[0.03] dark:text-zinc-200">
-                <Database className="size-5" />
-              </span>
-            </div>
-
-            <div className="mt-8 rounded-[1.45rem] border border-slate-200/80 bg-slate-50/90 p-5 dark:border-white/12 dark:bg-[#141417]">
-              <div className="flex flex-wrap items-center gap-3">
-                <Badge
-                  variant="outline"
-                  className={`rounded-full border px-3 py-1 ${source === "api" ? toneStyles.blue.badge : toneStyles.violet.badge}`}
-                >
-                  {integrationCopy.label}
-                </Badge>
-                <Badge
-                  variant="outline"
-                  className="rounded-full border border-slate-300/80 bg-transparent px-3 py-1 text-slate-700 dark:border-white/14 dark:text-white/92"
-                >
-                  {endpoint}
-                </Badge>
-              </div>
-              <p className="mt-4 text-base leading-7 text-slate-700 dark:text-zinc-300">
-                {integrationCopy.body}
-              </p>
-              {error?.status ? (
-                <p className="mt-3 text-sm text-slate-500 dark:text-zinc-500">
-                  Status backendu: {error.status}
-                </p>
-              ) : null}
-            </div>
-
-            <div className="mt-8 grid gap-4">
-              {content.features.map((feature, index) => {
-                const Icon = featureIcons[index % featureIcons.length];
-
-                return (
-                  <article
-                    key={feature.id}
-                    className="rounded-[1.55rem] border border-slate-200/80 bg-slate-50/90 px-6 py-6 shadow-[0_18px_56px_-42px_rgba(15,23,42,0.18)] dark:border-white/12 dark:bg-[#141417] dark:shadow-[0_18px_56px_-42px_rgba(0,0,0,0.92)]"
-                  >
-                    <div className={`flex size-11 items-center justify-center rounded-xl ${toneStyles[feature.tone].icon}`}>
-                      <Icon className="size-5" />
-                    </div>
-                    <h3 className="mt-6 text-2xl font-semibold tracking-[-0.04em] text-slate-950 dark:text-white">
-                      {feature.title}
-                    </h3>
-                    <p className="mt-3 text-base leading-7 text-slate-600 dark:text-zinc-400">
-                      {feature.body}
-                    </p>
-                  </article>
-                );
-              })}
-            </div>
+            ))}
           </div>
         </section>
 
-        <section
-          id="benefits"
-          className="grid gap-10 border-t border-slate-900/8 pb-8 pt-14 dark:border-white/6 lg:grid-cols-[1fr_0.9fr] lg:items-start lg:gap-16"
-        >
-          <div>
-            <h2 className="max-w-2xl text-4xl font-semibold leading-tight tracking-[-0.06em] text-slate-950 dark:text-white sm:text-5xl">
-              Dlaczego warto zbudowac strone wlasnie w tym kierunku?
-            </h2>
-
-            <div className="mt-10 flex flex-col gap-5">
-              {content.benefits.map((item) => (
-                <div key={item} className="flex items-start gap-4">
-                  <span className="mt-1 flex size-6 shrink-0 items-center justify-center rounded-full bg-slate-950 text-white dark:bg-zinc-100 dark:text-black">
-                    <Check className="size-3.5" />
-                  </span>
-                  <p className="text-lg leading-8 text-slate-700 dark:text-zinc-300">{item}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="rounded-[1.85rem] border border-slate-200/80 bg-white/72 px-8 py-8 shadow-[0_24px_80px_-44px_rgba(15,23,42,0.24)] backdrop-blur-sm dark:border-white/12 dark:bg-white/[0.04] dark:shadow-[0_24px_80px_-44px_rgba(0,0,0,0.95)]">
-            <div className="grid gap-4">
-              {content.stats.map((stat) => (
-                <div
-                  key={stat.id}
-                  className="rounded-[1.35rem] border border-slate-200/80 bg-slate-50/90 px-6 py-6 dark:border-white/10 dark:bg-[#141417]"
-                >
-                  <p className={`text-4xl font-semibold tracking-[-0.06em] sm:text-5xl ${toneStyles[stat.tone].stat}`}>
-                    {stat.value}
-                  </p>
-                  <p className="mt-3 text-base text-slate-600 dark:text-zinc-400">{stat.label}</p>
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-8 inline-flex items-center gap-2 rounded-full border border-slate-200/80 bg-white/85 px-4 py-2 text-sm text-slate-700 dark:border-white/10 dark:bg-white/[0.03] dark:text-zinc-300">
-              <ShieldCheck className="size-4 text-[#6ee7b7]" />
-              spokojny, czytelny i gotowy do rozwoju stack
-            </div>
-          </div>
-        </section>
-
-        <section className="pb-4 pt-4">
-          <div className="rounded-[1.4rem] border border-dashed border-slate-300/80 bg-white/60 px-6 py-5 text-sm text-slate-500 dark:border-white/10 dark:bg-white/[0.025] dark:text-zinc-500">
-            Zmien `API_URL`, aby przepiac warstwe danych z fallbacku na realny backend bez zmian w komponencie strony.
-          </div>
-        </section>
+        {/* Footer note */}
+        <p className="mt-10 text-xs text-muted-foreground">
+          Zmień <code className="rounded bg-muted px-1 py-0.5">API_URL</code>, aby podpiąć realny backend — bez zmian w komponencie strony.
+        </p>
       </div>
     </main>
   );
