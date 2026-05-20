@@ -135,7 +135,7 @@ export function AppTopNav({ user }: AppTopNavProps) {
             <NavMainTop items={visibleFeatures} />
           )}
           <div className="ml-auto">
-            <NavUser user={user} settings={visibleSettings} />
+            <NavUser user={user} settings={visibleSettings} variant="topnav" />
           </div>
         </div>
 
@@ -168,7 +168,7 @@ export function AppTopNav({ user }: AppTopNavProps) {
                 )}
                 <Separator className="my-2" />
                 <div className="px-2 pb-4">
-                  <NavUser user={user} settings={visibleSettings} />
+                  <NavUser user={user} settings={visibleSettings} variant="topnav" />
                 </div>
               </div>
             </SheetContent>
