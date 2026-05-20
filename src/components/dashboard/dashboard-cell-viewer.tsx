@@ -14,10 +14,10 @@ import {
 } from "@/components/ui/drawer"
 import { DashboardActivityChart } from "./dashboard-activity-chart"
 import { DashboardEditForm } from "./dashboard-edit-form"
-import type { DashboardTableRow } from "./dashboard-columns"
+import type { DashboardReviewItem } from "@/lib/api/domains/dashboard/contract"
 
 interface TableCellViewerProps {
-  item: DashboardTableRow
+  item: DashboardReviewItem
 }
 
 export function TableCellViewer({ item }: TableCellViewerProps) {

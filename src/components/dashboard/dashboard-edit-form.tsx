@@ -10,10 +10,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import type { DashboardTableRow } from "./dashboard-columns"
+import type { DashboardReviewItem } from "@/lib/api/domains/dashboard/contract"
 
 interface DashboardEditFormProps {
-  item: DashboardTableRow
+  item: DashboardReviewItem
 }
 
 export function DashboardEditForm({ item }: DashboardEditFormProps) {

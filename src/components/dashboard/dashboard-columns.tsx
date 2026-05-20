@@ -29,18 +29,9 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { TableCellViewer } from "./dashboard-cell-viewer"
+import type { DashboardReviewItem } from "@/lib/api/domains/dashboard/contract"
 
-export type DashboardTableRow = {
-  id: number
-  header: string
-  type: string
-  status: string
-  target: string
-  limit: string
-  reviewer: string
-}
-
-export const dashboardColumns: ColumnDef<DashboardTableRow>[] = [
+export const dashboardColumns: ColumnDef<DashboardReviewItem>[] = [
   {
     accessorKey: "header",
     header: "Konkurs",
@@ -51,7 +42,7 @@ export const dashboardColumns: ColumnDef<DashboardTableRow>[] = [
       required: true,
       searchable: true,
       getSearchValue: (row) => row.header,
-    } satisfies DataTableColumnMeta<DashboardTableRow>,
+    } satisfies DataTableColumnMeta<DashboardReviewItem>,
   },
   {
     accessorKey: "type",
@@ -67,7 +58,7 @@ export const dashboardColumns: ColumnDef<DashboardTableRow>[] = [
       label: "Kategoria",
       searchable: true,
       getSearchValue: (row) => row.type,
-    } satisfies DataTableColumnMeta<DashboardTableRow>,
+    } satisfies DataTableColumnMeta<DashboardReviewItem>,
   },
   {
     accessorKey: "status",
@@ -86,7 +77,7 @@ export const dashboardColumns: ColumnDef<DashboardTableRow>[] = [
       label: "Status",
       searchable: true,
       getSearchValue: (row) => row.status,
-    } satisfies DataTableColumnMeta<DashboardTableRow>,
+    } satisfies DataTableColumnMeta<DashboardReviewItem>,
   },
   {
     accessorKey: "target",
@@ -114,7 +105,7 @@ export const dashboardColumns: ColumnDef<DashboardTableRow>[] = [
     ),
     meta: {
       label: "Kwota (PLN)",
-    } satisfies DataTableColumnMeta<DashboardTableRow>,
+    } satisfies DataTableColumnMeta<DashboardReviewItem>,
   },
   {
     accessorKey: "limit",
@@ -142,7 +133,7 @@ export const dashboardColumns: ColumnDef<DashboardTableRow>[] = [
     ),
     meta: {
       label: "Termin",
-    } satisfies DataTableColumnMeta<DashboardTableRow>,
+    } satisfies DataTableColumnMeta<DashboardReviewItem>,
   },
   {
     accessorKey: "reviewer",
@@ -182,7 +173,7 @@ export const dashboardColumns: ColumnDef<DashboardTableRow>[] = [
       label: "Opiekun",
       searchable: true,
       getSearchValue: (row) => row.reviewer,
-    } satisfies DataTableColumnMeta<DashboardTableRow>,
+    } satisfies DataTableColumnMeta<DashboardReviewItem>,
   },
   {
     id: "actions",
@@ -215,6 +206,6 @@ export const dashboardColumns: ColumnDef<DashboardTableRow>[] = [
       label: "Akcje",
       required: true,
       hideFromVisibilityMenu: true,
-    } satisfies DataTableColumnMeta<DashboardTableRow>,
+    } satisfies DataTableColumnMeta<DashboardReviewItem>,
   },
 ]
