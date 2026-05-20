@@ -1,4 +1,5 @@
 export { DataTable } from "./data-table"
+export { DataTableSkeleton } from "./skeleton"
 export type {
   DataTableColumnMeta,
   DataTableSearchOptions,

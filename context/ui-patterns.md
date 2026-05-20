@@ -231,6 +231,72 @@ Use Tailwind's spacing scale consistently:
 )}
 ```
 
+### Skeleton Granularity: View-Specific vs Reusable Component
+
+**Rule:** The skeleton should approximate the layout of what it replaces — not be pixel-perfect, but close enough that the page doesn't jump on load. Build skeletons at two levels:
+
+| Level | When to use | Example |
+|---|---|---|
+| **Component skeleton** | Reusable component used in multiple places | `DataTableSkeleton`, `CardListSkeleton` |
+| **View skeleton** | Page-specific loading state, composes component skeletons + view-specific pieces | Heading + `DataTableSkeleton` |
+
+**Component-level skeleton** — build once, reuse across all views that use that component:
+
+```tsx
+// src/components/data-table/skeleton.tsx
+// One skeleton for every DataTable usage — not duplicated per feature.
+export function DataTableSkeleton({ rows = 5 }: { rows?: number }) {
+  return (
+    <div className="flex flex-col gap-4">
+      {/* Toolbar */}
+      <div className="flex items-center justify-between">
+        <Skeleton className="h-9 w-64" />
+        <Skeleton className="h-8 w-24" />
+      </div>
+      {/* Table */}
+      <div className="overflow-hidden rounded-lg border">
+        <Skeleton className="h-10 w-full rounded-none" />
+        <div className="divide-y">
+          {Array.from({ length: rows }).map((_, i) => (
+            <Skeleton key={i} className="h-14 w-full rounded-none" />
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+```
+
+**View-level skeleton** — composes reusable skeletons + view-specific chrome (page title, section headings):
+
+```tsx
+// ✅ Good: view-specific heading + reusable table skeleton
+if (isLoading) {
+  return (
+    <div className="flex flex-col gap-4 px-4 lg:px-6">
+      <Skeleton className="h-7 w-48" /> {/* page heading */}
+      <DataTableSkeleton rows={5} />
+    </div>
+  )
+}
+
+// ❌ Bad: generic text — no layout match, causes jarring jump
+if (isLoading) {
+  return <div className="py-8 text-muted-foreground">Ładowanie...</div>
+}
+
+// ❌ Bad: duplicating table skeleton per feature instead of reusing DataTableSkeleton
+if (isLoading) {
+  return (
+    <div>
+      <Skeleton className="h-10 w-full" />
+      <Skeleton className="h-16 w-full" />
+      <Skeleton className="h-16 w-full" />
+    </div>
+  )
+}
+```
+
 ### Skeleton Component
 
 ```tsx
@@ -243,24 +309,6 @@ export function Skeleton({ className, ...props }: React.HTMLAttributes<HTMLDivEl
       className={cn("animate-pulse rounded-md bg-muted", className)}
       {...props}
     />
-  );
-}
-```
-
-### Usage in Data Tables
-
-```tsx
-export function DataTableSkeleton() {
-  return (
-    <div className="space-y-4">
-      {/* Header */}
-      <Skeleton className="h-10 w-full" />
-      
-      {/* Rows */}
-      {Array.from({ length: 5 }).map((_, i) => (
-        <Skeleton key={i} className="h-16 w-full" />
-      ))}
-    </div>
   );
 }
 ```

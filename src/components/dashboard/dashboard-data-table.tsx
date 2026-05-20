@@ -3,8 +3,9 @@
 import { useQuery } from "@tanstack/react-query"
 import { PlusIcon } from "lucide-react"
 
-import { DataTable } from "@/components/data-table"
+import { DataTable, DataTableSkeleton } from "@/components/data-table"
 import { Button } from "@/components/ui/button"
+import { Skeleton } from "@/components/ui/skeleton"
 import { dashboardReviewItemsOptions } from "@/lib/api/domains/dashboard/query-options"
 import { dashboardColumns } from "./dashboard-columns"
 
@@ -15,7 +16,10 @@ export function DashboardDataTable() {
 
   if (isLoading) {
     return (
-      <div className="px-4 lg:px-6 py-8 text-muted-foreground">Ładowanie...</div>
+      <div className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6">
+        <Skeleton className="h-7 w-52" />
+        <DataTableSkeleton rows={5} />
+      </div>
     )
   }
 
