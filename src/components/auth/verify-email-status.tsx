@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
 import { buildAuthSuccessHref, buildSignInHref, buildVerifyEmailCallback, sanitizeReturnTo } from "@/lib/auth/redirects";
@@ -70,9 +71,11 @@ export function VerifyEmailStatus() {
   if (status === "error") {
     return (
       <div className="space-y-4">
-        <div className="rounded-lg border border-destructive/20 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+      <Alert variant="destructive">
+        <AlertDescription>
           Nie udalo sie potwierdzic adresu e-mail. Sprobuj wyslac wiadomosc ponownie.
-        </div>
+        </AlertDescription>
+      </Alert>
         {email ? (
           <Button disabled={pending} onClick={handleResend} type="button" variant="outline">
             {pending ? "Wysylanie..." : "Wyslij ponownie"}
@@ -85,9 +88,11 @@ export function VerifyEmailStatus() {
   if (status === "resent") {
     return (
       <div className="space-y-4">
-        <div className="rounded-lg border border-primary/20 bg-primary/10 px-3 py-2 text-sm text-foreground">
+      <Alert className="border-primary/20 bg-primary/10">
+        <AlertDescription className="text-foreground">
           Jesli adres e-mail jest gotowy do potwierdzenia, wyslalismy nowa wiadomosc z linkiem.
-        </div>
+        </AlertDescription>
+      </Alert>
         <Link className="text-sm font-medium text-primary underline-offset-4 hover:underline" href={buildSignInHref(returnTo)}>
           Wroc do logowania
         </Link>
@@ -97,11 +102,13 @@ export function VerifyEmailStatus() {
 
   return (
     <div className="space-y-4">
-      <div className="rounded-lg border border-border/70 bg-muted/40 px-3 py-3 text-sm leading-6 text-muted-foreground">
-        {email
-          ? `Sprawdz skrzynke ${email}. Otworz wiadomosc i kliknij link, aby aktywowac konto.`
-          : "Sprawdz skrzynke e-mail i kliknij link potwierdzajacy, aby aktywowac konto."}
-      </div>
+      <Alert>
+        <AlertDescription>
+          {email
+            ? `Sprawdz skrzynke ${email}. Otworz wiadomosc i kliknij link, aby aktywowac konto.`
+            : "Sprawdz skrzynke e-mail i kliknij link potwierdzajacy, aby aktywowac konto."}
+        </AlertDescription>
+      </Alert>
       <div className="flex flex-col gap-3 sm:flex-row">
         <Button disabled={!email || pending} onClick={handleResend} type="button" variant="outline">
           {pending ? "Wysylanie..." : "Wyslij wiadomosc ponownie"}

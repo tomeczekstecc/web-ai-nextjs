@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useForm, type StandardSchemaV1 } from "@tanstack/react-form";
 import { z } from "zod";
 
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -89,9 +90,9 @@ export function SignUpForm() {
   return (
     <div className="space-y-5">
       {serverMessage ? (
-        <div className="rounded-lg border border-primary/20 bg-primary/10 px-3 py-2 text-sm text-foreground">
-          {serverMessage}
-        </div>
+        <Alert className="border-primary/20 bg-primary/10">
+          <AlertDescription className="text-foreground">{serverMessage}</AlertDescription>
+        </Alert>
       ) : null}
       <form
         className="space-y-4"

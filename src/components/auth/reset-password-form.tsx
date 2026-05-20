@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useForm, type StandardSchemaV1 } from "@tanstack/react-form";
 import { z } from "zod";
 
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Field,
@@ -68,14 +69,14 @@ function RequestResetForm({ returnTo }: { returnTo: string }) {
   return (
     <div className="space-y-5">
       {serverMessage ? (
-        <div className="rounded-lg border border-primary/20 bg-primary/10 px-3 py-2 text-sm text-foreground">
-          {serverMessage}
-        </div>
+        <Alert className="border-primary/20 bg-primary/10">
+          <AlertDescription className="text-foreground">{serverMessage}</AlertDescription>
+        </Alert>
       ) : null}
       {serverError ? (
-        <div className="rounded-lg border border-destructive/20 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-          {serverError}
-        </div>
+        <Alert variant="destructive">
+          <AlertDescription>{serverError}</AlertDescription>
+        </Alert>
       ) : null}
       <form
         className="space-y-4"
@@ -175,9 +176,9 @@ function SetNewPasswordForm({
       }}
     >
       {serverError ? (
-        <div className="rounded-lg border border-destructive/20 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-          {serverError}
-        </div>
+        <Alert variant="destructive">
+          <AlertDescription>{serverError}</AlertDescription>
+        </Alert>
       ) : null}
       <FieldGroup>
         <form.Field name="password">

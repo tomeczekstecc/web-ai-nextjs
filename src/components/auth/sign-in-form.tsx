@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useForm, type StandardSchemaV1 } from "@tanstack/react-form";
 import { z } from "zod";
 
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Field,
@@ -85,14 +86,16 @@ export function SignInForm() {
   return (
     <div className="space-y-5">
       {message === "reset" ? (
-        <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-700 dark:text-emerald-300">
-          Haslo zostalo zmienione. Mozesz zalogowac sie nowymi danymi.
-        </div>
+        <Alert className="border-emerald-500/20 bg-emerald-500/10">
+          <AlertDescription className="text-emerald-700 dark:text-emerald-300">
+            Haslo zostalo zmienione. Mozesz zalogowac sie nowymi danymi.
+          </AlertDescription>
+        </Alert>
       ) : null}
       {serverError ? (
-        <div className="rounded-lg border border-destructive/20 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-          {serverError}
-        </div>
+        <Alert variant="destructive">
+          <AlertDescription>{serverError}</AlertDescription>
+        </Alert>
       ) : null}
       <form
         className="space-y-4"

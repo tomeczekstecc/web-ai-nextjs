@@ -3,6 +3,7 @@
 import { useQuery } from "@tanstack/react-query"
 import { PlusIcon } from "lucide-react"
 
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import { DataTable, DataTableSkeleton } from "@/components/data-table"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -25,8 +26,10 @@ export function DashboardDataTable() {
 
   if (isError || !reviewItemsData) {
     return (
-      <div className="px-4 lg:px-6 py-8 flex flex-col gap-2">
-        <p className="text-muted-foreground text-sm">Nie udało się załadować danych.</p>
+      <div className="px-4 lg:px-6 py-4 flex flex-col gap-3">
+        <Alert variant="destructive">
+          <AlertDescription>Nie udało się załadować danych.</AlertDescription>
+        </Alert>
         <Button variant="outline" size="sm" className="w-fit" onClick={() => refetch()}>
           Spróbuj ponownie
         </Button>
