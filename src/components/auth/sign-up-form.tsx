@@ -161,8 +161,9 @@ export function SignUpForm() {
                     onBlur={field.handleBlur}
                     onChange={(e) => field.handleChange(e.target.value)}
                     aria-invalid={isInvalid}
+                    aria-describedby={`${field.name}-hint`}
                   />
-                  <p className="text-xs text-muted-foreground">
+                  <p id={`${field.name}-hint`} className="text-xs text-muted-foreground">
                     Uzyj co najmniej 12 znakow.
                   </p>
                   {isInvalid && <FieldError errors={field.state.meta.errors} />}

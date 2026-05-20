@@ -1,5 +1,6 @@
 "use client"
 
+import dynamic from "next/dynamic"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { Button } from "@/components/ui/button"
 import {
@@ -12,9 +13,13 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer"
-import { DashboardActivityChart } from "./dashboard-activity-chart"
 import { DashboardEditForm } from "./dashboard-edit-form"
 import type { DashboardReviewItem } from "@/lib/api/domains/dashboard/contract"
+
+const DashboardActivityChart = dynamic(
+  () => import("./dashboard-activity-chart").then((m) => ({ default: m.DashboardActivityChart })),
+  { ssr: false },
+)
 
 interface TableCellViewerProps {
   item: DashboardReviewItem
