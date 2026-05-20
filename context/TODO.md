@@ -49,3 +49,27 @@ Project-level follow-ups captured by agents.
   - Branch: `master`
   - Domain: general
 
+- [ ] Create a custom 404 not-found page.
+  - Priority: medium
+  - Date: 2026-05-20
+  - Branch: `master`
+  - Domain: ui
+
+- [ ] Dodac linki nawigacji do strony kursu Udemy oraz dokumentacji projektu.
+  - Priority: medium
+  - Date: 2026-05-20
+  - Branch: `master`
+  - Domain: general
+
+- [ ] Pobierac nazwe aplikacji z env (np. NEXT_PUBLIC_APP_NAME) zamiast hardkodowac ja w komponentach.
+  - Priority: medium
+  - Date: 2026-05-20
+  - Branch: `master`
+  - Domain: general
+
+- [ ] Breadcrumbs z layoutu - wyciągnąć breadcrumbs do wspólnego layoutu.
+  - Priority: critical
+  - Date: 2026-05-20
+  - Branch: `015-top-nav-layout`
+  - Domain: ui
+
