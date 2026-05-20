@@ -4,7 +4,6 @@ import type {
   ApplicationListResult,
   ApplicationListPayload,
   ApplicationPayload,
-  ApiErrorResponse,
   CreateApplicationInput,
   UpdateApplicationInput,
   UpdateApplicationStatusInput,
@@ -13,58 +12,7 @@ import {
   mapApplication,
   mapApplicationList,
 } from "@/lib/api/domains/applications/mapper";
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "/api";
-
-type FetchResult<T> =
-  | { ok: true; data: T }
-  | { ok: false; error: ApiErrorResponse };
-
-async function browserFetch<T>(
-  path: string,
-  options: RequestInit = {}
-): Promise<FetchResult<T>> {
-  const url = `${API_BASE_URL}${path}`;
-
-  try {
-    const response = await fetch(url, {
-      ...options,
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        ...options.headers,
-      },
-      credentials: "include",
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      return {
-        ok: false,
-        error: {
-          code: `HTTP_${response.status}`,
-          message: errorData.message || response.statusText,
-          details: errorData.details,
-        },
-      };
-    }
-
-    if (response.status === 204) {
-      return { ok: true, data: undefined as T };
-    }
-
-    const data = await response.json();
-    return { ok: true, data };
-  } catch (error) {
-    return {
-      ok: false,
-      error: {
-        code: "NETWORK_ERROR",
-        message: error instanceof Error ? error.message : "Blad sieci",
-      },
-    };
-  }
-}
+import { browserFetch } from "@/lib/api/core/browser-http";
 
 function buildListQueryParams(params: ApplicationListParams): string {
   const searchParams = new URLSearchParams();
