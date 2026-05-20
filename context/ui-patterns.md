@@ -898,6 +898,117 @@ const iconRegistry = {
 
 ---
 
+## Domain-Scoped Page Layout
+
+**Rule:** Every page under `src/app/(app)/` MUST open its content area with two elements in this order:
+
+1. **Breadcrumbs** — wayfinding trail using `<Breadcrumb>` from `@/components/ui/breadcrumb`
+2. **Page heading** — an `<h2>` that names the current page or section
+
+These two elements are mandatory regardless of layout mode (sidebar or top-nav). They establish visual context and replace the page title that was previously rendered in `SiteHeader`.
+
+### Structure
+
+```tsx
+// src/app/(app)/reports/page.tsx
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
+
+export default function ReportsPage() {
+  return (
+    <div className="flex flex-col gap-6 px-4 py-4 lg:px-6 lg:py-6">
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Raporty</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+
+      <h2 className="text-2xl font-bold tracking-tight">Raporty</h2>
+
+      {/* page content */}
+    </div>
+  )
+}
+```
+
+### Breadcrumb Rules
+
+- The **last item** is always `<BreadcrumbPage>` (current page, not a link)
+- Every **preceding item** is a `<BreadcrumbLink href="...">` that navigates to that level
+- Root anchor is always `Dashboard` linking to `/dashboard`
+- Use `<BreadcrumbEllipsis />` when the trail exceeds 3 levels (collapse middle items)
+- Labels match the `<h2>` of the destination page — never invent different wording
+
+### Heading Rules
+
+- Use `<h2>` — **not** `<h1>`. The app shell (brand name in top nav or sidebar) occupies the H1 level semantically.
+- Style: `text-2xl font-bold tracking-tight` (matches the former `SiteHeader` H1 style)
+- The `<h2>` text must match the last `<BreadcrumbPage>` label exactly
+- Do not add a subtitle or description next to the `<h2>` unless the page design explicitly calls for one
+
+### ✅ Correct
+
+```tsx
+<div className="flex flex-col gap-6 px-4 py-4 lg:px-6">
+  <Breadcrumb>
+    <BreadcrumbList>
+      <BreadcrumbItem><BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink></BreadcrumbItem>
+      <BreadcrumbSeparator />
+      <BreadcrumbItem><BreadcrumbLink href="/applications">Wnioski</BreadcrumbLink></BreadcrumbItem>
+      <BreadcrumbSeparator />
+      <BreadcrumbItem><BreadcrumbPage>W trakcie</BreadcrumbPage></BreadcrumbItem>
+    </BreadcrumbList>
+  </Breadcrumb>
+  <h2 className="text-2xl font-bold tracking-tight">W trakcie</h2>
+  <ApplicationsTable />
+</div>
+```
+
+### ❌ Wrong
+
+```tsx
+{/* Missing breadcrumbs */}
+<div className="p-6">
+  <h2>Wnioski</h2>
+  <ApplicationsTable />
+</div>
+
+{/* h1 used instead of h2 */}
+<div className="p-6">
+  <Breadcrumb>...</Breadcrumb>
+  <h1>Wnioski</h1>   {/* wrong — use h2 inside (app) pages */}
+</div>
+
+{/* Breadcrumb label differs from heading */}
+<Breadcrumb>
+  <BreadcrumbPage>Moje wnioski</BreadcrumbPage>  {/* label mismatch */}
+</Breadcrumb>
+<h2>Wnioski</h2>
+```
+
+### Checklist — before marking a domain page complete
+
+- [ ] `<Breadcrumb>` is the first element inside the page content wrapper
+- [ ] Last breadcrumb item uses `<BreadcrumbPage>`, not `<BreadcrumbLink>`
+- [ ] Root anchor links to `/dashboard`
+- [ ] `<h2>` follows immediately after `<Breadcrumb>`
+- [ ] `<h2>` text matches `<BreadcrumbPage>` label exactly
+- [ ] Heading style is `text-2xl font-bold tracking-tight`
+
+---
+
 ## Quick Reference
 
 **Visual hierarchy:** 1 primary, 2-3 secondary, unlimited tertiary
