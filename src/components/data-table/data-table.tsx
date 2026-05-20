@@ -19,36 +19,9 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
-  type ColumnDef,
   type VisibilityState,
 } from "@tanstack/react-table"
-import {
-  ChevronDownIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  ChevronsLeftIcon,
-  ChevronsRightIcon,
-  Columns3Icon,
-} from "lucide-react"
 
-import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import {
   Table,
   TableBody,
@@ -57,14 +30,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-
-import type { DataTableColumnMeta, DataTableProps } from "@/lib/data-table/types"
+import type { DataTableProps } from "@/lib/data-table/types"
 import { getColumnId, getColumnMeta, readPreferences, writePreferences } from "@/lib/data-table/utils"
 import { useControlledState } from "@/hooks/data-table/use-controlled-state"
+import { useDataTableControlColumns } from "@/hooks/data-table/use-data-table-control-columns"
 import { useDataTablePreferences } from "@/hooks/data-table/use-data-table-preferences"
 import { useDataTableReorder } from "@/hooks/data-table/use-data-table-reorder"
 import { useDataTableSearch } from "@/hooks/data-table/use-data-table-search"
-import { DragHandle } from "./drag-handle"
+import { DataTableFooter } from "./footer"
+import { DataTableToolbar } from "./toolbar"
 import { DraggableRow } from "./draggable-row"
 import { StaticRow } from "./static-row"
 
@@ -270,61 +244,11 @@ export function DataTable<TData>({
   ])
 
   // ── Control columns (drag + select) ────────────────────────────────────
-  const controlColumns = React.useMemo<ColumnDef<TData>[]>(() => {
-    const nextColumns: ColumnDef<TData>[] = []
-
-    if (isReorderEnabled) {
-      nextColumns.push({
-        id: "__drag",
-        header: () => null,
-        cell: ({ row }) => <DragHandle id={row.id} disabled={!canReorder} />,
-        enableSorting: false,
-        enableHiding: false,
-        meta: {
-          label: "Kolejność",
-          required: true,
-          hideFromVisibilityMenu: true,
-        } satisfies DataTableColumnMeta<TData>,
-      })
-    }
-
-    if (isSelectionEnabled) {
-      nextColumns.push({
-        id: "__select",
-        header: ({ table }) => (
-          <div className="flex items-center justify-center">
-            <Checkbox
-              checked={table.getIsAllPageRowsSelected()}
-              indeterminate={
-                table.getIsSomePageRowsSelected() && !table.getIsAllPageRowsSelected()
-              }
-              onCheckedChange={(value) => table.toggleAllPageRowsSelected(Boolean(value))}
-              aria-label="Zaznacz wszystkie wiersze"
-            />
-          </div>
-        ),
-        cell: ({ row }) => (
-          <div className="flex items-center justify-center">
-            <Checkbox
-              checked={row.getIsSelected()}
-              disabled={!row.getCanSelect()}
-              onCheckedChange={(value) => row.toggleSelected(Boolean(value))}
-              aria-label="Zaznacz wiersz"
-            />
-          </div>
-        ),
-        enableSorting: false,
-        enableHiding: false,
-        meta: {
-          label: "Zaznaczenie",
-          required: true,
-          hideFromVisibilityMenu: true,
-        } satisfies DataTableColumnMeta<TData>,
-      })
-    }
-
-    return nextColumns
-  }, [canReorder, isReorderEnabled, isSelectionEnabled])
+  const controlColumns = useDataTableControlColumns<TData>({
+    isReorderEnabled,
+    canReorder,
+    isSelectionEnabled,
+  })
 
   const tableColumns = React.useMemo(
     () => [...controlColumns, ...columns],
@@ -387,53 +311,16 @@ export function DataTable<TData>({
   return (
     <div className="flex w-full flex-col gap-4">
       {/* Toolbar */}
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-        <div className="flex flex-1 flex-col gap-2 sm:flex-row sm:items-center">
-          {toolbar?.left}
-          {isSearchEnabled && (
-            <div className="w-full sm:max-w-xs">
-              <Label htmlFor={`${sortableId}-search`} className="sr-only">
-                Szukaj w tabeli
-              </Label>
-              <Input
-                id={`${sortableId}-search`}
-                value={searchValue}
-                onChange={(event) => setSearchValue(event.target.value)}
-                placeholder={searchOptions?.placeholder ?? "Szukaj..."}
-                className="h-9"
-              />
-            </div>
-          )}
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          {toolbar?.selectionContent}
-          {visibilityEnabled && hideableColumns.length > 0 && (
-            <DropdownMenu>
-              <DropdownMenuTrigger render={<Button variant="outline" size="sm" />}>
-                <Columns3Icon data-icon="inline-start" />
-                Kolumny
-                <ChevronDownIcon data-icon="inline-end" />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-44">
-                {hideableColumns.map((column) => {
-                  const meta = getColumnMeta(column.columnDef)
-                  const label = meta.label ?? column.id
-                  return (
-                    <DropdownMenuCheckboxItem
-                      key={column.id}
-                      checked={column.getIsVisible()}
-                      onCheckedChange={(value) => column.toggleVisibility(Boolean(value))}
-                    >
-                      {label}
-                    </DropdownMenuCheckboxItem>
-                  )
-                })}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
-          {toolbar?.right}
-        </div>
-      </div>
+      <DataTableToolbar
+        sortableId={sortableId}
+        isSearchEnabled={isSearchEnabled}
+        searchValue={searchValue}
+        setSearchValue={setSearchValue}
+        searchPlaceholder={searchOptions?.placeholder ?? "Szukaj..."}
+        toolbar={toolbar}
+        visibilityEnabled={visibilityEnabled}
+        hideableColumns={hideableColumns}
+      />
 
       {/* Table */}
       <div className="overflow-hidden rounded-lg border">
@@ -508,87 +395,13 @@ export function DataTable<TData>({
       </div>
 
       {/* Footer */}
-      {isSelectionEnabled || isPaginationEnabled ? (
-        <div className="flex flex-col gap-3 px-1 lg:flex-row lg:items-center lg:justify-between">
-          <div className="text-sm text-muted-foreground">
-            {isSelectionEnabled
-              ? `${table.getFilteredSelectedRowModel().rows.length} z ${table.getFilteredRowModel().rows.length} zaznaczonych wierszy.`
-              : null}
-          </div>
-          {isPaginationEnabled && (
-            <div className="flex flex-wrap items-center justify-end gap-4">
-              <div className="flex items-center gap-2">
-                <Label htmlFor={`${sortableId}-rows-per-page`} className="text-sm font-medium">
-                  Wierszy na stronę
-                </Label>
-                <Select defaultValue={`${table.getState().pagination.pageSize}`}>
-                  <SelectTrigger
-                    size="sm"
-                    className="w-20"
-                    id={`${sortableId}-rows-per-page`}
-                  >
-                    <SelectValue placeholder={table.getState().pagination.pageSize} />
-                  </SelectTrigger>
-                  <SelectContent side="top">
-                    <SelectGroup>
-                      {pageSizeOptions.map((pageSize) => (
-                        <SelectItem key={pageSize} value={`${pageSize}`}>
-                          {pageSize}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="min-w-24 text-center text-sm font-medium">
-                Strona {table.getState().pagination.pageIndex + 1} z{" "}
-                {Math.max(table.getPageCount(), 1)}
-              </div>
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  className="hidden size-8 p-0 lg:flex"
-                  onClick={() => table.setPageIndex(0)}
-                  disabled={!table.getCanPreviousPage()}
-                >
-                  <span className="sr-only">Przejdź do pierwszej strony</span>
-                  <ChevronsLeftIcon />
-                </Button>
-                <Button
-                  variant="outline"
-                  className="size-8"
-                  size="icon"
-                  onClick={() => table.previousPage()}
-                  disabled={!table.getCanPreviousPage()}
-                >
-                  <span className="sr-only">Przejdź do poprzedniej strony</span>
-                  <ChevronLeftIcon />
-                </Button>
-                <Button
-                  variant="outline"
-                  className="size-8"
-                  size="icon"
-                  onClick={() => table.nextPage()}
-                  disabled={!table.getCanNextPage()}
-                >
-                  <span className="sr-only">Przejdź do następnej strony</span>
-                  <ChevronRightIcon />
-                </Button>
-                <Button
-                  variant="outline"
-                  className="hidden size-8 lg:flex"
-                  size="icon"
-                  onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-                  disabled={!table.getCanNextPage()}
-                >
-                  <span className="sr-only">Przejdź do ostatniej strony</span>
-                  <ChevronsRightIcon />
-                </Button>
-              </div>
-            </div>
-          )}
-        </div>
-      ) : null}
+      <DataTableFooter
+        sortableId={sortableId}
+        isSelectionEnabled={isSelectionEnabled}
+        isPaginationEnabled={isPaginationEnabled}
+        table={table}
+        pageSizeOptions={pageSizeOptions}
+      />
     </div>
   )
 }
