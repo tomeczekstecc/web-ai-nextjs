@@ -709,6 +709,73 @@ Before marking UI complete:
 
 ---
 
+## Component & Styling Rules
+
+### shadcn/ui Components Only
+
+**Rule:** Use only shadcn/ui components sourced from `src/components/ui/`. Do not introduce third-party UI libraries, hand-rolled component alternatives, or one-off styled wrappers that duplicate what shadcn already provides.
+
+```tsx
+// ✅ Correct — use the shadcn component from src/components/ui/
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+
+// ❌ Wrong — custom wrapper that re-implements a shadcn primitive
+export function MyButton({ children }) {
+  return <button className="rounded bg-blue-600 px-4 py-2 text-white">{children}</button>
+}
+
+// ❌ Wrong — raw HTML element where a shadcn component exists
+<input type="text" className="border rounded px-3 py-2" />
+<label htmlFor="x">Name</label>
+<select>...</select>
+<textarea className="border rounded" />
+
+// ✅ Correct — shadcn equivalents
+<Input type="text" />
+<Label htmlFor="x">Name</Label>
+<Select>...</Select>
+<Textarea />
+```
+
+**This applies to raw HTML elements too.** Do not use bare `<button>`, `<input>`, `<label>`, `<select>`, `<textarea>`, `<a>` (when a `Link` or `Button` variant applies), `<table>`, `<dialog>`, etc. when a shadcn/ui equivalent exists in `src/components/ui/`. Raw semantic HTML is acceptable only for structural/layout elements (`<div>`, `<section>`, `<article>`, `<main>`, `<header>`, `<footer>`, `<ul>`, `<li>`, `<p>`, `<span>`, `<h1>`–`<h6>`) that shadcn does not provide a wrapper for.
+
+### No Custom CSS (except globals.css)
+
+**Rule:** Custom CSS must not be added outside `src/app/globals.css`. All visual styling goes through Tailwind utility classes. CSS-in-JS, `.module.css`, `.module.scss`, `styled-components`, and arbitrary `style={{}}` attribute blocks are prohibited unless registered as an approved deviation below.
+
+```tsx
+// ✅ Correct — Tailwind utilities only
+<div className="flex items-center gap-4 rounded-lg border p-4">
+
+// ❌ Wrong — inline style block
+<div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+
+// ❌ Wrong — CSS module import
+import styles from "./MyComponent.module.css"
+```
+
+CSS custom properties passed via `style={{}}` solely to feed a Tailwind `var()` or animation value are allowed **only** when registered below.
+
+---
+
+### Approved Deviations from the No-Custom-CSS Rule
+
+Any departure from the rules above must be listed here. Do not remove entries — mark them resolved if fixed.
+
+| File | Deviation | Reason | Status |
+|------|-----------|--------|--------|
+| `src/app/page.tsx` | `style={{ "--blob-duration": "...", "--blob-delay": "..." }}` on blob animation divs | CSS custom properties required to drive per-element animation timing; cannot be expressed as static Tailwind classes | ✅ Approved |
+| `src/components/data-table/draggable-row.tsx` | `style={{ transform: CSS.Transform.toString(transform), transition }}` | dnd-kit's `useSortable` produces dynamic transform values at runtime that cannot be expressed as Tailwind classes | ✅ Approved |
+| `src/components/ui/chart.tsx` | `style={{}}` inside the shadcn chart component | Upstream shadcn/ui registry file — not hand-rolled; deviations inside `src/components/ui/` from the registry are acceptable | ✅ Approved |
+| `src/components/ui/toggle-group.tsx` | `style={{ "--gap": spacing }}` | Upstream shadcn/ui registry file — CSS custom property used internally by the component's Tailwind `gap-[--gap]` pattern | ✅ Approved |
+
+> **To add a new deviation:** open a PR that adds a row to this table with file, deviation description, and justification. Do not merge UI changes that introduce unapproved custom styles.
+
+---
+
 ## Resources
 
 - [Tailwind CSS Documentation](https://tailwindcss.com/docs)
