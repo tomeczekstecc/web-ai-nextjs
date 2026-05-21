@@ -17,10 +17,30 @@ const ibmPlexMono = IBM_Plex_Mono({
   weight: ["400", "500"],
 });
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3600";
+const siteName = "CI-PRS";
+const siteDescription =
+  "CI-PRS frontend template with Next.js 16 App Router, shadcn/ui, and Tailwind CSS v4. Server-first API layer with light/dark themes, MSW mocking, and TanStack Query for type-safe data fetching.";
+
 export const metadata: Metadata = {
-  title: "CI-PRS AI Spec-Driven-Development for Web",
-  description:
-    "CI-PRS frontend template with Next.js 16 App Router, shadcn/ui, and Tailwind CSS v4. Server-first API layer with light/dark themes, MSW mocking, and TanStack Query for type-safe data fetching.",
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: "CI-PRS AI Spec-Driven-Development for Web",
+    template: `%s | ${siteName}`,
+  },
+  description: siteDescription,
+  openGraph: {
+    type: "website",
+    siteName,
+    title: "CI-PRS AI Spec-Driven-Development for Web",
+    description: siteDescription,
+    url: siteUrl,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "CI-PRS AI Spec-Driven-Development for Web",
+    description: siteDescription,
+  },
 };
 
 export default function RootLayout({

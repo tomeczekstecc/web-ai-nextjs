@@ -7,10 +7,20 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getLandingPageContent } from "@/lib/api/domains/landing-page/queries";
 
+const _description =
+  "Server-first API layer for modern web applications built with Next.js App Router, shadcn/ui, and type-safe data fetching.";
+
 export const metadata: Metadata = {
   title: "CI-PRS Web Platform",
-  description:
-    "Server-first API layer for modern web applications built with Next.js App Router, shadcn/ui, and type-safe data fetching.",
+  description: _description,
+  openGraph: {
+    title: "CI-PRS Web Platform",
+    description: _description,
+  },
+  twitter: {
+    title: "CI-PRS Web Platform",
+    description: _description,
+  },
 };
 
 export const dynamic = "force-dynamic";

@@ -177,6 +177,7 @@ export const dashboardColumns: ColumnDef<DashboardReviewItem>[] = [
   },
   {
     id: "actions",
+    header: "Akcje",
     cell: () => (
       <DropdownMenu>
         <DropdownMenuTrigger

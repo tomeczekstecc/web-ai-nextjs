@@ -14,13 +14,13 @@ export default function ApplicationsError({
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-4 p-4">
       <div className="flex flex-col items-center gap-2 text-center">
-        <h2 className="text-lg font-semibold">Blad ladowania aplikacji</h2>
+        <h2 className="text-lg font-semibold">Błąd ladowania aplikacji</h2>
         <p className="text-sm text-muted-foreground">
-          {error.message || "Wystapil nieoczekiwany blad. Sprobuj ponownie."}
+          {error.message || "Wystąpił nieoczekiwany błąd. Spróbuj ponownie."}
         </p>
       </div>
       <Button onClick={reset} variant="outline">
-        Sprobuj ponownie
+        Spróbuj ponownie
       </Button>
     </div>
   );

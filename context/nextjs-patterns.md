@@ -416,3 +416,108 @@ Before marking a component complete:
 4. Test the page - if it renders, you did it right
 
 **Rule of thumb:** If you're not sure whether you need "use client", you probably don't.
+
+---
+
+## Authenticated App Shell — `(app)` Route Group
+
+### Overview
+
+All routes that require an authenticated session live under `src/app/(app)/`. The route group provides a shared `layout.tsx` that wraps every page with `AppShell` — the Server Component that owns the auth guard, session fetch, and navigation chrome (sidebar or top-nav). Pages under `(app)/` are plain content components; they never call `requireAuthorizedAppSession` or render `AppShell` themselves.
+
+The `(app)` prefix is a Next.js route group — it is invisible in the URL. `/dashboard`, `/applications`, and `/wizard-demo` are all served from `src/app/(app)/*/page.tsx` but their URLs are unchanged.
+
+### File Map
+
+```text
+src/app/
+├── (app)/
+│   ├── layout.tsx          ← shared shell — AppShell with no title
+│   ├── dashboard/
+│   │   └── page.tsx        ← plain content, no auth boilerplate
+│   ├── applications/
+│   │   └── page.tsx
+│   └── wizard-demo/
+│       └── ...
+├── auth/                   ← outside (app) — no shell, no auth guard
+├── layout.tsx              ← root layout (providers, fonts only)
+└── page.tsx                ← landing page — outside (app)
+
+src/components/
+└── app-shell.tsx           ← Server Component, owns auth + layout switch
+```
+
+### How `AppShell` Works
+
+`AppShell` is a **Server Component** that:
+
+1. Calls `requireAuthorizedAppSession(returnTo)` — redirects unauthenticated users to sign-in
+2. Calls `getNavLayout()` — reads `NEXT_PUBLIC_NAV_LAYOUT` env var
+3. Renders either the **sidebar** branch (`SidebarProvider` + `AppSidebar` + `SidebarInset`) or the **top-nav** branch (`AppTopNav` + content) based on the layout mode
+
+```tsx
+// src/app/(app)/layout.tsx
+import { AppShell } from "@/components/app-shell"
+
+export default function AppLayout({ children }: { children: React.ReactNode }) {
+  return <AppShell>{children}</AppShell>
+}
+```
+
+### Adding a New Protected Page
+
+1. Create the page under `src/app/(app)/<route>/page.tsx`
+2. Return plain JSX — no `AppShell`, no `requireAuthorizedAppSession`
+3. Do domain-specific prefetching in the page if needed (`getQueryClient`, `prefetchQuery`)
+
+```tsx
+// src/app/(app)/reports/page.tsx
+export default async function ReportsPage() {
+  // domain prefetch goes here if needed
+  return (
+    <div className="p-6">
+      <h1 className="text-2xl font-bold">Raporty</h1>
+    </div>
+  )
+}
+```
+
+### Key Rules
+
+- **All protected routes live under `src/app/(app)/`** — no exceptions. If a page requires a session, it belongs in the route group.
+- **Never call `requireAuthorizedAppSession` in a page** — `AppShell` handles it. Calling it again in a page is redundant and double-fetches the session.
+- **Never import `AppShell` in a page** — only `(app)/layout.tsx` uses it.
+- **Auth pages live outside `(app)/`** — `src/app/auth/*` has no shell and no auth guard.
+- **The landing page lives outside `(app)/`** — `src/app/page.tsx` is public.
+- **`returnTo` defaults to `"/"`** — `AppShell` accepts an optional `returnTo` prop, but `(app)/layout.tsx` omits it (users land at `/` after sign-in if they hit the shell directly).
+- **Domain prefetches stay in pages** — `AppShell` does not prefetch domain data; each page is responsible for its own `queryClient.prefetchQuery` calls.
+
+### Anti-Patterns
+
+```tsx
+// ❌ WRONG — page should not own the shell
+export default async function ReportsPage() {
+  const appSession = await requireAuthorizedAppSession("/reports")
+  return (
+    <AppShell title="Raporty" returnTo="/reports">
+      ...
+    </AppShell>
+  )
+}
+
+// ✅ CORRECT — shell is invisible to the page
+export default function ReportsPage() {
+  return <div>...</div>
+}
+```
+
+### Layout Mode Switching
+
+The `NEXT_PUBLIC_NAV_LAYOUT` env var controls which shell is rendered for all `(app)/` pages simultaneously:
+
+| Value | Shell rendered |
+|---|---|
+| `"sidebar"` (default) | Collapsible left sidebar (`AppSidebar`) |
+| `"top-menu"` | Sticky horizontal top bar (`AppTopNav`) |
+
+No page-level code changes are needed when switching layout modes.

@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-const baseUrl = process.env.BETTER_AUTH_URL ?? "http://localhost:3600";
+const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3600";
 
 export default function robots(): MetadataRoute.Robots {
   return {

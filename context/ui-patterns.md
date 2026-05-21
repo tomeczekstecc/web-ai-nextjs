@@ -35,30 +35,24 @@
 
 ## Heading Hierarchy
 
-**Rule:** Every page follows a strict heading hierarchy. Only one H1 per page (the top-level page title). Section titles within the page use H2. Subsections use H3.
+**Rule:** Every domain under `src/app/(app)/` follows a strict heading hierarchy. The brand name rendered in `AppSidebar` / `AppTopNav` occupies the implicit H1 level — no explicit `<h1>` appears in page content. The domain `layout.tsx` renders the `<h2>` as the first visible heading in the content area.
 
-| Level | Element | Style | Use For |
-|-------|---------|-------|---------|
-| H1 | `<h1>` | `text-2xl font-bold tracking-tight` | Page title in `SiteHeader` — one per page |
-| H2 | `<h2>` | `text-xl font-semibold tracking-tight` | Table/section headings within the page |
-| H3 | `<h3>` | `text-lg font-medium` | Subsection or card group titles |
+| Level | Element | Style | Rendered by |
+|-------|---------|-------|-------------|
+| H1 (implicit) | brand name in sidebar / top nav | `text-lg font-bold` | `AppSidebar` header / `AppTopNav` |
+| H2 | `<h2>` | `text-2xl font-bold tracking-tight` | Domain `layout.tsx` — one per domain |
+| H3 | `<h3>` | `text-xl font-semibold tracking-tight` | Table / section headings within a page |
+| H4 | `<h4>` | `text-lg font-medium` | Subsection or card group titles |
 
-### Example: Dashboard Page
-
-```tsx
-{/* H1 — SiteHeader */}
-<h1 className="text-2xl font-bold tracking-tight">Przegląd</h1>
-
-{/* H2 — table section */}
-<h2 className="text-xl font-semibold tracking-tight">Najważniejsze konkursy</h2>
-```
-
-### ❌ Bad: Multiple H1s or skipped levels
+### ❌ Bad: explicit h1 in content, skipped levels
 
 ```tsx
+{/* Wrong — no h1 inside (app) content */}
 <h1>Przegląd</h1>
-<h1>Najważniejsze konkursy</h1>  {/* Wrong — should be h2 */}
-<h4>Szczegóły</h4>              {/* Wrong — skipped h2, h3 */}
+
+{/* Wrong — skipped h2 */}
+<h2>Sekcja</h2>
+<h4>Szczegóły</h4>
 ```
 
 ---
@@ -776,6 +770,119 @@ Any departure from the rules above must be listed here. Do not remove entries �
 
 ---
 
+## Icon System
+
+### Central Icon Registry
+
+**Rule:** All icon usage must go through the central icon registry at `src/lib/icons.ts`. Do not import icons directly from `lucide-react` in components — always use `resolveIcon()` or `getIcon()`.
+
+This ensures:
+- Consistent icon usage across the app
+- Single source of truth for available icons
+- Easy refactoring if icon library changes
+- Fallback handling for missing icons
+
+```tsx
+// ✅ Correct — always use the registry
+import { resolveIcon, getIcon } from "@/lib/icons";
+
+function NavButton() {
+  const ArrowRight = getIcon("ArrowRight");  // exact name, type-safe
+  return (
+    <Button>
+      <ArrowRight className="h-4 w-4" />
+      Continue
+    </Button>
+  );
+}
+
+function MenuItem({ iconName }: { iconName: string }) {
+  const Icon = resolveIcon(iconName);  // "arrow-right" → ArrowRight (with fallback)
+  return <Icon className="h-4 w-4" />;
+}
+
+// ❌ Wrong — direct import from lucide-react
+import { ArrowRight, Settings } from "lucide-react";
+
+// ❌ Wrong — dynamic import without registry
+import * as Icons from "lucide-react";
+const Icon = Icons[iconName];
+```
+
+### Usage
+
+```tsx
+import { resolveIcon } from "@/lib/icons";
+
+// From data (kebab-case)
+const Icon = resolveIcon("layout-dashboard");  // → LayoutDashboard
+
+// Hardcoded (PascalCase with autocomplete)
+const Icon = resolveIcon("LayoutDashboard");   // → LayoutDashboard
+
+// Unknown icon falls back to Circle
+const Icon = resolveIcon("unknown");           // → Circle
+```
+
+### Registry API
+
+| Function | Purpose |
+|----------|--------|
+| `resolveIcon(name)` | Resolve icon name to component. Accepts kebab-case, snake_case, or PascalCase. Returns `Circle` fallback if not found. Has TypeScript autocomplete. |
+| `getIconNames()` | List all registered icon names (useful for icon pickers). |
+| `isIconName(name)` | Type guard for checking if a string is a valid icon name. |
+
+### Adding Icons to the Registry
+
+When a feature needs dynamic resolution of a new icon:
+
+1. Import the icon from `lucide-react` in `src/lib/icons.ts`
+2. Add it to the `iconRegistry` object under the appropriate category
+3. The icon is now available via `resolveIcon("icon-name")`
+
+```ts
+// src/lib/icons.ts
+import { NewIcon } from "lucide-react";
+
+const iconRegistry = {
+  // ... existing icons
+  NewIcon,
+};
+```
+
+### Icon Sizing Convention
+
+| Context | Size | Class |
+|---------|------|-------|
+| Inline with text | 16px | `h-4 w-4` |
+| Button icons | 16px | `h-4 w-4` |
+| Nav items | 16–20px | `h-4 w-4` or `h-5 w-5` |
+| Empty states | 48px | `h-12 w-12` |
+| Hero/feature | 64px+ | `h-16 w-16` or larger |
+
+### Icon Accessibility
+
+```tsx
+// Decorative icon (label provides meaning)
+<Button>
+  <ArrowRight className="h-4 w-4" aria-hidden="true" />
+  Continue
+</Button>
+
+// Icon-only button (needs accessible label)
+<Button variant="ghost" size="icon" aria-label="Settings">
+  <Settings className="h-4 w-4" />
+</Button>
+
+// Status icon (convey meaning via sr-only text)
+<span className="flex items-center gap-2">
+  <CircleCheck className="h-4 w-4 text-green-500" aria-hidden="true" />
+  <span>Completed</span>
+</span>
+```
+
+---
+
 ## Resources
 
 - [Tailwind CSS Documentation](https://tailwindcss.com/docs)
@@ -783,6 +890,183 @@ Any departure from the rules above must be listed here. Do not remove entries �
 - [Radix UI Primitives](https://www.radix-ui.com/primitives)
 - [Lucide Icons](https://lucide.dev/)
 
+---
+
+## Domain-Scoped Page Layout
+
+**Rule:** Every domain under `src/app/(app)/` owns its breadcrumbs and `<h2>` heading through
+`<DomainLayout>` from `@/components/domain-layout`. Consumers declare a `BREADCRUMBS` constant
+and wrap their children — nothing else. Nav-mode switching, `<h2>` derivation, and breadcrumb
+rendering are all handled internally.
+
+### `DomainLayout` API
+
+```tsx
+import { DomainLayout } from "@/components/domain-layout"
+import type { BreadcrumbEntry } from "@/components/site-header"
+
+// BreadcrumbEntry = { label: string; href?: string }
+// Last entry has no href — becomes the current-page crumb AND the <h2> text.
+```
+
+### Standard case — domain `layout.tsx`
+
+Use a route-level `layout.tsx` when **all pages in the domain share the same breadcrumb trail**
+(e.g. a list-only domain, or a domain where the heading never changes).
+
+```tsx
+// src/app/(app)/applications/layout.tsx
+import { DomainLayout } from "@/components/domain-layout"
+import type { BreadcrumbEntry } from "@/components/site-header"
+
+const BREADCRUMBS: BreadcrumbEntry[] = [
+  { label: "Home",            href: "/dashboard" },
+  { label: "Applications",   href: "/applications" },
+  { label: "All Applications" },   // ← no href → BreadcrumbPage + h2 text
+]
+
+export default function ApplicationsLayout({ children }: { children: React.ReactNode }) {
+  return <DomainLayout breadcrumbs={BREADCRUMBS}>{children}</DomainLayout>
+}
+```
+
+File placement:
+
+```
+src/app/(app)/
+  <domain>/
+    layout.tsx   ← BREADCRUMBS constant + <DomainLayout> wrapper
+    page.tsx     ← content only — no headings, no breadcrumbs
+```
+
+### Sub-route case — per-page server shell
+
+Use a **server component page shell** when pages within the domain have **distinct or dynamic
+headings** (e.g. `Edycja zadania #3`). The route-level `layout.tsx` stays a structural
+pass-through (metadata only); each page owns its own `DomainLayout` call.
+
+```tsx
+// src/app/(app)/wizard-demo/[id]/page.tsx  (server component)
+import { DomainLayout } from "@/components/domain-layout"
+import { TasksWizard } from "@/components/tasks-wizard/TasksWizard"
+
+export default async function EditTaskPage({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}) {
+  const { id } = await params   // params available server-side — no useParams needed
+
+  return (
+    <DomainLayout breadcrumbs={[
+      { label: "Home",    href: "/dashboard" },
+      { label: "Zadania", href: "/wizard-demo" },
+      { label: `Edycja zadania #${id}` },   // ← dynamic last crumb → h2 text
+    ]}>
+      <div className="px-4 pb-8 lg:px-6">
+        <TasksWizard id={Number(id)} mode="edit" />
+      </div>
+    </DomainLayout>
+  )
+}
+```
+
+Client-only logic (hooks, event handlers) must be extracted into a child client component
+and passed as `children` — the page shell itself stays a server component.
+
+```
+src/app/(app)/
+  <domain>/
+    layout.tsx        ← metadata only, pass-through (no DomainLayout)
+    _client-part.tsx  ← 'use client' sub-component (underscore = not a route)
+    page.tsx          ← server shell: DomainLayout + <ClientPart />
+    [id]/
+      page.tsx        ← server shell with dynamic breadcrumbs
+```
+
+### How `DomainLayout` works internally
+
+| Concern | Implementation |
+|---------|---------------|
+| Nav-mode check | `getNavLayout()` called once inside `DomainLayout` — never in consumers |
+| Sidebar path | Renders `<SiteHeader breadcrumbs={...} />` |
+| Top-menu path | Renders a `<div className="border-b ...">` with the same breadcrumb trail |
+| `<h2>` text | Derived from `breadcrumbs[last].label` — sync enforced structurally |
+| `<h2>` style | `text-2xl font-bold tracking-tight` applied internally |
+
+Consumers never import `SiteHeader`, `getNavLayout`, or breadcrumb primitives directly.
+
+### Sidebar collapse trigger placement
+
+`SidebarTrigger` lives in `AppSidebar`’s `SidebarHeader` — always visible, independent of
+which domain is active. `DomainLayout`, `SiteHeader`, and domain files never render it.
+
+### Breadcrumb rules
+
+- The **last item** has no `href` → `<BreadcrumbPage>` (`aria-current="page"`) + `<h2>` text
+- Every **preceding item** has an `href` → `<BreadcrumbLink>`
+- Root anchor is always **Home** linking to `/dashboard`
+- Standard trail depth is 3 levels: `Home → Domain → Current Page`
+- For dynamic sub-pages a 4th level is acceptable: `Home → Domain → Item → Action`
+- Breadcrumb labels must match the `<h2>` of their destination page
+
+### ✅ Correct
+
+```tsx
+// layout.tsx — static domain
+const BREADCRUMBS = [
+  { label: "Home", href: "/dashboard" },
+  { label: "Raporty" },
+]
+export default function RaportyLayout({ children }) {
+  return <DomainLayout breadcrumbs={BREADCRUMBS}>{children}</DomainLayout>
+}
+
+// page.tsx — server shell with dynamic trail
+export default async function EditPage({ params }) {
+  const { id } = await params
+  return (
+    <DomainLayout breadcrumbs={[
+      { label: "Home",    href: "/dashboard" },
+      { label: "Raporty", href: "/raporty" },
+      { label: `Raport #${id}` },
+    ]}>
+      <EditClient id={id} />
+    </DomainLayout>
+  )
+}
+```
+
+### ❌ Wrong
+
+```tsx
+{/* Calling getNavLayout in the domain layout — DomainLayout does this */}
+const navLayout = getNavLayout()
+
+{/* Importing SiteHeader directly in a domain layout */}
+import { SiteHeader } from "@/components/site-header"
+
+{/* Writing h2 manually */}
+<h2 className="text-2xl font-bold tracking-tight">Raporty</h2>
+
+{/* Breadcrumbs in page.tsx instead of layout.tsx or DomainLayout */}
+export default function RaportyPage() {
+  return <div><Breadcrumb>...</Breadcrumb><RaportyTable /></div>
+}
+
+{/* Using h1 */}
+<h1>Raporty</h1>
+```
+
+### Checklist — before marking a domain complete
+
+- [ ] Domain uses `<DomainLayout breadcrumbs={BREADCRUMBS}>` — not manual SiteHeader / nav check
+- [ ] Last `BREADCRUMBS` entry has no `href`
+- [ ] Root anchor is `{ label: "Home", href: "/dashboard" }`
+- [ ] Static domains: `DomainLayout` in `layout.tsx`; dynamic/distinct headings: server shell per page
+- [ ] Client-only logic extracted to `_name.tsx` child component
+- [ ] No `getNavLayout`, `SiteHeader`, or `<h2>` written directly in domain files
+- [ ] Pages inside a layout-based domain contain content only
 ---
 
 ## Quick Reference

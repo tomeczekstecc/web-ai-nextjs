@@ -21,8 +21,8 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  useSidebar,
 } from "@/components/ui/sidebar"
+import { useIsMobile } from "@/hooks/use-mobile"
 import { ChevronsUpDownIcon, MoonIcon, SunIcon } from "lucide-react"
 import { useTheme } from "next-themes"
 import type { SettingsItem } from "@/lib/api/domains/menu/contract"
@@ -45,15 +45,16 @@ function getInitials(name: string): string {
     .join("")
 }
 
-export function NavUser({
+function UserDropdownContent({
   user,
   settings,
+  side,
 }: {
   user: User
   settings: SettingsItem[]
+  side: "bottom" | "right"
 }) {
   const initials = getInitials(user.name)
-  const { isMobile } = useSidebar()
   const router = useRouter()
   const { resolvedTheme, setTheme } = useTheme()
   const isDark = resolvedTheme === "dark"
@@ -67,6 +68,89 @@ export function NavUser({
     if (item.to) {
       router.push(item.to)
     }
+  }
+
+  return (
+    <DropdownMenuContent
+      className="min-w-56 rounded-lg"
+      side={side}
+      align="end"
+      sideOffset={4}
+    >
+      <DropdownMenuGroup>
+        <DropdownMenuLabel className="p-0 font-normal">
+          <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+            <Avatar>
+              <AvatarImage src={user.avatar} alt={user.name} />
+              <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
+            </Avatar>
+            <div className="grid flex-1 text-left text-sm leading-tight">
+              <span className="truncate font-medium">{user.name}</span>
+              <span className="truncate text-xs">{user.email}</span>
+            </div>
+          </div>
+        </DropdownMenuLabel>
+      </DropdownMenuGroup>
+      <DropdownMenuSeparator />
+      <DropdownMenuGroup>
+        <DropdownMenuItem onClick={() => setTheme(isDark ? "light" : "dark")}>
+          {isDark ? <SunIcon /> : <MoonIcon />}
+          {isDark ? "Jasny motyw" : "Ciemny motyw"}
+        </DropdownMenuItem>
+      </DropdownMenuGroup>
+      <DropdownMenuSeparator />
+      <DropdownMenuGroup>
+        {settings.map((item) => {
+          const Icon = resolveIcon(item.icon)
+          const isInteractive = !!(item.to || item.action)
+          const isLogout = item.action === "logout"
+          return (
+            <React.Fragment key={item.key}>
+              {isLogout && <DropdownMenuSeparator />}
+              <DropdownMenuItem
+                disabled={!isInteractive}
+                onClick={isInteractive ? () => handleItemClick(item) : undefined}
+              >
+                <Icon />
+                {item.label}
+              </DropdownMenuItem>
+            </React.Fragment>
+          )
+        })}
+      </DropdownMenuGroup>
+    </DropdownMenuContent>
+  )
+}
+
+export function NavUser({
+  user,
+  settings,
+  variant = "sidebar",
+}: {
+  user: User
+  settings: SettingsItem[]
+  variant?: "sidebar" | "topnav"
+}) {
+  const initials = getInitials(user.name)
+  const isMobile = useIsMobile()
+
+  if (variant === "topnav") {
+    return (
+      <DropdownMenu>
+        <DropdownMenuTrigger className="flex items-center gap-2 rounded-lg p-1.5 outline-none hover:bg-muted aria-expanded:bg-muted">
+          <Avatar className="size-8">
+            <AvatarImage src={user.avatar} alt={user.name} />
+            <AvatarFallback className="rounded-lg text-xs">{initials}</AvatarFallback>
+          </Avatar>
+          <div className="hidden grid-flow-row text-left text-sm leading-tight lg:grid">
+            <span className="truncate font-medium">{user.name}</span>
+            <span className="truncate text-xs text-muted-foreground">{user.email}</span>
+          </div>
+          <ChevronsUpDownIcon className="hidden size-4 text-muted-foreground lg:block" />
+        </DropdownMenuTrigger>
+        <UserDropdownContent user={user} settings={settings} side="bottom" />
+      </DropdownMenu>
+    )
   }
 
   return (
@@ -88,54 +172,11 @@ export function NavUser({
             </div>
             <ChevronsUpDownIcon className="ml-auto size-4" />
           </DropdownMenuTrigger>
-          <DropdownMenuContent
-            className="min-w-56 rounded-lg"
+          <UserDropdownContent
+            user={user}
+            settings={settings}
             side={isMobile ? "bottom" : "right"}
-            align="end"
-            sideOffset={4}
-          >
-            <DropdownMenuGroup>
-              <DropdownMenuLabel className="p-0 font-normal">
-                <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                  <Avatar>
-                    <AvatarImage src={user.avatar} alt={user.name} />
-                    <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
-                  </Avatar>
-                  <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-medium">{user.name}</span>
-                    <span className="truncate text-xs">{user.email}</span>
-                  </div>
-                </div>
-              </DropdownMenuLabel>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem onClick={() => setTheme(isDark ? "light" : "dark")}>
-                {isDark ? <SunIcon /> : <MoonIcon />}
-                {isDark ? "Jasny motyw" : "Ciemny motyw"}
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              {settings.map((item) => {
-                const Icon = resolveIcon(item.icon)
-                const isInteractive = !!(item.to || item.action)
-                const isLogout = item.action === "logout"
-                return (
-                  <React.Fragment key={item.key}>
-                    {isLogout && <DropdownMenuSeparator />}
-                    <DropdownMenuItem
-                      disabled={!isInteractive}
-                      onClick={isInteractive ? () => handleItemClick(item) : undefined}
-                    >
-                      <Icon />
-                      {item.label}
-                    </DropdownMenuItem>
-                  </React.Fragment>
-                )
-              })}
-            </DropdownMenuGroup>
-          </DropdownMenuContent>
+          />
         </DropdownMenu>
       </SidebarMenuItem>
     </SidebarMenu>
