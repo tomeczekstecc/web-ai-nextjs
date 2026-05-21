@@ -4,6 +4,12 @@ Project-level follow-ups captured by agents.
 
 ## Open
 
+- [ ] Ensure all buttons have meaningful, descriptive labels (no generic "OK" / "Submit").
+  - Priority: critical
+  - Date: 2026-05-21
+  - Branch: `master`
+  - Domain: ui
+
 - [ ] Ogarnąć lepszy layout wizarda.
   - Priority: high
   - Date: 2026-05-10
@@ -22,3 +28,15 @@ we mock 3 roles for now (User, Oper, Admin)
   - Date: 2026-05-20
   - Branch: `master`
   - Domain: general
+
+- [ ] Dopracowac strone profilu uzytkownika w aplikacji web.
+  - Priority: critical
+  - Date: 2026-05-21
+  - Branch: `master`
+  - Domain: web
+
+- [ ] Dopracowac raporty, wizard oraz dev-stash Traversy w aplikacji web.
+  - Priority: critical
+  - Date: 2026-05-21
+  - Branch: `master`
+  - Domain: web

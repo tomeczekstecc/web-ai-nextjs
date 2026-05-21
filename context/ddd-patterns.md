@@ -164,6 +164,8 @@ We follow a basic read/write separation in API domains:
 | `client.ts` / `queries.ts` | `fetch*`, `get*`, `list*` | None (read-only) |
 | `commands.ts` | `create*`, `update*`, `delete*`, `submit*` | Mutates backend state |
 
+> For how write commands compose with React mutation hooks (optimistic updates, rollback, invalidation), see `api-mutation-pattern.md`.
+
 **Rules:**
 - Queries must not change backend state
 - Commands must not be called from queries
