@@ -503,3 +503,330 @@ Notes vs. original plan:
 - **`forbidden()` / `unauthorized()` rely on `experimental.authInterrupts`.**
   Pin the Next minor in CI; never wrap a gate call in `try/catch` (it would
   swallow the interrupt and fail open).
+
+## 15. How roles and permissions work together
+
+Short answer: **roles are bundles of permissions**, and **permissions are
+the actual gate keys**. The system is permission-first; roles exist as a
+convenient label for a fixed set of permissions, plus an axis the menu
+config likes to filter on.
+
+### 15.1 Definitions (`src/lib/auth/principal.ts`)
+
+```ts
+APP_ROLES = ["User", "Oper", "Admin"] as const          // type + runtime catalog
+type AppRole = "User" | "Oper" | "Admin"
+
+ROLE_PERMISSIONS: Record<AppRole, readonly string[]> = {
+  User:  ["dashboard:read", "applications:read"],
+  Oper:  ["dashboard:read", "applications:read", "tasks:write"],
+  Admin: ["dashboard:read", "applications:read", "tasks:write",
+          "users:write", "admin:access"],
+}
+```
+
+A few things to notice:
+
+- **Role names are opaque labels.** `"Oper"` does nothing by itself; the
+  only meaning it carries is the row in `ROLE_PERMISSIONS`.
+- **Permissions are flat `domain:action` strings.** No hierarchy, no
+  wildcards. The `:` separator is mandatory by convention.
+- **The table is not strictly nested.** `Oper` happens to be a superset of
+  `User`, and `Admin` a superset of `Oper`, but that's convention, not
+  enforcement. A future `Auditor` role could carry just `["reports:read"]`
+  without inheriting anything.
+
+### 15.2 How a `Principal` is built
+
+In `principalFromAppUser`:
+
+```ts
+const roles = (appUser.roles ?? [])
+  .map(normalizeRole)
+  .filter((r): r is AppRole => r !== null)        // drop unknown values
+
+const permissions = new Set<string>()
+for (const p of appUser.permissions ?? []) permissions.add(p)   // upstream perms
+for (const p of permissionsFor(roles))      permissions.add(p)  // role-derived perms
+
+return { ..., roles, permissions: [...permissions] }
+```
+
+Key behaviours:
+
+1. **Roles arriving from Laravel are normalized case-insensitively.**
+   `"ADMIN"`, `"admin"`, `"Admin"` all map to canonical `"Admin"`. Unknown
+   values are dropped silently.
+2. **`principal.permissions` is the union of two sources:**
+   - Whatever the upstream sent in `appUser.permissions` (explicit, ad-hoc
+     grants).
+   - Whatever roles imply via `ROLE_PERMISSIONS`.
+3. **Union, not "prefer one over the other".** Upstream can *add*
+   permissions on top of role defaults; it cannot *revoke* role-derived
+   ones at this layer. If you ever need revocation it must live in
+   `ROLE_PERMISSIONS` or in a new deny-list column (none exists today).
+
+After this step the principal's role list and permission list are already
+consistent: the role list says which buckets the user is in, the permission
+list is the expanded, deduped catalog of everything they can do.
+
+### 15.3 Which axis to gate on
+
+Every gate checks **either** roles **or** permissions, never both at once.
+Pick the one that fits the question:
+
+| Question                                            | Use         | Example                                |
+| --------------------------------------------------- | ----------- | -------------------------------------- |
+| "Is this user an admin?" (org / policy concept)     | role        | `requireRole("Admin")`                 |
+| "Can this user perform action X?" (capability)      | permission  | `requirePermission("users:write")`     |
+
+The mechanics are identical (`matchesSet(owned, required, mode)`); the
+meaning differs:
+
+- **Role checks couple call sites to the role catalog.** Adding or renaming
+  a role means updating every call site that named the old role.
+- **Permission checks decouple call sites from roles.** A new role just
+  needs a new row in `ROLE_PERMISSIONS`. Existing
+  `requirePermission("tasks:write")` call sites automatically grant the new
+  role too, if its row includes `"tasks:write"`.
+
+**Default to permissions in code.** Use roles only when the concept truly
+is "membership in this group" (admin-only sidebar groups, audit trails,
+panel-level visibility), not "ability to perform X". Same applies to
+client gates: prefer `<PermissionGate>` over `<RoleGate>`.
+
+### 15.4 Why the menu config uses both
+
+`src/mocks/data/menu.ts` entries look like:
+
+```ts
+{
+  key: "competitions",
+  display: ["User", "Oper", "Admin"],                       // role gate
+  perms:   { list: ["applications:read"], mode: "all" },    // permission gate
+  submenu: [...],
+}
+```
+
+Two filters apply in sequence (`src/lib/menu/filter.ts`):
+
+1. **`display`** — case-sensitive role membership against `AppRole`. *Any*
+   role in `display` matches.
+2. **`perms`** — permission set with `mode: "all" | "any"` (default
+   `"all"`).
+
+Both must pass for the entry to show. They serve different jobs:
+
+- **`display`** is a coarse audience filter ("show this section to
+  operators and admins"). Mostly about UI clutter, not security.
+- **`perms`** is the actual capability filter ("only show this if the user
+  can read applications").
+
+This double-gate is intentional: it lets the menu hide a whole branch from
+a role even if upstream grants that role unusual extra permissions. But
+**none of it is a security boundary** — the route behind every menu link
+must guard itself with `requireRole` / `requirePermission`. Menu and route
+gates are independent; either can be more permissive than the other
+without leaking access, but both must agree for the UX to make sense.
+
+The contract for menu `display` is typed as `readonly AppRole[]` in
+`src/lib/api/domains/menu/contract.ts`, so a fixture that writes lowercase
+`"user"` or `"admin"` fails at `tsc` rather than silently emptying the
+sidebar. This is what bit us once already; the type lock is now the only
+thing standing between us and that bug coming back.
+
+### 15.5 Worked example
+
+A user with upstream role `"oper"` and an ad-hoc grant `"reports:export"`
+clicks "Bulk approve" on `/admin/applications`:
+
+```
+1. Build phase (server)
+   appUser from Laravel: { roles: ["oper"], permissions: ["reports:export"] }
+   principalFromAppUser:
+     roles       = ["Oper"]                       // normalized
+     permissions = {
+       "dashboard:read", "applications:read", "tasks:write",   // ROLE_PERMISSIONS["Oper"]
+       "reports:export",                                        // upstream
+     }
+
+2. Layout-level role gate
+   (app)/admin/layout.tsx: await requireRole("Admin")
+   → principal.roles=["Oper"], required=["Admin"]
+   → matchesSet → false → forbidden() → renders (app)/forbidden.tsx
+   Done. Never reaches step 3.
+
+3. Hypothetical: same user on /tasks
+   page-level: await requirePermission("tasks:write")
+   → principal.permissions includes "tasks:write" → pass.
+   Server action body runs.
+
+4. Sidebar (client)
+   filterFeatures(menu.features, principal.permissions, principal.roles)
+   "Bulk admin tools" with perms.list=["admin:access"]:
+     → lacks "admin:access" → hidden.
+   "Reports" with perms.list=["reports:export"]:
+     → has it (from upstream grant) → visible.
+```
+
+Three things this example shows:
+
+- The role check at step 2 fails even though the user *could* hypothetically
+  hold `admin:access` via an upstream grant — we asked for the role, not
+  the capability. Choose the gate axis carefully.
+- The permission check at step 4 succeeds for `"reports:export"` even
+  though no `AppRole` row contains it — because the upstream union added
+  it.
+- The menu at step 4 made the right call without any access to the routes'
+  actual gates. The gates remain authoritative.
+
+### 15.6 Rules of thumb
+
+- **Roles are policy. Permissions are capability.** Use the right one for
+  the question being asked.
+- **Permission strings are the contract.** They are referenced by route
+  gates, server actions, route handlers, client gates, and the menu
+  fixture. Treat them as a small DSL — pick a domain prefix (`users:*`,
+  `tasks:*`, `admin:*`) and stick to it.
+- **Never check `principal.roles.includes("Admin")` ad-hoc.** Always use
+  `requireRole` / `requirePermission` / `<RoleGate>` / `<PermissionGate>`
+  so call sites stay greppable and consistent. The same goes for raw
+  `principal.permissions.includes(...)`.
+- **A role can exist with zero permissions.** Useful for tagging users in
+  a group with no extra capabilities (audit-only memberships, future
+  plugin hooks). `permissionsFor([])` returns `[]`.
+- **A permission can exist outside any role.** Upstream ad-hoc grants flow
+  through as long as `/me` includes them. The principal carries them;
+  gates accept them; `<PermissionGate>` shows them.
+- **When extending:**
+  1. Add the permission string (`"reports:export"`).
+  2. Add it to the role row(s) that should have it in `ROLE_PERMISSIONS`.
+  3. Write the gate against the permission, not the role.
+  4. Add it to the menu fixture's `perms.list` if it has a UI entry.
+
+That is the whole interaction. Roles are sugar over permissions;
+permissions are the contract; principals carry both already reconciled;
+gates pick the axis that matches the question.
+
+
+## 16. Config integration
+
+How RBAC plugs into config files (menu, wizard, future surfaces). The
+menu is the worked reference; everything else either follows that pattern
+or stays deliberately RBAC-neutral.
+
+### 16.1 Menu config — integrated end-to-end
+
+```
+src/mocks/data/menu.ts        fixture: display + perms per entry
+        │
+src/lib/api/domains/menu/contract.ts
+        display?: readonly AppRole[]                   ← compile-time lock on role names
+        perms?:   { list: string[]; mode?: "all"|"any" }
+        │ (TanStack Query)
+src/hooks/menu/useMenuConfig.ts → menuConfigOptions()
+        │
+src/lib/menu/filter.ts
+        filterFeatures(features, userPerms, userRoles)
+        filterSettings(settings, userPerms, userRoles)
+        - checkDisplay: any-of role match
+        - checkPerms:   all/any permission match
+        │
+src/components/app-sidebar.tsx   ← visibleFeatures, visibleSettings
+src/components/app-top-nav.tsx   ← same
+        ▲
+src/components/app-shell.tsx
+        passes principal.roles + principal.permissions
+        (NOT raw appUser.roles — those are pre-normalization)
+```
+
+Behaviour:
+
+- A menu entry with `display: ["Admin"]` is hidden from `Oper` / `User`.
+- An entry with `perms: { list: ["users:write"], mode: "all" }` is hidden
+  from any principal whose permission set lacks that string.
+- The contract is type-locked: a fixture that writes lowercase `"user"`
+  fails `tsc` rather than silently emptying the sidebar (the bug that bit
+  us once already).
+- Submenu items have their own `perms?` and are filtered independently —
+  a feature entry whose submenu is entirely filtered out is dropped.
+
+**Caveat — menu filters are UX only.** They live in client components
+reading the React context. The routes those entries point to (`/admin/*`,
+`/tasks/*`, etc.) must each guard themselves with `requireRole` /
+`requirePermission` in their layout or page. If a future menu fixture is
+too permissive, the user just bounces to `(app)/forbidden.tsx`; if it's
+too restrictive, the link is hidden but the URL still works for anyone
+who types it in. The route gate is the source of truth.
+
+### 16.2 Wizard / form config — NOT integrated (yet)
+
+`src/lib/wizard/types.ts` `PageMapping` / `FieldMapping` carry
+`display: boolean` and `required: boolean` flags, but no roles or
+permissions. Per-field visibility cannot vary by role today.
+
+When this is needed, the natural shape mirrors the menu:
+
+```ts
+type FieldMapping = {
+  …
+  display?: readonly AppRole[]                          // who sees the field at all
+  perms?:   { list: string[]; mode?: "all" | "any" }   // who can edit / submit
+}
+```
+
+…filtered server-side in the page-mapping endpoint, then re-checked in
+the `withPermission(...)` wrapper on the save action. Not in scope yet,
+but the primitives are ready to copy.
+
+### 16.3 Other config — RBAC-neutral by design
+
+| File                                           | Why no RBAC                                            |
+| ---------------------------------------------- | ------------------------------------------------------ |
+| `src/lib/config/app.ts`                        | Branding (app name). No access concept.                |
+| `src/lib/menu/env.ts`                          | Sidebar vs top-menu — layout preference, not access.   |
+| `src/lib/menu/icons.ts`                        | Icon registry. No access semantics.                    |
+| `src/mocks/data/dashboard-*.ts`                | Fixture payloads gated by the **route** that serves   |
+| `src/mocks/data/applications.ts`               | them (page-level `requirePermission`), not by the     |
+| `src/mocks/data/account.ts`                    | fixture itself. Correct separation: data is data;     |
+| `src/mocks/data/landing-page.ts`               | access lives one layer up.                            |
+| `src/mocks/data/tasks-wizard.ts`               |                                                        |
+
+### 16.4 What "RBAC-integrated" means in this repo
+
+A config counts as RBAC-integrated when **all four** hold:
+
+1. **Typed contract.** Role lists are `readonly AppRole[]` (not
+   `string[]`), permission lists are `string[]` of `domain:action` shape.
+   Drift fails at `tsc` instead of at runtime.
+2. **Shared filter primitives.** The filter accepts `readonly AppRole[]`
+   + `readonly string[]` and uses `matchesSet` / `toArray` from
+   `principal.ts` for `"any" | "all"` semantics. Never re-implement —
+   client and server must share the same logic.
+3. **Normalized inputs.** The consumer feeds it `principal.roles` /
+   `principal.permissions`, not the raw upstream `appUser.*` fields.
+   Upstream values can be lowercase, mixed case, or contain unknown
+   strings; the principal is already canonical.
+4. **Server-side enforcement behind it.** Whatever the config gates in
+   the UI is also gated by `requireRole` / `requirePermission` /
+   `withRole` / `withPermission` on the corresponding route, action, or
+   handler. The config filter is advisory.
+
+Menu config ticks all four. Adding a new RBAC-integrated config (wizard
+fields, dashboard widgets, data-table row actions, feature flags) is
+roughly:
+
+1. Add `display?: readonly AppRole[]` and/or `perms?: PermRule` to the
+   contract type.
+2. Write a tiny filter using `matchesSet` (or call
+   `filterFeatures` / `filterSettings` if the shape matches the menu).
+3. In the consumer component, pull `principal.roles` /
+   `principal.permissions` from `usePrincipal()` (client) or from
+   `getCurrentPrincipal()` (server) and pipe them through the filter.
+4. Add `requireRole` / `requirePermission` on every server entry point
+   the UI calls. This is the actual security boundary; the rest is UX.
+
+Following the same primitives keeps the four layers — server gate,
+client gate, menu filter, and any new config filter — interpreting the
+exact same `AppRole` literals and `"domain:action"` strings, with no
+risk of drift.
