@@ -3,8 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { toast } from '@/components/toast'
 import { Wizard } from '@/components/wizard/Wizard'
-import { Button } from '@/components/ui/button'
-import type { WizardPage } from '@/lib/wizard/types'
+import type { WizardAction, WizardPage } from '@/lib/wizard/types'
 import { StartPage, startSchema } from './pages/StartPage'
 import { SchedulePage, scheduleCalc } from './pages/SchedulePage'
 import { AssignmentPage } from './pages/AssignmentPage'
@@ -44,23 +43,21 @@ export function TasksWizard({ id, mode }: Props) {
       saveOnPageChange={true}
       cancelCallback={() => router.push('/wizard-demo')}
       saveAndQuitCallback={() => router.push('/wizard-demo')}
-      acceptButtons={(summary) => {
+      acceptActions={(summary): WizardAction[] => {
         const hasErrors = !!summary && (
           Object.keys(summary.error ?? {}).length > 0 ||
           Object.keys(summary.dicts_msg?.error ?? {}).length > 0
         )
-        return (
-          <Button
-            variant="default"
-            disabled={hasErrors}
-            onClick={() => {
+        return [
+          {
+            label: 'Wyślij zadanie',
+            disabled: hasErrors,
+            onClick: () => {
               toast.success('Zadanie zostało wysłane!')
               router.push('/wizard-demo')
-            }}
-          >
-            Wyślij zadanie
-          </Button>
-        )
+            },
+          },
+        ]
       }}
     />
   )

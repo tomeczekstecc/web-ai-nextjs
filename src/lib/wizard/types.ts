@@ -30,6 +30,13 @@ export type SummaryResult = {
   }
 }
 
+export type WizardAction = {
+  label: React.ReactNode
+  onClick: () => void
+  variant?: 'default' | 'secondary' | 'outline' | 'ghost' | 'destructive' | 'link'
+  disabled?: boolean
+}
+
 export type WizardPage<T = Record<string, unknown>> = {
   name: string
   form: React.ReactElement
@@ -50,8 +57,8 @@ export type WizardConfig<T = Record<string, unknown>> = {
   validationUrl?: string
   saveOnPageChange: boolean
   addData?: Record<string, unknown>
-  acceptButtons?: (summary: SummaryResult | null) => React.ReactNode
-  customButtons?: () => React.ReactNode
+  acceptActions?: (summary: SummaryResult | null) => WizardAction[]
+  customActions?: () => WizardAction[]
   saveAndQuitCallback?: () => void
   cancelCallback?: () => void
 }

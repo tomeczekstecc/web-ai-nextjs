@@ -62,14 +62,23 @@ export const tasksListColumns: ColumnDef<TaskListItem>[] = [
       const order: Record<TaskPriority, number> = { low: 0, normal: 1, high: 2 }
       return (order[rowA.original.priority] ?? 0) - (order[rowB.original.priority] ?? 0)
     },
-    cell: ({ row }) => (
-      <Badge
-        variant={row.original.priority === "high" ? "default" : "outline"}
-        className="text-muted-foreground"
-      >
-        {PRIORITY_LABELS[row.original.priority]}
-      </Badge>
-    ),
+    cell: ({ row }) => {
+      const priority = row.original.priority
+      const variant =
+        priority === "high"
+          ? "destructive"
+          : priority === "normal"
+            ? "secondary"
+            : "outline"
+      return (
+        <Badge
+          variant={variant}
+          className={priority === "low" ? "text-muted-foreground" : undefined}
+        >
+          {PRIORITY_LABELS[priority]}
+        </Badge>
+      )
+    },
     meta: {
       label: "Priorytet",
       filterable: true,
