@@ -1,5 +1,10 @@
 import type { NextConfig } from "next";
 
+// Validate environment variables at startup.
+// Importing for side effects — `createEnv` parses on first import and
+// throws a readable error if anything is missing or malformed.
+import "./src/env";
+
 const nextConfig: NextConfig = {
   async redirects() {
     return [
