@@ -53,12 +53,25 @@ export async function AppShell({ children, returnTo }: AppShellProps) {
   if (navLayout === "top-menu") {
     return (
       <PrincipalProvider principal={principal}>
-        <div className="flex min-h-svh flex-col">
-          <AppTopNav user={user} />
-          <BreadcrumbBar />
-          <PageTitle />
-          <main className="flex flex-1 flex-col">{children}</main>
-        </div>
+        <SidebarProvider
+          style={
+            {
+              "--sidebar-width": "calc(var(--spacing) * 72)",
+              "--header-height": "calc(var(--spacing) * 12)",
+            } as React.CSSProperties
+          }
+        >
+          {/* Mobile-only sidebar: reuses the sidebar nav (and its sheet
+              behavior on mobile) so the hamburger in AppTopNav exposes
+              the same menu without duplicating navigation code. */}
+          <AppSidebar user={user} mobileOnly />
+          <div className="flex min-h-svh flex-1 flex-col">
+            <AppTopNav user={user} />
+            <BreadcrumbBar />
+            <PageTitle />
+            <main className="flex flex-1 flex-col">{children}</main>
+          </div>
+        </SidebarProvider>
       </PrincipalProvider>
     )
   }

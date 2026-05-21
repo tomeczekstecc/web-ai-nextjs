@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/sidebar"
 import { useMenuConfig } from "@/hooks/menu/useMenuConfig"
 import { useNavLayout } from "@/hooks/menu/useNavLayout"
+import { useIsMobile } from "@/hooks/use-mobile"
 import { filterFeatures, filterSettings } from "@/lib/menu/filter"
 import { appConfig } from "@/lib/config/app"
 
@@ -31,14 +32,26 @@ type User = {
 
 type AppSidebarProps = React.ComponentProps<typeof Sidebar> & {
   user: User
+  /**
+   * When true the sidebar renders only on mobile viewports (as the
+   * offcanvas Sheet). Used by the top-menu layout to expose the same
+   * sidebar navigation through a hamburger trigger on small screens
+   * without occupying desktop layout space.
+   */
+  mobileOnly?: boolean
 }
 
-export function AppSidebar({ user, ...props }: AppSidebarProps) {
+export function AppSidebar({ user, mobileOnly = false, ...props }: AppSidebarProps) {
   const { data: menuConfig, isLoading, isError, error } = useMenuConfig()
   const navLayout = useNavLayout()
+  const isMobile = useIsMobile()
 
-  if (navLayout === "top-menu") {
+  if (navLayout === "top-menu" && !mobileOnly) {
     console.warn("[AppSidebar] NavLayout 'top-menu' is not yet implemented. Falling back to sidebar.")
+  }
+
+  if (mobileOnly && !isMobile) {
+    return null
   }
 
   if (isError) {
