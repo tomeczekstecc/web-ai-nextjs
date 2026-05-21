@@ -10,7 +10,7 @@ export default async function ViewTaskPage({
 
   return (
     <DomainLayout breadcrumbs={[
-      { label: "Home", href: "/dashboard" },
+      { label: "Start", href: "/dashboard" },
       { label: "Zadania", href: "/wizard-demo" },
       { label: `Podgląd zadania #${id}` },
     ]}>

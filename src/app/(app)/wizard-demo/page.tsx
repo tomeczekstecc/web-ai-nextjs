@@ -6,7 +6,7 @@ import { taskListOptions } from "@/lib/api/domains/tasks/query-options"
 import { getQueryClient } from "@/lib/query/client"
 
 const BREADCRUMBS = [
-  { label: "Home", href: "/dashboard" },
+  { label: "Start", href: "/dashboard" },
   { label: "Zadania" },
 ]
 

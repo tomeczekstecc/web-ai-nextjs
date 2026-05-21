@@ -52,7 +52,7 @@ export function TasksListTable() {
         reorder={false}
         toolbar={{
           right: (
-            <Button size="sm" render={<Link href="/wizard-demo/new" />}>
+            <Button size="sm" nativeButton={false} render={<Link href="/wizard-demo/new" />}>
               <PlusIcon />
               <span className="hidden lg:inline">Nowe zadanie</span>
             </Button>

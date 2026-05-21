@@ -2,7 +2,7 @@ import { DomainLayout } from "@/components/domain-layout"
 import type { BreadcrumbEntry } from "@/components/site-header"
 
 const BREADCRUMBS: BreadcrumbEntry[] = [
-  { label: "Home", href: "/dashboard" },
+  { label: "Start", href: "/dashboard" },
   { label: "Applications", href: "/applications" },
   { label: "All Applications" },
 ]

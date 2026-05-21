@@ -2,7 +2,7 @@ import { DomainLayout } from "@/components/domain-layout"
 import { TasksWizard } from "@/components/tasks-wizard/TasksWizard"
 
 const BREADCRUMBS = [
-  { label: "Home", href: "/dashboard" },
+  { label: "Start", href: "/dashboard" },
   { label: "Zadania", href: "/wizard-demo" },
   { label: "Nowe zadanie" },
 ]

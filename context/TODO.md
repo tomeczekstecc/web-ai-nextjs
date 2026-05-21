@@ -31,7 +31,7 @@ Project-level follow-ups captured by agents.
   - Branch: `012-tasks-showcase-module`
   - Domain: ui
 
-- [ ] Implement RBAC (role-based access control).
+- [ ] Roles +  Implement RBAC (role-based access control).
   - Priority: critical
   - Date: 2026-05-12
   - Branch: `014-json-menu-gen`
@@ -73,4 +73,10 @@ Project-level follow-ups captured by agents.
   - Date: 2026-05-20
   - Branch: `015-top-nav-layout`
   - Domain: ui
+
+- [ ] Create a spell-check skill that runs checks on skill files and project content.
+  - Priority: medium
+  - Date: 2026-05-21
+  - Branch: `015-top-nav-layout`
+  - Domain: agents
 
