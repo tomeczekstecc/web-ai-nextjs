@@ -18,6 +18,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { useMenuConfig } from "@/hooks/menu/useMenuConfig"
 import type { FeatureItem } from "@/lib/api/domains/menu/contract"
 import { filterFeatures, filterSettings } from "@/lib/menu/filter"
+import { appConfig } from "@/lib/config/app"
 import { cn } from "@/lib/utils"
 
 export type AppTopNavUser = {
@@ -121,7 +122,7 @@ export function AppTopNav({ user }: AppTopNavProps) {
     <header className="sticky top-0 z-50 border-b bg-background">
       <div className="flex h-[calc(var(--spacing)*12)] items-center gap-16 px-4 lg:px-6">
         <Link href="/dashboard" className="text-lg font-bold tracking-tight">
-          eNGO
+          {appConfig.name}
         </Link>
 
         <div className="hidden flex-1 items-center md:flex">
@@ -154,7 +155,7 @@ export function AppTopNav({ user }: AppTopNavProps) {
                     href="/dashboard"
                     className="text-lg font-bold tracking-tight"
                   >
-                    eNGO
+                    {appConfig.name}
                   </Link>
                 </div>
                 {isLoading ? (

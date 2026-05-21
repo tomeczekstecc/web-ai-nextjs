@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 
+import { appConfig } from "@/lib/config/app";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
@@ -25,7 +26,7 @@ export function AuthShell({
         <Card className={cn("border border-border/60 bg-background/95 shadow-2xl shadow-primary/5 backdrop-blur", className)}>
           <CardHeader className="space-y-2 border-b border-border/60 pb-5">
             <div className="inline-flex w-fit rounded-full border border-primary/20 bg-primary/8 px-3 py-1 text-xs font-medium tracking-[0.18em] text-primary uppercase">
-              CI-PRS
+              {appConfig.name}
             </div>
             <CardTitle className="text-2xl">{title}</CardTitle>
             <CardDescription className="leading-6">{description}</CardDescription>

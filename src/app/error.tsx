@@ -21,7 +21,7 @@ export default function Error({
         <p className="inline-flex rounded-full border border-destructive/30 bg-destructive/10 px-3 py-1 text-sm font-medium text-destructive">
           Blad strony
         </p>
-        <h1 className="text-4xl font-semibold tracking-[-0.05em] text-balance">
+        <h1 className="text-4xl font-semibold tracking-tighter text-balance">
           Nie udalo sie wyswietlic widoku integracji.
         </h1>
         <p className="max-w-2xl text-lg leading-8 text-muted-foreground">
