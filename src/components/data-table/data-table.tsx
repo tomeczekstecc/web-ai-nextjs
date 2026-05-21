@@ -16,9 +16,13 @@ import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable"
 import {
   flexRender,
   getCoreRowModel,
+  getFilteredRowModel,
+  getFacetedRowModel,
+  getFacetedUniqueValues,
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
+  type ColumnFiltersState,
   type VisibilityState,
 } from "@tanstack/react-table"
 
@@ -31,6 +35,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import type { DataTableProps } from "@/lib/data-table/types"
+import { usePathname } from "next/navigation"
 import { getColumnId, getColumnMeta, readPreferences, writePreferences } from "@/lib/data-table/utils"
 import { useControlledState } from "@/hooks/data-table/use-controlled-state"
 import { useDataTableControlColumns } from "@/hooks/data-table/use-data-table-control-columns"
@@ -63,6 +68,14 @@ export function DataTable<TData>({
 }: DataTableProps<TData>) {
   const persistence = persistenceRaw === false ? undefined : persistenceRaw
   const sortableId = React.useId()
+
+  // ── Persistence key ────────────────────────────────────────────────────
+  const pathname = usePathname()
+  const resolvedKey = React.useMemo(
+    () => (persistence ? (persistence.key ?? `dt:${pathname}`) : undefined),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [persistence?.key, pathname],
+  )
   const sensors = useSensors(
     useSensor(MouseSensor, {}),
     useSensor(TouchSensor, {}),
@@ -88,33 +101,14 @@ export function DataTable<TData>({
   )
 
   // ── Preferences ────────────────────────────────────────────────────────
-  const { initialPreferences } = useDataTablePreferences(persistence)
+  const { initialPreferences, preferencesLoaded } = useDataTablePreferences(resolvedKey)
 
   // ── Visibility ─────────────────────────────────────────────────────────
-  const validatedInitialVisibility = React.useMemo(() => {
-    const storedVisibility =
-      persistence?.columnVisibility &&
-      initialPreferences.columnVisibility &&
-      typeof initialPreferences.columnVisibility === "object"
-        ? initialPreferences.columnVisibility
-        : {}
-
-    return Object.fromEntries(
-      Object.entries(storedVisibility).filter(([columnId, isVisible]) => {
-        return (
-          columnIds.includes(columnId) &&
-          !requiredColumnIds.has(columnId) &&
-          typeof isVisible === "boolean"
-        )
-      }),
-    ) as VisibilityState
-  }, [columnIds, initialPreferences.columnVisibility, persistence?.columnVisibility, requiredColumnIds])
-
   const visibilityOptions = visibility === false ? undefined : visibility
   const [columnVisibility, setColumnVisibility] = useControlledState(
     visibilityOptions?.state,
     visibilityOptions?.onChange,
-    validatedInitialVisibility,
+    {},
   )
 
   // ── Selection ──────────────────────────────────────────────────────────
@@ -130,12 +124,7 @@ export function DataTable<TData>({
   const paginationOptions = pagination === false ? undefined : pagination
   const isPaginationEnabled = pagination !== false
   const pageSizeOptions = paginationOptions?.pageSizeOptions ?? [10, 20, 30, 40, 50]
-  const persistedPageSize =
-    persistence?.pageSize && typeof initialPreferences.pageSize === "number"
-      ? initialPreferences.pageSize
-      : undefined
-  const initialPageSize =
-    persistedPageSize ?? paginationOptions?.initialPageSize ?? pageSizeOptions[0] ?? 10
+  const initialPageSize = paginationOptions?.initialPageSize ?? pageSizeOptions[0] ?? 10
   const [paginationState, setPaginationState] = useControlledState(
     paginationOptions?.state,
     paginationOptions?.onChange,
@@ -149,6 +138,43 @@ export function DataTable<TData>({
     sortingOptions?.onChange,
     [],
   )
+
+  // ── Column filters ─────────────────────────────────────────────────────
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
+
+  // ── Restore persisted state (one-time, after localStorage loads) ─────────────
+  const restoredRef = React.useRef(false)
+  React.useEffect(() => {
+    if (!preferencesLoaded || restoredRef.current) return
+    restoredRef.current = true
+
+    if (persistence?.columnVisibility && initialPreferences.columnVisibility) {
+      const safe = Object.fromEntries(
+        Object.entries(initialPreferences.columnVisibility).filter(
+          ([id, v]) => columnIds.includes(id) && !requiredColumnIds.has(id) && typeof v === "boolean",
+        ),
+      )
+      if (Object.keys(safe).length > 0) setColumnVisibility(safe)
+    }
+
+    if (persistence?.pageSize && typeof initialPreferences.pageSize === "number") {
+      setPaginationState((prev) => ({ ...prev, pageSize: initialPreferences.pageSize as number }))
+    }
+
+    if (persistence?.sorting && Array.isArray(initialPreferences.sorting) && initialPreferences.sorting.length > 0) {
+      setSortingState(initialPreferences.sorting)
+    }
+
+    if (persistence?.columnFilters && Array.isArray(initialPreferences.columnFilters) && initialPreferences.columnFilters.length > 0) {
+      setColumnFilters(initialPreferences.columnFilters)
+    }
+
+    if (persistence?.search && typeof initialPreferences.search === "string" && initialPreferences.search) {
+      setSearchValue(initialPreferences.search)
+    }
+  // Intentionally narrow deps — must only run once when preferencesLoaded flips to true
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [preferencesLoaded])
 
   // ── Row identity ───────────────────────────────────────────────────────
   const rowIdentityMap = React.useMemo(() => {
@@ -176,10 +202,7 @@ export function DataTable<TData>({
   // ── Search / Filter ────────────────────────────────────────────────────
   const searchOptions = search === false ? undefined : search
   const isSearchEnabled = Boolean(searchOptions?.enabled)
-  const initialSearchValue =
-    persistence?.search && typeof initialPreferences.search === "string"
-      ? initialPreferences.search
-      : searchOptions?.defaultValue ?? ""
+  const initialSearchValue = searchOptions?.defaultValue ?? ""
 
   const searchableColumns = React.useMemo(
     () =>
@@ -218,29 +241,36 @@ export function DataTable<TData>({
 
   // ── Persist preferences ────────────────────────────────────────────────
   React.useEffect(() => {
-    if (!persistence?.key) return
+    if (!resolvedKey || !preferencesLoaded) return
 
-    const nextPreferences = readPreferences(persistence.key)
-    if (persistence.search) nextPreferences.search = searchValue
-    if (persistence.columnVisibility) {
+    const nextPreferences = readPreferences(resolvedKey)
+    if (persistence?.search) nextPreferences.search = searchValue
+    if (persistence?.columnVisibility) {
       nextPreferences.columnVisibility = Object.fromEntries(
         Object.entries(columnVisibility).filter(
           ([columnId]) => !requiredColumnIds.has(columnId),
         ),
       )
     }
-    if (persistence.pageSize) nextPreferences.pageSize = paginationState.pageSize
+    if (persistence?.pageSize) nextPreferences.pageSize = paginationState.pageSize
+    if (persistence?.sorting) nextPreferences.sorting = sortingState
+    if (persistence?.columnFilters) nextPreferences.columnFilters = columnFilters
 
-    writePreferences(persistence.key, nextPreferences)
+    writePreferences(resolvedKey, nextPreferences)
   }, [
+    columnFilters,
     columnVisibility,
     paginationState.pageSize,
-    persistence?.key,
-    persistence?.search,
+    persistence?.columnFilters,
     persistence?.columnVisibility,
     persistence?.pageSize,
+    persistence?.search,
+    persistence?.sorting,
+    preferencesLoaded,
     requiredColumnIds,
+    resolvedKey,
     searchValue,
+    sortingState,
   ])
 
   // ── Control columns (drag + select) ────────────────────────────────────
@@ -261,6 +291,7 @@ export function DataTable<TData>({
     columns: tableColumns,
     state: {
       sorting: sortingState,
+      columnFilters,
       columnVisibility,
       rowSelection,
       pagination: paginationState,
@@ -273,6 +304,7 @@ export function DataTable<TData>({
     enableRowSelection: isSelectionEnabled,
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSortingState,
+    onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: (updater) => {
       setColumnVisibility((current) => {
         const nextValue = typeof updater === "function" ? updater(current) : updater
@@ -286,6 +318,9 @@ export function DataTable<TData>({
     manualSorting: Boolean(sortingOptions?.manual),
     pageCount: paginationOptions?.pageCount,
     getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getFacetedRowModel: getFacetedRowModel(),
+    getFacetedUniqueValues: getFacetedUniqueValues(),
     getSortedRowModel: sortingOptions?.manual ? undefined : getSortedRowModel(),
     getPaginationRowModel:
       isPaginationEnabled && !paginationOptions?.manual ? getPaginationRowModel() : undefined,
@@ -307,6 +342,13 @@ export function DataTable<TData>({
     )
   })
 
+  const filterableColumns = table.getAllColumns().filter((column) => {
+    const meta = getColumnMeta(column.columnDef)
+    return Boolean(meta.filterable) && column.getCanFilter()
+  })
+
+  const hasActiveFilters = columnFilters.length > 0
+
   // ── Render ─────────────────────────────────────────────────────────────
   return (
     <div className="flex w-full flex-col gap-4">
@@ -320,6 +362,9 @@ export function DataTable<TData>({
         toolbar={toolbar}
         visibilityEnabled={visibilityEnabled}
         hideableColumns={hideableColumns}
+        filterableColumns={filterableColumns}
+        hasActiveFilters={hasActiveFilters}
+        onResetFilters={() => setColumnFilters([])}
       />
 
       {/* Table */}

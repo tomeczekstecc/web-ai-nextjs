@@ -28,6 +28,10 @@
 - Organize feature routes by bounded context under `src/app/<domain>/`.
 - Keep auth-facing pages under `src/app/auth/` (for example `src/app/auth/sign-in/page.tsx`) instead of scattering auth flows at the app root.
 - Keep feature-specific UI under `src/components/<domain>/`; keep only reusable primitives in `src/components/ui/`.
+- Custom components follow a three-tier placement rule:
+  - `src/components/ui/` — shadcn/ui primitives only; never add hand-written custom components here.
+  - `src/components/<domain>/` — custom components scoped to one feature domain (e.g. `auth/`, `dashboard/`, `applications/`).
+  - `src/components/` (root) — custom components used across multiple domains or with no clear domain home (e.g. `AppShell`, `ThemeToggle`, `NavUser`); these are app-wide building blocks, not primitives.
 - Keep domain API integrations under `src/lib/api/domains/<domain>/`.
 - Keep domain helpers under `src/lib/<domain>/` when they are shared by routes, components, or API handlers.
 - Add root-level routes only for truly top-level product surfaces such as the landing page or dashboard entry points.

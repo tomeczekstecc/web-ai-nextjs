@@ -1,9 +1,11 @@
-import type { ColumnDef, OnChangeFn, PaginationState, RowSelectionState, SortingState, VisibilityState } from "@tanstack/react-table"
+import type { ColumnDef, ColumnFiltersState, OnChangeFn, PaginationState, RowSelectionState, SortingState, VisibilityState } from "@tanstack/react-table"
 
 export type DataTableColumnMeta<TData> = {
   label?: string
   required?: boolean
   searchable?: boolean
+  filterable?: boolean
+  filterLabel?: (value: string) => string
   getSearchValue?: (row: TData) => unknown
   hideFromVisibilityMenu?: boolean
 }
@@ -47,10 +49,12 @@ export type DataTableSortingOptions = {
 }
 
 export type DataTablePersistenceOptions = {
-  key: string
+  key?: string          // optional — auto-derived from pathname when absent
   search?: boolean
   columnVisibility?: boolean
   pageSize?: boolean
+  sorting?: boolean
+  columnFilters?: boolean
 }
 
 export type DataTableReorderResult<TData> = {
@@ -94,4 +98,6 @@ export type DataTablePreferences = {
   search?: string
   columnVisibility?: VisibilityState
   pageSize?: number
+  sorting?: SortingState
+  columnFilters?: ColumnFiltersState
 }

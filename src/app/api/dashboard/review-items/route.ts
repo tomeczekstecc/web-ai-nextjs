@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import type { DashboardReviewItemsResponse } from "@/lib/api/domains/dashboard/contract";
+import type { CreateDashboardReviewItemInput, DashboardReviewItemsResponse } from "@/lib/api/domains/dashboard/contract";
 
 export async function GET() {
   const response: DashboardReviewItemsResponse = {
@@ -53,4 +53,11 @@ export async function GET() {
   };
 
   return NextResponse.json(response);
+}
+
+export async function POST(request: Request) {
+  const body = (await request.json()) as CreateDashboardReviewItemInput;
+  // TODO: persist to backend
+  const created = { id: Date.now(), ...body };
+  return NextResponse.json(created, { status: 201 });
 }

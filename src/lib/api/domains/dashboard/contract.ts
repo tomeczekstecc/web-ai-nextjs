@@ -8,6 +8,24 @@ export type DashboardReviewItem = {
   reviewer: string;
 };
 
+export type CreateDashboardReviewItemInput = {
+  header: string;
+  type: string;
+  status: string;
+  target: string;
+  limit: string;
+  reviewer: string;
+};
+
+export type UpdateDashboardReviewItemInput = {
+  header: string;
+  type: string;
+  status: string;
+  target: string;
+  limit: string;
+  reviewer: string;
+};
+
 export type DashboardChartPoint = {
   date: string;
   desktop: number;

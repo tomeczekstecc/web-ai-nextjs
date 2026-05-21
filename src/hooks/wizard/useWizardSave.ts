@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query'
-import { toast } from 'sonner'
+import { toast } from '@/components/toast'
 
 export function useWizardSave(saveUrl: string | undefined) {
   return useMutation<void, Error, Record<string, unknown>>({

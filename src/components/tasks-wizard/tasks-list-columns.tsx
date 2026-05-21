@@ -4,6 +4,8 @@ import type { ColumnDef } from "@tanstack/react-table"
 import Link from "next/link"
 
 import type { DataTableColumnMeta } from "@/components/data-table"
+import { SortableHeader } from "@/components/data-table"
+import { multiSelectFilterFnMeta } from "@/lib/data-table/utils"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -25,7 +27,7 @@ const PRIORITY_LABELS: Record<TaskPriority, string> = {
 export const tasksListColumns: ColumnDef<TaskListItem>[] = [
   {
     accessorKey: "title",
-    header: "Tytuł",
+    header: ({ column }) => <SortableHeader column={column} label="Tytuł" />,
     cell: ({ row }) => (
       <span className="font-medium">{row.original.title}</span>
     ),
@@ -38,7 +40,8 @@ export const tasksListColumns: ColumnDef<TaskListItem>[] = [
   },
   {
     accessorKey: "type",
-    header: "Typ",
+    header: ({ column }) => <SortableHeader column={column} label="Typ" />,
+    filterFn: multiSelectFilterFnMeta,
     cell: ({ row }) => (
       <Badge variant="outline" className="text-muted-foreground">
         {row.original.type}
@@ -47,12 +50,18 @@ export const tasksListColumns: ColumnDef<TaskListItem>[] = [
     meta: {
       label: "Typ",
       searchable: true,
+      filterable: true,
       getSearchValue: (row) => row.type,
     } satisfies DataTableColumnMeta<TaskListItem>,
   },
   {
     accessorKey: "priority",
-    header: "Priorytet",
+    header: ({ column }) => <SortableHeader column={column} label="Priorytet" />,
+    filterFn: multiSelectFilterFnMeta,
+    sortingFn: (rowA, rowB) => {
+      const order: Record<TaskPriority, number> = { low: 0, normal: 1, high: 2 }
+      return (order[rowA.original.priority] ?? 0) - (order[rowB.original.priority] ?? 0)
+    },
     cell: ({ row }) => (
       <Badge
         variant={row.original.priority === "high" ? "default" : "outline"}
@@ -63,11 +72,13 @@ export const tasksListColumns: ColumnDef<TaskListItem>[] = [
     ),
     meta: {
       label: "Priorytet",
+      filterable: true,
+      filterLabel: (v) => PRIORITY_LABELS[v as TaskPriority] ?? v,
     } satisfies DataTableColumnMeta<TaskListItem>,
   },
   {
     accessorKey: "deadline",
-    header: "Termin",
+    header: ({ column }) => <SortableHeader column={column} label="Termin" />,
     cell: ({ row }) => row.original.deadline,
     meta: {
       label: "Termin",

@@ -6,9 +6,10 @@ import {
   EllipsisVerticalIcon,
   LoaderIcon,
 } from "lucide-react"
-import { toast } from "sonner"
+import { toast } from "@/components/toast"
 
 import { type DataTableColumnMeta } from "@/components/data-table"
+import { multiSelectFilterFnMeta } from "@/lib/data-table/utils"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -28,14 +29,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { TableCellViewer } from "./dashboard-cell-viewer"
+import { SortableHeader } from "@/components/data-table"
+import { DashboardRowActions } from "./dashboard-row-actions"
 import type { DashboardReviewItem } from "@/lib/api/domains/dashboard/contract"
 
 export const dashboardColumns: ColumnDef<DashboardReviewItem>[] = [
   {
     accessorKey: "header",
-    header: "Konkurs",
-    cell: ({ row }) => <TableCellViewer item={row.original} />,
+    header: ({ column }) => <SortableHeader column={column} label="Konkurs" />,
+    cell: ({ row }) => (
+      <span className="font-medium">{row.original.header}</span>
+    ),
     enableHiding: false,
     meta: {
       label: "Konkurs",
@@ -46,7 +50,7 @@ export const dashboardColumns: ColumnDef<DashboardReviewItem>[] = [
   },
   {
     accessorKey: "type",
-    header: "Kategoria",
+    header: ({ column }) => <SortableHeader column={column} label="Kategoria" />,
     cell: ({ row }) => (
       <div className="w-36">
         <Badge variant="outline" className="px-1.5 text-muted-foreground">
@@ -57,12 +61,14 @@ export const dashboardColumns: ColumnDef<DashboardReviewItem>[] = [
     meta: {
       label: "Kategoria",
       searchable: true,
+      filterable: true,
       getSearchValue: (row) => row.type,
     } satisfies DataTableColumnMeta<DashboardReviewItem>,
   },
   {
     accessorKey: "status",
-    header: "Status",
+    header: ({ column }) => <SortableHeader column={column} label="Status" />,
+    filterFn: multiSelectFilterFnMeta,
     cell: ({ row }) => (
       <Badge variant="outline" className="px-1.5 text-muted-foreground">
         {row.original.status === "Przyznany" ? (
@@ -76,12 +82,17 @@ export const dashboardColumns: ColumnDef<DashboardReviewItem>[] = [
     meta: {
       label: "Status",
       searchable: true,
+      filterable: true,
       getSearchValue: (row) => row.status,
     } satisfies DataTableColumnMeta<DashboardReviewItem>,
   },
   {
     accessorKey: "target",
-    header: () => <div className="w-full text-right">Kwota (PLN)</div>,
+    header: ({ column }) => (
+      <div className="flex justify-end">
+        <SortableHeader column={column} label="Kwota (PLN)" className="ml-0" />
+      </div>
+    ),
     cell: ({ row }) => (
       <form
         onSubmit={(event) => {
@@ -109,7 +120,11 @@ export const dashboardColumns: ColumnDef<DashboardReviewItem>[] = [
   },
   {
     accessorKey: "limit",
-    header: () => <div className="w-full text-right">Termin</div>,
+    header: ({ column }) => (
+      <div className="flex justify-end">
+        <SortableHeader column={column} label="Termin" className="ml-0" />
+      </div>
+    ),
     cell: ({ row }) => (
       <form
         onSubmit={(event) => {
@@ -137,7 +152,8 @@ export const dashboardColumns: ColumnDef<DashboardReviewItem>[] = [
   },
   {
     accessorKey: "reviewer",
-    header: "Opiekun",
+    header: ({ column }) => <SortableHeader column={column} label="Opiekun" />,
+    filterFn: multiSelectFilterFnMeta,
     cell: ({ row }) => {
       const isAssigned = row.original.reviewer !== "Assign reviewer"
 
@@ -172,35 +188,14 @@ export const dashboardColumns: ColumnDef<DashboardReviewItem>[] = [
     meta: {
       label: "Opiekun",
       searchable: true,
+      filterable: true,
       getSearchValue: (row) => row.reviewer,
     } satisfies DataTableColumnMeta<DashboardReviewItem>,
   },
   {
     id: "actions",
     header: "Akcje",
-    cell: () => (
-      <DropdownMenu>
-        <DropdownMenuTrigger
-          render={
-            <Button
-              variant="ghost"
-              className="flex size-8 text-muted-foreground data-open:bg-muted"
-              size="icon"
-            />
-          }
-        >
-          <EllipsisVerticalIcon />
-          <span className="sr-only">Otwórz menu</span>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-36">
-          <DropdownMenuItem>Edytuj</DropdownMenuItem>
-          <DropdownMenuItem>Utwórz kopię</DropdownMenuItem>
-          <DropdownMenuItem>Dodaj do ulubionych</DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem variant="destructive">Usuń</DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    ),
+    cell: ({ row }) => <DashboardRowActions item={row.original} />,
     enableHiding: false,
     enableSorting: false,
     meta: {

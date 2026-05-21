@@ -1,13 +1,13 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
-import { PlusIcon } from "lucide-react"
 
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { DataTable, DataTableSkeleton } from "@/components/data-table"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { dashboardReviewItemsOptions } from "@/lib/api/domains/dashboard/query-options"
+import { AddProjectDrawer } from "./add-project-dialog"
 import { dashboardColumns } from "./dashboard-columns"
 
 export function DashboardDataTable() {
@@ -56,15 +56,11 @@ export function DashboardDataTable() {
           pageSizeOptions: [10, 20, 30, 40, 50],
           initialPageSize: 10,
         }}
-        persistence={false}
+        persistence={{ search: true, columnVisibility: true, sorting: true, columnFilters: true }}
         reorder={false}
+        sorting={{}}
         toolbar={{
-          right: (
-            <Button variant="outline" size="sm">
-              <PlusIcon />
-              <span className="hidden lg:inline">Dodaj projekt</span>
-            </Button>
-          ),
+          right: <AddProjectDrawer />,
         }}
         emptyState="Brak projektów."
         noResultsState="Brak projektów pasujących do wyszukiwania."

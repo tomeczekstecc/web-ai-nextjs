@@ -1,4 +1,4 @@
-import type { ColumnDef } from "@tanstack/react-table"
+import type { ColumnDef, FilterFn, Row } from "@tanstack/react-table"
 import type { DataTableColumnMeta, DataTablePreferences } from "./types"
 
 export function getColumnMeta<TData>(column: ColumnDef<TData>): DataTableColumnMeta<TData> {
@@ -47,3 +47,14 @@ export function writePreferences(key: string, preferences: DataTablePreferences)
     window.localStorage.setItem(key, JSON.stringify(preferences))
   } catch {}
 }
+
+export const multiSelectFilterFnMeta = (<TData>(
+  row: Row<TData>,
+  columnId: string,
+  filterValues: string[],
+): boolean => {
+  if (!filterValues?.length) return true
+  return filterValues.includes(row.getValue(columnId) as string)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+}) as FilterFn<any>
+multiSelectFilterFnMeta.autoRemove = (val: string[]) => !val?.length

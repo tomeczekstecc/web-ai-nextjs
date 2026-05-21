@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { toast } from 'sonner'
+import { toast } from '@/components/toast'
 import { Wizard } from '@/components/wizard/Wizard'
 import { Button } from '@/components/ui/button'
 import type { WizardPage } from '@/lib/wizard/types'

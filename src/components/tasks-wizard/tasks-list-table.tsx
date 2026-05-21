@@ -48,8 +48,9 @@ export function TasksListTable() {
         search={{ enabled: true, placeholder: "Szukaj zadań…" }}
         visibility={{ enabled: true }}
         pagination={{ pageSizeOptions: [10, 20, 30], initialPageSize: 10 }}
-        persistence={false}
+        persistence={{ search: true, sorting: true, columnFilters: true }}
         reorder={false}
+        sorting={{}}
         toolbar={{
           right: (
             <Button size="sm" nativeButton={false} render={<Link href="/wizard-demo/new" />}>
