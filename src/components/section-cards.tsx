@@ -7,7 +7,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { TrendingUpIcon, TrendingDownIcon } from "lucide-react"
+import { ArrowRightIcon, TrendingUpIcon, TrendingDownIcon } from "lucide-react"
+import Link from "next/link"
 
 export function SectionCards() {
   return (
@@ -26,13 +27,16 @@ export function SectionCards() {
           </CardAction>
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
-          <div className="line-clamp-1 flex gap-2 font-medium">
-            4 nowe konkursy w tym miesiącu{" "}
-            <TrendingUpIcon className="size-4" />
-          </div>
           <div className="text-muted-foreground">
             12 aktywnych konkursów grantowych
           </div>
+          <Link
+            className="mt-1 inline-flex items-center gap-1 font-medium text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            href="/dashboard#najwazniejsze-konkursy"
+          >
+            Zobacz konkursy
+            <ArrowRightIcon className="size-4" aria-hidden="true" />
+          </Link>
         </CardFooter>
       </Card>
       <Card className="@container/card">
@@ -49,13 +53,16 @@ export function SectionCards() {
           </CardAction>
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
-          <div className="line-clamp-1 flex gap-2 font-medium">
-            2 nowe wnioski złożone{" "}
-            <TrendingUpIcon className="size-4" />
-          </div>
           <div className="text-muted-foreground">
             5 projektów w trakcie aplikacji
           </div>
+          <Link
+            className="mt-1 inline-flex items-center gap-1 font-medium text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            href="/applications"
+          >
+            Przejdź do wniosków
+            <ArrowRightIcon className="size-4" aria-hidden="true" />
+          </Link>
         </CardFooter>
       </Card>
       <Card className="@container/card">
@@ -72,11 +79,14 @@ export function SectionCards() {
           </CardAction>
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
-          <div className="line-clamp-1 flex gap-2 font-medium">
-            1 wniosek poprawiony w tym tygodniu{" "}
-            <TrendingDownIcon className="size-4" />
-          </div>
           <div className="text-muted-foreground">2 wnioski wymagają zmian</div>
+          <Link
+            className="mt-1 inline-flex items-center gap-1 font-medium text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            href="/applications"
+          >
+            Przejdź do poprawek
+            <ArrowRightIcon className="size-4" aria-hidden="true" />
+          </Link>
         </CardFooter>
       </Card>
       <Card className="@container/card">
@@ -93,11 +103,14 @@ export function SectionCards() {
           </CardAction>
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
-          <div className="line-clamp-1 flex gap-2 font-medium">
-            1 nowe dofinansowanie w tym kwartale{" "}
-            <TrendingUpIcon className="size-4" />
-          </div>
           <div className="text-muted-foreground">3 projekty z przyznaną dotacją</div>
+          <Link
+            className="mt-1 inline-flex items-center gap-1 font-medium text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            href="/applications"
+          >
+            Zobacz dofinansowania
+            <ArrowRightIcon className="size-4" aria-hidden="true" />
+          </Link>
         </CardFooter>
       </Card>
     </div>

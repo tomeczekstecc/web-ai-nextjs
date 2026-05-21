@@ -34,7 +34,29 @@ export const env = createEnv({
     // Database
     DATABASE_URL: z.string().min(1),
 
-    // Laravel internal auth bridge tokens
+    // Laravel bridge auth.
+    //
+    // Two modes are supported during the migration to JWT-based bridge auth:
+    //
+    // - `internal-token` (legacy): Next.js sends `X-Internal-Auth` (god-mode
+    //   shared secret) + trusted `X-Auth-Email`/`X-Auth-Provider` headers.
+    //   Laravel matches the email to a user record. Identity is trusted, not
+    //   verified. Required for all flows until Laravel ships the JWKS
+    //   verifier.
+    //
+    // - `jwt`: Next.js mints a short-lived asymmetrically signed JWT per
+    //   request via the better-auth `jwt()` plugin and sends it as
+    //   `Authorization: Bearer <token>`. Laravel verifies signature via JWKS
+    //   at `${BETTER_AUTH_URL}/api/auth/jwks`, reads `sub` from the verified
+    //   payload. No shared secret, no header trust.
+    //
+    // The legacy `LARAVEL_INTERNAL_AUTH_TOKEN` is still required in either
+    // mode for now because other Laravel endpoints (auth mail, session
+    // revoke) have not been migrated yet. Drop it when those are flipped.
+    AUTH_LARAVEL_BRIDGE_MODE: z
+      .enum(["internal-token", "jwt"])
+      .default("internal-token"),
+    AUTH_LARAVEL_BRIDGE_AUDIENCE: optionalString,
     LARAVEL_INTERNAL_AUTH_TOKEN: z.string().min(1),
     LARAVEL_INTERNAL_AUTH_MAIL_TOKEN: z.string().min(1),
     LARAVEL_INTERNAL_AUTH_REVOKE_TOKEN: z.string().min(1),

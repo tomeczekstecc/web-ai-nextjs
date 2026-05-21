@@ -1,7 +1,7 @@
 import { betterAuth } from "better-auth";
 import { APIError, createAuthMiddleware } from "better-auth/api";
 import { toNextJsHandler } from "better-auth/next-js";
-import { username } from "better-auth/plugins";
+import { jwt, username } from "better-auth/plugins";
 import { Pool } from "pg";
 
 import { logAuthAudit } from "@/lib/auth/audit";
@@ -84,7 +84,69 @@ if (process.env.NODE_ENV !== "production") {
   globalForAuth.__authPool = authPool;
 }
 
-const plugins = [username()];
+const plugins = [
+  username(),
+  /**
+   * JWT plugin: lets us mint short-lived, session-bound, asymmetrically
+   * signed JWTs that downstream services (currently Laravel `/me` and
+   * `/auth/provision`) verify against our JWKS at `/api/auth/jwks`.
+   *
+   * This is the cryptographic replacement for the legacy
+   * `X-Internal-Auth: <god-mode-shared-secret>` + `X-Auth-Email: trusted`
+   * header pair. With the JWT in place, Laravel no longer has to trust
+   * that Next.js is honest about the user's email — the `sub` claim is
+   * authoritative because it is signed.
+   *
+   * Payload is intentionally minimal: identity only. Roles and permissions
+   * stay in Laravel as the source of truth; this token just answers
+   * "who is the call being made on behalf of?".
+   *
+   * The plugin also adds a `jwks` table (see drizzle/better-auth migration).
+   */
+  jwt({
+    // Keep column names snake_case to match the convention used by our
+    // other better-auth tables (`auth_users`, `auth_sessions`, etc.).
+    schema: {
+      jwks: {
+        fields: {
+          publicKey: "public_key",
+          privateKey: "private_key",
+          createdAt: "created_at",
+          expiresAt: "expires_at",
+        },
+      },
+    },
+    jwt: {
+      // BASE_URL is used for issuer/audience by default. Audience is
+      // explicitly set so Laravel can pin it independently of any future
+      // BASE_URL rename.
+      issuer: process.env.BETTER_AUTH_URL,
+      audience:
+        process.env.AUTH_LARAVEL_BRIDGE_AUDIENCE ||
+        process.env.BETTER_AUTH_URL,
+      // Short TTL: every request mints a fresh token via `auth.api.getToken`,
+      // which is itself per-request `React.cache`-deduped in
+      // `src/lib/auth/backend-token.ts`. A leaked token has a tiny blast
+      // radius.
+      expirationTime: "5m",
+      definePayload: ({ user }) => ({
+        // Standard claim shape so Laravel can use the same code path as any
+        // other JWT consumer (mobile, future internal tools).
+        id: user.id,
+        email: user.email,
+        emailVerified: Boolean(user.emailVerified),
+        name: user.name ?? null,
+      }),
+    },
+  }),
+  // NB: we deliberately do NOT register the better-auth `organization()`
+  // plugin. Our RBAC is global, not per-tenant: the role catalog
+  // (`User`/`Oper`/`Admin`) lives in `src/lib/auth/principal.ts`, and the
+  // authoritative role assignments come from Laravel via `GET /me`
+  // (see `docs/laravel-start-guide.md` §5). The org plugin would add a
+  // membership model, an invitation flow, and a session field we have no
+  // use for. Revisit only if we adopt true multi-tenancy.
+];
 
 /**
  * Native better-auth social providers. We only register a provider when both
@@ -143,11 +205,28 @@ export const auth = betterAuth({
   database: authPool,
   user: {
     modelName: "auth_users",
+    // Standardise on snake_case across every better-auth table. Without these
+    // overrides better-auth would create camelCase columns for the core user
+    // table, which would clash with the snake_case mappings we already have
+    // on session/account/verification. Authoritative SQL lives in
+    // `migrations/0001_better_auth_schema.sql`.
+    fields: {
+      emailVerified: "email_verified",
+      createdAt: "created_at",
+      updatedAt: "updated_at",
+      // Added by the `username()` plugin.
+      displayUsername: "display_username",
+    },
   },
   session: {
     modelName: "auth_sessions",
     fields: {
       userId: "user_id",
+      expiresAt: "expires_at",
+      ipAddress: "ip_address",
+      userAgent: "user_agent",
+      createdAt: "created_at",
+      updatedAt: "updated_at",
     },
     expiresIn: 60 * 60 * 24,
     updateAge: 60 * 60 * 4,

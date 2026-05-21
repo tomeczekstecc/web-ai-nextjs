@@ -4,8 +4,6 @@ Project-level follow-ups captured by agents.
 
 ## Open
 
-
-
 - [ ] Ogarnąć lepszy layout wizarda.
   - Priority: high
   - Date: 2026-05-10

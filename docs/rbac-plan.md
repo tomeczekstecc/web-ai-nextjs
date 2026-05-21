@@ -506,6 +506,11 @@ Notes vs. original plan:
 
 ## 15. How roles and permissions work together
 
+> For a **task-oriented usage guide** (which API to call where, code
+> examples, defense-in-depth checklist), see
+> [`docs/permissions.md`](./permissions.md). This section is the
+> design rationale and reference model.
+
 Short answer: **roles are bundles of permissions**, and **permissions are
 the actual gate keys**. The system is permission-first; roles exist as a
 convenient label for a fixed set of permissions, plus an axis the menu
@@ -830,3 +835,421 @@ Following the same primitives keeps the four layers — server gate,
 client gate, menu filter, and any new config filter — interpreting the
 exact same `AppRole` literals and `"domain:action"` strings, with no
 risk of drift.
+
+## 17. Worked trace — mocked Oper user enters `/admin`
+
+End-to-end trace of the most common "forbidden" path, useful as the
+canonical reference when debugging gate behaviour or onboarding a
+reviewer. Setup assumed: `AUTH_SESSION_BYPASS_ENABLED=true`,
+`AUTH_MOCK_ROLE=Oper`, `NODE_ENV=development`.
+
+### 17.1 Proxy phase
+
+Request hits `src/proxy.ts` (Next 16 successor to `middleware.ts`). The
+proxy does exactly one thing:
+
+```ts
+requestHeaders.set("x-pathname", "/admin");
+requestHeaders.set("x-url", "/admin");
+return NextResponse.next({ request: { headers: requestHeaders } });
+```
+
+No auth check. The request flows on with two extra headers that
+downstream server components read via `headers()`.
+
+### 17.2 Root layout
+
+`src/app/layout.tsx` runs — providers only (TanStack Query, MSW in dev).
+Nothing auth-relevant. The `MSWProvider` defers **client** rendering
+until the service worker is ready; server rendering is unaffected.
+
+### 17.3 `(app)/layout.tsx` → `AppShell`
+
+`AppShell` (`src/components/app-shell.tsx`) is a server component. It
+first computes `returnTo` from the proxy-set headers:
+
+```ts
+const h = await headers();
+const fromHeader = h.get("x-url") ?? h.get("x-pathname"); // "/admin"
+const resolvedReturnTo = sanitizeReturnTo(fromHeader, "/"); // "/admin"
+```
+
+Then `requireAuthorizedAppSession("/admin")` runs
+(`src/lib/auth/session.ts`). Because bypass is on:
+
+- `isSessionBypassEnabled()` → `true` (dev + flag set).
+- `getMockBypassSession()` returns a synthetic `AppSession` whose
+  `appUser.roles = ["Oper"]` (from `AUTH_MOCK_ROLE`) and whose
+  `appUser.permissions` come from `permissionsFor(["Oper"])` —
+  `["dashboard:read", "applications:read", "tasks:write"]`.
+- The mock branch **short-circuits**: no Better-Auth `getSession()`, no
+  Laravel `/me`. The `React.cache` wrappers memoize this value for the
+  rest of the render pass.
+
+Back in `AppShell`:
+
+```ts
+const principal = principalFromAppUser(appSession.access.appUser);
+// principal.roles       = ["Oper"]                          (normalized)
+// principal.permissions = ["dashboard:read",
+//                          "applications:read",
+//                          "tasks:write"]                   (role-derived ∪ upstream)
+```
+
+`AppShell` returns the shell JSX wrapping
+`<PrincipalProvider principal={principal}>`. All client descendants now
+see the principal via context.
+
+The user object passed into the sidebar deliberately uses
+`principal.roles` (post-normalization), **not** `appUser.roles` (raw
+upstream casing). This is the wiring that closed the
+empty-sidebar-on-lowercase-role bug.
+
+### 17.4 `(app)/admin/layout.tsx` runs — the stop point
+
+```ts
+export default async function AdminLayout({ children }) {
+  await requireRole("Admin");
+  return <>{children}</>;
+}
+```
+
+Inside `requireRole("Admin")` (`src/lib/auth/rbac.ts`):
+
+```ts
+const required  = toArray("Admin");                    // ["Admin"]
+const principal = await getCurrentPrincipal();          // React.cache HIT — same Principal as 17.3
+if (!principal) unauthorized();                         // skipped — principal exists
+if (!matchesSet(principal.roles, required, "any"))      // matchesSet(["Oper"], ["Admin"], "any") → false
+  forbidden();
+```
+
+`forbidden()` (from `next/navigation`, enabled by
+`experimental.authInterrupts` in `next.config.ts`) throws a **special
+Next.js error**, not a regular JS exception:
+
+- It **cannot** be caught by `try/catch`. Wrapping `requireRole` in
+  try/catch fails open — Next intercepts the unwind regardless.
+- It causes Next to walk up the segment tree looking for the nearest
+  `forbidden.tsx`.
+- The HTTP response becomes **403 Forbidden**.
+
+`(app)/admin/page.tsx` **never runs**. Neither does anything it would
+have rendered.
+
+### 17.5 `forbidden.tsx` resolution
+
+Next walks up from `(app)/admin/`:
+
+- `src/app/(app)/admin/forbidden.tsx` — doesn't exist.
+- `src/app/(app)/forbidden.tsx` — matches. Stops here.
+
+That file is a server component **inside `(app)/layout.tsx`**, so the
+AppShell chrome (sidebar + topnav, already rendered in 17.3) wraps it.
+The user sees the in-shell 403 panel with a "Wróć do panelu" link to
+`/dashboard` and, if `AUTH_SUPPORT_URL` is set, a support link.
+
+The root-level `src/app/forbidden.tsx` is **not** used here — it's the
+fallback for `forbidden()` thrown outside the `(app)` group (auth pages,
+public marketing routes, etc.).
+
+### 17.6 Sidebar contents during the same render
+
+`AppSidebar` is a client component, but its props came from the server
+render in 17.3 — `user.roles = ["Oper"]`,
+`user.permissions = ["dashboard:read", "applications:read",
+"tasks:write"]`. It runs `filterFeatures(menu.features, userPerms,
+userRoles)`:
+
+- Entries with `display: ["User", "Oper", "Admin"]` pass the role check.
+- Entries with `perms.list: ["dashboard:read"]` or `["applications:read"]`
+  pass.
+- Entries with `perms.list: ["users:write"]` or `["admin:access"]` (the
+  admin-only ones) fail and are hidden.
+
+So an admin-only menu link to `/admin` should not be visible to an Oper
+user in the first place. The 403 is the safety net for direct URLs,
+bookmarks, or external links — i.e. someone bypassing the UI.
+
+### 17.7 Net user-visible result
+
+- HTTP status: **403 Forbidden**.
+- Browser URL: unchanged at `/admin` (no redirect).
+- Visible page: AppShell chrome (sidebar + topnav, populated for Oper)
+  wrapping the in-shell 403 message with a "Wróć do panelu" button.
+- DevTools Network: a normal SSR document response; no client `fetch` was
+  involved in the gate.
+- Console: clean. `forbidden()` is intended control flow, not a logged
+  error.
+
+### 17.8 Non-bypass mode diff
+
+If `AUTH_SESSION_BYPASS_ENABLED=false` and the same Oper user came from
+the real Laravel bridge:
+
+- 17.3 makes a real `auth.api.getSession()` call (Better-Auth) plus a
+  Laravel `/me` fetch instead of the synthetic short-circuit. Both are
+  deduped by `React.cache` within the request and cached for 5 min via
+  Better-Auth's signed-cookie `session.cookieCache`.
+- `principalFromAppUser` normalizes whatever Laravel returns (so
+  `"oper"` lowercase still becomes `"Oper"`) and unions upstream-granted
+  permissions with role-derived ones.
+- 17.4 – 17.7 are **identical**. The gate doesn't care whether the
+  principal came from bypass or real auth — it only inspects
+  `principal.roles`. That is the entire point of the single-resolver
+  design.
+
+### 17.9 Variations worth knowing
+
+| Variation                                  | Result                                                                                       |
+| ------------------------------------------ | -------------------------------------------------------------------------------------------- |
+| Same trace, `AUTH_MOCK_ROLE=Admin`         | 17.4 passes (`matchesSet(["Admin"], ["Admin"], "any") → true`). Page renders normally.       |
+| Same trace, no session (bypass off, no Better-Auth session) | `requireAuthorizedAppSession` in 17.3 redirects to `/auth/sign-in?returnTo=/admin`. Layout 17.4 never runs.    |
+| `requirePermission("admin:access")` swapped for `requireRole("Admin")` | Oper lacks `"admin:access"` → same 403 outcome via the permission axis. |
+| Server action `withRole("Admin", deleteUser)` invoked by Oper | `forbidden()` throws before the action body runs, regardless of which page rendered the button. |
+| `<RoleGate roles="Admin">` on a button rendered for Oper | Button is hidden client-side. **But** the server action behind it is still callable directly — the `withRole` wrapper is what actually protects it. |
+
+The pattern holds for every privileged route: one `requireRole` /
+`requirePermission` at the highest segment that needs gating, one
+`<RoleGate>` / `<PermissionGate>` on the affordance that points to it,
+and one `withRole` / `withPermission` on the action it triggers. Three
+layers, one source of truth (`AppRole` + `domain:action` strings), zero
+catchable interrupts.
+
+## 18. Laravel bridge auth: JWT migration (Option B)
+
+The original bridge to Laravel used a static shared secret
+(`LARAVEL_INTERNAL_AUTH_TOKEN`) plus a **trusted** `X-Auth-Email` header.
+That is a god-mode credential and a trust boundary by convention rather
+than cryptography — see §15 of the deep review for the full risk list.
+
+Phase B1 (Next.js side) introduces a parallel JWT-based path without
+breaking the legacy flow. The mode is selected at runtime via
+`AUTH_LARAVEL_BRIDGE_MODE` so both halves can ship independently.
+
+### 18.1 What's in place after Phase B1
+
+- `src/lib/auth.ts` registers the better-auth `jwt()` plugin with:
+  - `issuer = BETTER_AUTH_URL`
+  - `audience = AUTH_LARAVEL_BRIDGE_AUDIENCE || BETTER_AUTH_URL`
+  - `expirationTime = "5m"` — every request mints a fresh token; combined
+    with `React.cache` dedup, a single render reuses one token.
+  - `definePayload = ({ user }) => ({ id, email, emailVerified, name })`
+    — identity only. Roles and permissions stay in Laravel as the source
+    of truth; the JWT only answers "who is the call on behalf of?".
+  - `schema.jwks.fields` overrides keep column names snake_case to match
+    the rest of our better-auth tables.
+- `src/lib/auth/backend-token.ts` exposes
+  `getBackendTokenForCurrentRequest()`: wraps `auth.api.getToken({ headers })`
+  in `React.cache`. Returns `null` when there is no session (e.g. during
+  sign-up before the session is established and Laravel-provisioning
+  hasn't run yet). The JWT plugin's `getToken` endpoint is gated by
+  `sessionMiddleware`, so you cannot mint a token for nobody.
+- `src/lib/api/domains/auth-user/bridge-headers.ts` is the single
+  switchpoint. `buildBridgeUserHeaders(identity)` returns either:
+  - **`internal-token` mode** (default): legacy headers
+    (`X-Auth-Email`, `X-Auth-Provider`, `X-Auth-Subject`,
+    `X-Internal-Auth`).
+  - **`jwt` mode**: `Authorization: Bearer <jwt>` plus `X-Internal-Auth`
+    (kept transitionally for adjacent endpoints that haven't migrated).
+- `src/lib/api/domains/auth-user/queries.ts` (`/me`) and
+  `commands.ts` (`/auth/provision`) both call `buildBridgeUserHeaders` —
+  one change-site flips the whole bridge.
+- `src/env.ts` validates the new flags
+  (`AUTH_LARAVEL_BRIDGE_MODE`, `AUTH_LARAVEL_BRIDGE_AUDIENCE?`).
+- `.env` declares `AUTH_LARAVEL_BRIDGE_MODE=internal-token` explicitly so
+  the active mode is greppable.
+- `migrations/0001_better_auth_schema.sql` provisions every table
+  Better-Auth needs given the current plugin set (core + username + jwt
+  + organization), including the `jwks` table the JWT plugin reads from
+  on first mint. See `migrations/README.md` for conventions. Run once
+  against the auth database before flipping to `jwt` mode.
+
+### 18.2 What Phase B1 does NOT change
+
+- The legacy headers and `LARAVEL_INTERNAL_AUTH_TOKEN` still work
+  unchanged. Today's deployment keeps running in `internal-token` mode.
+- Laravel does not know about JWT yet. Phase B2 ships the verifier.
+- Adjacent Laravel endpoints (mail bridge, session revoke) are out of
+  scope here; they still rely on the legacy static token.
+- `LARAVEL_INTERNAL_AUTH_TOKEN` stays a required env var because of
+  those adjacent endpoints.
+
+### 18.3 Phase B2 — Laravel side (PHP)
+
+Reference implementation. Adjust namespacing to match the Laravel repo's
+conventions.
+
+**1. Install JWKS-aware JWT verifier.**
+
+```bash
+composer require firebase/php-jwt guzzlehttp/guzzle
+```
+
+**2. Middleware:**
+`app/Http/Middleware/VerifyNextAuthJwt.php`
+
+```php
+<?php
+
+namespace App\Http\Middleware;
+
+use Closure;
+use Firebase\JWT\JWK;
+use Firebase\JWT\JWT;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
+use Symfony\Component\HttpFoundation\Response;
+
+class VerifyNextAuthJwt
+{
+    private const JWKS_CACHE_KEY = 'next_auth:jwks';
+    private const JWKS_TTL_SECONDS = 3600;     // refresh hourly
+    private const CLOCK_LEEWAY_SECONDS = 60;   // tolerate ±60s skew
+
+    public function handle(Request $request, Closure $next): Response
+    {
+        $token = $this->extractBearer($request);
+        if (! $token) {
+            return response()->json(['error' => 'unauthorized'], 401);
+        }
+
+        try {
+            JWT::$leeway = self::CLOCK_LEEWAY_SECONDS;
+            $jwks = $this->getJwks();
+            $payload = JWT::decode($token, JWK::parseKeySet($jwks));
+        } catch (\Throwable $e) {
+            report($e);
+            return response()->json(['error' => 'invalid_token'], 401);
+        }
+
+        $expectedIssuer = config('services.next_auth.issuer');
+        $expectedAudience = config('services.next_auth.audience');
+
+        if (($payload->iss ?? null) !== $expectedIssuer) {
+            return response()->json(['error' => 'invalid_issuer'], 401);
+        }
+        if (! $this->audienceMatches($payload->aud ?? null, $expectedAudience)) {
+            return response()->json(['error' => 'invalid_audience'], 401);
+        }
+
+        // Resolve the Laravel user from the verified `sub` claim. `sub` is the
+        // better-auth user id; `email` is provided for convenience but is no
+        // longer trusted on its own.
+        $userId = $payload->sub ?? null;
+        $email  = $payload->email ?? null;
+        if (! $userId || ! $email) {
+            return response()->json(['error' => 'invalid_claims'], 401);
+        }
+
+        $request->attributes->set('auth_user_id', $userId);
+        $request->attributes->set('auth_user_email', $email);
+        $request->attributes->set('auth_jwt_claims', (array) $payload);
+
+        return $next($request);
+    }
+
+    private function extractBearer(Request $request): ?string
+    {
+        $header = $request->header('Authorization', '');
+        if (! str_starts_with($header, 'Bearer ')) {
+            return null;
+        }
+        return substr($header, 7) ?: null;
+    }
+
+    private function getJwks(): array
+    {
+        return Cache::remember(self::JWKS_CACHE_KEY, self::JWKS_TTL_SECONDS, function () {
+            $url = config('services.next_auth.jwks_url');
+            $response = Http::timeout(5)->get($url);
+            if (! $response->successful()) {
+                throw new \RuntimeException('Failed to fetch JWKS from ' . $url);
+            }
+            return $response->json();
+        });
+    }
+
+    private function audienceMatches(mixed $tokenAudience, string $expected): bool
+    {
+        if (is_string($tokenAudience)) {
+            return $tokenAudience === $expected;
+        }
+        if (is_array($tokenAudience)) {
+            return in_array($expected, $tokenAudience, true);
+        }
+        return false;
+    }
+}
+```
+
+**3. Laravel config.** Add to `config/services.php`:
+
+```php
+'next_auth' => [
+    'issuer'   => env('NEXT_AUTH_ISSUER'),    // e.g. https://app.example.com
+    'audience' => env('NEXT_AUTH_AUDIENCE'),  // matches AUTH_LARAVEL_BRIDGE_AUDIENCE
+    'jwks_url' => env('NEXT_AUTH_JWKS_URL'),  // e.g. https://app.example.com/api/auth/jwks
+],
+```
+
+**4. Register and apply.** In `app/Http/Kernel.php` register the middleware
+alias, then apply it to the `/me` and `/auth/provision` routes (and any
+other endpoint that should switch to JWT).
+
+**5. Smoke test.**
+
+```bash
+# From the Next.js side, with AUTH_LARAVEL_BRIDGE_MODE=jwt and a real
+# session cookie:
+curl https://laravel.example.com/me \
+  -H "Authorization: Bearer $(jwt minted via /api/auth/token)"
+```
+
+Should resolve the user via `sub`, not via the trusted `X-Auth-Email`.
+
+### 18.4 Cut-over checklist
+
+1. **DB**: apply `migrations/0001_better_auth_schema.sql` against the
+   auth database (idempotent — safe to re-run). Restart Next.js so the
+   JWT plugin can initialise its key pair on first call. (Plugin
+   generates the pair lazily on first `/api/auth/jwks` hit and writes
+   it to the `jwks` table.)
+2. **JWKS reachability**: curl `${BETTER_AUTH_URL}/api/auth/jwks` from
+   wherever Laravel runs. Confirm a 200 with a `{ keys: [...] }` body.
+   Pin Laravel's `NEXT_AUTH_JWKS_URL` to that URL.
+3. **Laravel staging**: deploy the middleware, leave the route group
+   off it initially. Manually verify a token decodes (use a fresh
+   `/api/auth/token` call). Then enable the middleware on `/me` and
+   `/auth/provision`.
+4. **Flip mode in Next staging**: `AUTH_LARAVEL_BRIDGE_MODE=jwt`. Verify
+   sign-in, session resolution, and provisioning. Watch for
+   `invalid_token` / `invalid_issuer` / `invalid_audience` in Laravel
+   logs.
+5. **Promote to prod**: same flip in prod env vars. Keep the legacy
+   token configured for adjacent endpoints.
+
+### 18.5 Future work (Phase B3, deferred)
+
+- Migrate the mail bridge and session-revoke endpoints to JWT auth.
+- Drop `LARAVEL_INTERNAL_AUTH_TOKEN` from env entirely.
+- Remove `internal-token` mode from `bridge-headers.ts`. The mode enum
+  shrinks to a single value at that point — collapse it.
+- Consider rotating JWKS keys on a schedule (the plugin supports
+  `rotationInterval` + `gracePeriod`). Out of scope today because a 5-min
+  TTL already bounds the blast radius.
+- Move the legacy auth-tables migration (`auth_users`, etc.) into the
+  same `migrations/` folder so the auth DB has a single canonical
+  history. **Done in `0001_better_auth_schema.sql`.**
+
+### 18.6 Risk register
+
+| Risk                                                                | Mitigation                                                                                              |
+| ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| Clock skew between Next host and Laravel host rejects valid tokens | `JWT::$leeway = 60` in middleware; matches the `jose` library default we use elsewhere.                |
+| JWKS endpoint unreachable from Laravel network                      | Phase B2 step 2 validates this with curl before flipping the flag. Cache TTL avoids hammering on every request.      |
+| Active session count balloons because every render mints a token   | `auth.api.getToken` reads the cached session (cookie cache + `React.cache`); minting is a key-store read, not a DB session insert. |
+| Key rotation breaks in-flight tokens                                | 5-min TTL + 60s leeway means a rotation event has at most ~6 min where some clients see `invalid_token`. Add `rotationInterval`/`gracePeriod` if/when rotation is automated. |
+| Mode flag set wrong in prod, falling back silently                  | `AUTH_LARAVEL_BRIDGE_MODE` is read in one place (`bridge-headers.ts`). Any unknown value falls back to `internal-token`, which is documented and intentional. Add a startup `console.warn` if you want louder feedback. |
+| Trusted `X-Auth-Email` lingers because adjacent endpoints not migrated | Phase B3 explicitly closes this. Until then, `X-Internal-Auth` is still required for those endpoints; treat it as scoped, not god-mode. |

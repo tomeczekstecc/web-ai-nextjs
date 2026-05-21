@@ -1,6 +1,7 @@
 import "server-only";
 
 import { apiRequest } from "@/lib/api/core/http";
+import { buildBridgeUserHeaders } from "@/lib/api/domains/auth-user/bridge-headers";
 import type {
   AuthIdentity,
   AuthUserAccessResult,
@@ -14,24 +15,6 @@ import {
 
 const endpoint = "/me";
 
-function getInternalAuthToken() {
-  return process.env.LARAVEL_INTERNAL_AUTH_TOKEN?.trim() ?? "";
-}
-
-function buildCurrentUserHeaders(identity: AuthIdentity): HeadersInit {
-  const headers: HeadersInit = {
-    "X-Auth-Email": identity.email,
-    "X-Auth-Provider": identity.provider,
-    "X-Internal-Auth": getInternalAuthToken(),
-  };
-
-  if (identity.providerSubject) {
-    headers["X-Auth-Subject"] = identity.providerSubject;
-  }
-
-  return headers;
-}
-
 export async function getCurrentAuthUser(
   identity: AuthIdentity,
 ): Promise<AuthUserAccessResult> {
@@ -42,7 +25,7 @@ export async function getCurrentAuthUser(
   const result = await apiRequest<LaravelAppUserPayload>({
     path: endpoint,
     method: "GET",
-    headers: buildCurrentUserHeaders(identity),
+    headers: await buildBridgeUserHeaders(identity),
   });
 
   if (result.ok) {

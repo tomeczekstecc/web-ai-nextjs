@@ -1,6 +1,7 @@
 import "server-only";
 
 import { apiRequest } from "@/lib/api/core/http";
+import { buildBridgeUserHeaders } from "@/lib/api/domains/auth-user/bridge-headers";
 import type {
   AuthIdentity,
   AuthUserAccessResult,
@@ -15,10 +16,6 @@ import {
 } from "@/lib/api/domains/auth-user/mock";
 
 const endpoint = "/auth/provision";
-
-function getInternalAuthToken() {
-  return process.env.LARAVEL_INTERNAL_AUTH_TOKEN?.trim() ?? "";
-}
 
 function mapProvisionBody(identity: AuthIdentity): ProvisionAuthUserRequest {
   return {
@@ -45,9 +42,7 @@ export async function provisionAuthUser(
   >({
     path: endpoint,
     method: "POST",
-    headers: {
-      "X-Internal-Auth": getInternalAuthToken(),
-    },
+    headers: await buildBridgeUserHeaders(identity),
     body: mapProvisionBody(identity),
   });
 

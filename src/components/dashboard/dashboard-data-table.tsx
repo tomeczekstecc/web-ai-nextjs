@@ -45,7 +45,7 @@ export function DashboardDataTable() {
 
   return (
     <div className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6">
-      <h2 className="text-xl font-semibold tracking-tight">
+      <h2 id="najwazniejsze-konkursy" className="scroll-mt-24 text-xl font-semibold tracking-tight">
         Najważniejsze konkursy
       </h2>
       <DataTable
