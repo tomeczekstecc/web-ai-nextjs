@@ -24,13 +24,6 @@ Project-level follow-ups captured by agents.
   - Branch: `014-json-menu-gen`
   - Domain: auth
 
-
-- [ ] Add an env validator to verify all required environment variables are present and correctly typed at startup.
-  - Priority: medium
-  - Date: 2026-05-21
-  - Branch: `015-top-nav-layout`
-  - Domain: api
-
 - [ ] Implement forking workflow, Change the application theme workflow/documentation.
   - Priority: critical
   - Date: 2026-05-21

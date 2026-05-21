@@ -12,7 +12,7 @@ import type {
   AuthProvider,
   AuthUserAccessResult,
 } from "@/lib/api/domains/auth-user/contract";
-import { auth, authPool } from "@/lib/auth";
+import { auth, authPool, SSO_PROVIDER_ID } from "@/lib/auth";
 import { AUTH_ROUTES, buildSignInHref } from "@/lib/auth/redirects";
 import {
   getMockBypassSession,
@@ -47,12 +47,12 @@ function mapProvider(rows: AuthAccountRow[]): {
   provider: AuthProvider;
   providerSubject: string | null;
 } {
-  const keycloakAccount = rows.find((row) => row.provider_id === "keycloak");
+  const ssoAccount = rows.find((row) => row.provider_id === SSO_PROVIDER_ID);
 
-  if (keycloakAccount) {
+  if (ssoAccount) {
     return {
-      provider: "keycloak",
-      providerSubject: keycloakAccount.account_id,
+      provider: "sso",
+      providerSubject: ssoAccount.account_id,
     };
   }
 

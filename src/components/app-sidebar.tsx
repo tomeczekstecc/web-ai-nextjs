@@ -22,7 +22,7 @@ import { appConfig } from "@/lib/config/app"
 type User = {
   name: string
   email: string
-  avatar: string
+  avatar?: string
   organizationName?: string
   roles?: string[]
   permissions?: string[]

@@ -33,7 +33,7 @@ import { AUTH_ROUTES } from "@/lib/auth/redirects"
 type User = {
   name: string
   email: string
-  avatar: string
+  avatar?: string
 }
 
 function getInitials(name: string): string {

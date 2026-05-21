@@ -1,4 +1,4 @@
-export type AuthProvider = "password" | "keycloak";
+export type AuthProvider = "password" | "sso";
 
 export type AuthIdentity = {
   email: string;

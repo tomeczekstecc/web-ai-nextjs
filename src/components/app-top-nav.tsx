@@ -24,7 +24,7 @@ import { cn } from "@/lib/utils"
 export type AppTopNavUser = {
   name: string
   email: string
-  avatar: string
+  avatar?: string
   organizationName?: string
   roles?: string[]
   permissions?: string[]

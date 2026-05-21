@@ -19,7 +19,7 @@ export async function AppShell({ children, returnTo = "/" }: AppShellProps) {
   const user: AppTopNavUser = {
     name: appSession.access.appUser.displayName,
     email: appSession.access.appUser.email,
-    avatar: appSession.access.appUser.avatarUrl || "/avatars/shadcn.svg",
+    avatar: appSession.access.appUser.avatarUrl ?? undefined,
     organizationName: appSession.access.appUser.organizationName ?? undefined,
     roles: appSession.access.appUser.roles,
     permissions: appSession.access.appUser.permissions,

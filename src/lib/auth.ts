@@ -2,7 +2,6 @@ import { betterAuth } from "better-auth";
 import { APIError, createAuthMiddleware } from "better-auth/api";
 import { toNextJsHandler } from "better-auth/next-js";
 import { genericOAuth, username } from "better-auth/plugins";
-import { keycloak } from "better-auth/plugins/generic-oauth";
 import { Pool } from "pg";
 
 import { logAuthAudit } from "@/lib/auth/audit";
@@ -87,9 +86,14 @@ if (process.env.NODE_ENV !== "production") {
 
 const ssoEnabled =
   process.env.AUTH_SSO_ENABLED === "true" &&
-  Boolean(process.env.KEYCLOAK_CLIENT_ID) &&
-  Boolean(process.env.KEYCLOAK_CLIENT_SECRET) &&
-  Boolean(process.env.KEYCLOAK_ISSUER);
+  Boolean(process.env.AUTH_SSO_CLIENT_ID) &&
+  Boolean(process.env.AUTH_SSO_CLIENT_SECRET) &&
+  Boolean(process.env.AUTH_SSO_ISSUER);
+
+// Stable, provider-agnostic id used by the frontend SSO button and account
+// linking. The actual upstream OIDC provider (Keycloak, Authentik, Auth0, …)
+// is configured via AUTH_SSO_* env vars and is opaque to the UI.
+export const SSO_PROVIDER_ID = "sso";
 
 const plugins = [
   username(),
@@ -97,13 +101,14 @@ const plugins = [
     ? [
         genericOAuth({
           config: [
-            keycloak({
-              clientId: process.env.KEYCLOAK_CLIENT_ID!,
-              clientSecret: process.env.KEYCLOAK_CLIENT_SECRET!,
-              issuer: process.env.KEYCLOAK_ISSUER!,
+            {
+              providerId: SSO_PROVIDER_ID,
+              clientId: process.env.AUTH_SSO_CLIENT_ID!,
+              clientSecret: process.env.AUTH_SSO_CLIENT_SECRET!,
+              discoveryUrl: `${process.env.AUTH_SSO_ISSUER!.replace(/\/$/, "")}/.well-known/openid-configuration`,
               scopes: ["openid", "profile", "email"],
               pkce: true,
-            }),
+            },
           ],
         }),
       ]
@@ -145,7 +150,7 @@ export const auth = betterAuth({
     storeAccountCookie: true,
     accountLinking: {
       enabled: true,
-      trustedProviders: ["keycloak"],
+      trustedProviders: [SSO_PROVIDER_ID],
       allowDifferentEmails: false,
     },
   },

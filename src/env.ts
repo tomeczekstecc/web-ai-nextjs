@@ -50,10 +50,11 @@ export const env = createEnv({
     AUTH_SUPPORT_LABEL: optionalString,
     AUTH_SUPPORT_URL: optionalString,
 
-    // Keycloak (required only when AUTH_SSO_ENABLED=true)
-    KEYCLOAK_CLIENT_ID: optionalString,
-    KEYCLOAK_CLIENT_SECRET: optionalString,
-    KEYCLOAK_ISSUER: optionalString,
+    // Generic OIDC SSO provider (required only when AUTH_SSO_ENABLED=true).
+    // Provider-agnostic: works with any OIDC issuer (e.g. Keycloak, Authentik, Auth0).
+    AUTH_SSO_CLIENT_ID: optionalString,
+    AUTH_SSO_CLIENT_SECRET: optionalString,
+    AUTH_SSO_ISSUER: optionalString,
   },
 
   client: {
