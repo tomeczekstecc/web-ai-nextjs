@@ -5,12 +5,6 @@ Project-level follow-ups captured by agents.
 ## Open
 
 
-- [ ] Create a git management / standards / gitflow skill.
-  - Priority: high
-  - Date: 2026-05-07
-  - Branch: `master`
-  - Domain: agents
-
 
 - [ ] Ogarnąć lepszy layout wizarda.
   - Priority: high
@@ -24,12 +18,6 @@ Project-level follow-ups captured by agents.
   - Branch: `014-json-menu-gen`
   - Domain: auth
 
-- [ ] Implement forking workflow, Change the application theme workflow/documentation.
-  - Priority: critical
-  - Date: 2026-05-21
-  - Branch: `master`
-  - Domain: general
-- 
 - [ ] Dodac linki nawigacji do strony kursu Udemy oraz dokumentacji projektu.
   - Priority: low
   - Date: 2026-05-20

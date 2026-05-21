@@ -1,5 +1,15 @@
 # CI-PRS Web
 
+## Template usage
+
+This repository is a template. Downstream projects are forked from it on
+GitLab and pull updates back over time. Read these in order before starting a
+new project or changing the look-and-feel:
+
+- [`docs/template-fork-workflow.md`](docs/template-fork-workflow.md) — bootstrap a new project from the template, configure remotes, rename, first-run checklist.
+- [`docs/theme-customization.md`](docs/theme-customization.md) — change the visual theme using https://ui.shadcn.com/create as the prototyping surface, then port the CSS variables into `src/app/globals.css`.
+- [`docs/template-sync.md`](docs/template-sync.md) — pull template updates (shared components, utilities, dependency bumps) into a forked project safely.
+
 ## Gitflow skill
 
 This workspace includes a production-grade local `gitflow` skill for branch,
