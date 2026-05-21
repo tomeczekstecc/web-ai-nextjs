@@ -894,179 +894,174 @@ const iconRegistry = {
 
 ## Domain-Scoped Page Layout
 
-**Rule:** Every domain under `src/app/(app)/` owns its breadcrumbs and `<h2>` heading through
-`<DomainLayout>` from `@/components/domain-layout`. Consumers declare a `BREADCRUMBS` constant
-and wrap their children — nothing else. Nav-mode switching, `<h2>` derivation, and breadcrumb
-rendering are all handled internally.
+**Rule:** Domain pages under `src/app/(app)/` do **not** render their own breadcrumbs or
+`<h2>` heading. The app shell renders both **once**, deriving them from the current pathname
+via a config-driven mapper. Pages contain content only.
 
-### `DomainLayout` API
+### Architecture
 
-```tsx
-import { DomainLayout } from "@/components/domain-layout"
-import type { BreadcrumbEntry } from "@/components/site-header"
-
-// BreadcrumbEntry = { label: string; href?: string }
-// Last entry has no href — becomes the current-page crumb AND the <h2> text.
+```
+AppShell  (src/components/app-shell.tsx)
+  ├── SiteHeader / AppTopNav         ← navigation chrome
+  ├── BreadcrumbBar | BreadcrumbTrail ← from src/components/breadcrumb-bar.tsx
+  ├── PageTitle                       ← <h2> derived from last crumb
+  └── {children}                      ← page content (no chrome here)
 ```
 
-### Standard case — domain `layout.tsx`
+Breadcrumbs are resolved by `resolveBreadcrumbs(pathname, menu)` from
+`src/lib/breadcrumbs/resolve.ts`, which combines two sources in order:
 
-Use a route-level `layout.tsx` when **all pages in the domain share the same breadcrumb trail**
-(e.g. a list-only domain, or a domain where the heading never changes).
+1. **`breadcrumbRegistry`** — `src/lib/breadcrumbs/registry.ts`. An array of
+   `{ match, map }` entries. `match` is a route pattern (`:name` for dynamic
+   segments, e.g. `/wizard-demo/:id/view`). `map({ pathname, segments, params })`
+   returns the full `BreadcrumbEntry[]` trail. Longest matching pattern wins.
+2. **`MenuConfig` fallback** — `src/lib/breadcrumbs/from-menu.ts`. Walks the
+   loaded menu config and picks the longest `to` that prefixes the pathname.
+   Anything already present in `MenuConfig` (mock or API) becomes breadcrumbs
+   automatically — no per-route code.
 
-```tsx
-// src/app/(app)/applications/layout.tsx
-import { DomainLayout } from "@/components/domain-layout"
-import type { BreadcrumbEntry } from "@/components/site-header"
+Nav-mode switching, `<h2>` rendering, and breadcrumb markup are handled by
+`AppShell` + `BreadcrumbTrail` / `BreadcrumbBar` / `PageTitle`. Consumers never
+import `SiteHeader`, `getNavLayout`, or breadcrumb primitives directly.
 
-const BREADCRUMBS: BreadcrumbEntry[] = [
-  { label: "Home",            href: "/dashboard" },
-  { label: "Applications",   href: "/applications" },
-  { label: "All Applications" },   // ← no href → BreadcrumbPage + h2 text
-]
+### `BreadcrumbEntry` shape
 
-export default function ApplicationsLayout({ children }: { children: React.ReactNode }) {
-  return <DomainLayout breadcrumbs={BREADCRUMBS}>{children}</DomainLayout>
-}
+```ts
+// src/lib/breadcrumbs/types.ts
+export type BreadcrumbEntry = { label: string; href?: string }
 ```
 
-File placement:
+The **last** entry has no `href` → rendered as `<BreadcrumbPage>` (sets
+`aria-current="page"`) and reused as the `<h2>` text by `PageTitle`.
+
+### Standard case — route covered by `MenuConfig`
+
+Nothing to write. Add the route to the menu (or rely on the existing menu
+entry) and the breadcrumb appears automatically.
 
 ```
 src/app/(app)/
   <domain>/
-    layout.tsx   ← BREADCRUMBS constant + <DomainLayout> wrapper
-    page.tsx     ← content only — no headings, no breadcrumbs
+    layout.tsx?   ← optional, only for metadata or shared content padding
+    page.tsx      ← content only — no headings, no breadcrumbs
 ```
 
-### Sub-route case — per-page server shell
+### Override / dynamic case — registry entry
 
-Use a **server component page shell** when pages within the domain have **distinct or dynamic
-headings** (e.g. `Edycja zadania #3`). The route-level `layout.tsx` stays a structural
-pass-through (metadata only); each page owns its own `DomainLayout` call.
+Use the registry when:
+
+- the route isn't in `MenuConfig` (e.g. a feature playground like `/wizard-demo`),
+- the trail copy must differ from menu labels (e.g. add a `Start` root crumb),
+- the trail depends on dynamic segments (e.g. `Edycja zadania #${id}`).
+
+```ts
+// src/lib/breadcrumbs/registry.ts
+export const breadcrumbRegistry: RegistryEntry[] = [
+  {
+    match: "/wizard-demo/:id/view",
+    map: ({ params }) => [
+      { label: "Start",   href: "/dashboard" },
+      { label: "Zadania", href: "/wizard-demo" },
+      { label: `Podgląd zadania #${params.id}` },
+    ],
+  },
+  // …
+]
+```
+
+The page itself stays clean:
 
 ```tsx
-// src/app/(app)/wizard-demo/[id]/page.tsx  (server component)
-import { DomainLayout } from "@/components/domain-layout"
+// src/app/(app)/wizard-demo/[id]/view/page.tsx  (server component)
 import { TasksWizard } from "@/components/tasks-wizard/TasksWizard"
 
-export default async function EditTaskPage({
+export default async function ViewTaskPage({
   params,
 }: {
   params: Promise<{ id: string }>
 }) {
-  const { id } = await params   // params available server-side — no useParams needed
-
-  return (
-    <DomainLayout breadcrumbs={[
-      { label: "Home",    href: "/dashboard" },
-      { label: "Zadania", href: "/wizard-demo" },
-      { label: `Edycja zadania #${id}` },   // ← dynamic last crumb → h2 text
-    ]}>
-      <div className="px-4 pb-8 lg:px-6">
-        <TasksWizard id={Number(id)} mode="edit" />
-      </div>
-    </DomainLayout>
-  )
+  const { id } = await params
+  return <TasksWizard id={Number(id)} mode="view" />
 }
 ```
 
-Client-only logic (hooks, event handlers) must be extracted into a child client component
-and passed as `children` — the page shell itself stays a server component.
+A route-level `layout.tsx` is only needed for metadata or shared content padding,
+not for breadcrumbs:
 
-```
-src/app/(app)/
-  <domain>/
-    layout.tsx        ← metadata only, pass-through (no DomainLayout)
-    _client-part.tsx  ← 'use client' sub-component (underscore = not a route)
-    page.tsx          ← server shell: DomainLayout + <ClientPart />
-    [id]/
-      page.tsx        ← server shell with dynamic breadcrumbs
+```tsx
+// src/app/(app)/wizard-demo/[id]/layout.tsx — padding only
+export default function WizardDemoIdLayout({ children }: { children: React.ReactNode }) {
+  return <div className="px-4 pb-8 lg:px-6">{children}</div>
+}
 ```
 
-### How `DomainLayout` works internally
+### Breadcrumb rules
 
-| Concern | Implementation |
-|---------|---------------|
-| Nav-mode check | `getNavLayout()` called once inside `DomainLayout` — never in consumers |
-| Sidebar path | Renders `<SiteHeader breadcrumbs={...} />` |
-| Top-menu path | Renders a `<div className="border-b ...">` with the same breadcrumb trail |
-| `<h2>` text | Derived from `breadcrumbs[last].label` — sync enforced structurally |
-| `<h2>` style | `text-2xl font-bold tracking-tight` applied internally |
-
-Consumers never import `SiteHeader`, `getNavLayout`, or breadcrumb primitives directly.
+- Pages **never** call `<DomainLayout>`, `<SiteHeader>`, `<Breadcrumb*>`, or `getNavLayout`.
+- The **last item** in a trail has no `href` → becomes `<BreadcrumbPage>` + `<h2>` text.
+- Every **preceding item** has an `href` → `<BreadcrumbLink>`.
+- Standard depth is 3: `Start → Domain → Current Page`. A 4th level is fine for dynamic
+  sub-pages: `Start → Domain → Item → Action`.
+- Trails are config: edit `breadcrumbRegistry` (or `MenuConfig`) — never inline in a page.
+- When no source matches the pathname, the bar and `<h2>` simply do not render.
 
 ### Sidebar collapse trigger placement
 
 `SidebarTrigger` lives in `AppSidebar`’s `SidebarHeader` — always visible, independent of
-which domain is active. `DomainLayout`, `SiteHeader`, and domain files never render it.
-
-### Breadcrumb rules
-
-- The **last item** has no `href` → `<BreadcrumbPage>` (`aria-current="page"`) + `<h2>` text
-- Every **preceding item** has an `href` → `<BreadcrumbLink>`
-- Root anchor is always **Home** linking to `/dashboard`
-- Standard trail depth is 3 levels: `Home → Domain → Current Page`
-- For dynamic sub-pages a 4th level is acceptable: `Home → Domain → Item → Action`
-- Breadcrumb labels must match the `<h2>` of their destination page
+which domain is active. `AppShell`, `SiteHeader`, and domain files never render it.
 
 ### ✅ Correct
 
 ```tsx
-// layout.tsx — static domain
-const BREADCRUMBS = [
-  { label: "Home", href: "/dashboard" },
-  { label: "Raporty" },
-]
-export default function RaportyLayout({ children }) {
-  return <DomainLayout breadcrumbs={BREADCRUMBS}>{children}</DomainLayout>
+// page.tsx — content only
+export default function RaportyPage() {
+  return <RaportyTable />
 }
+```
 
-// page.tsx — server shell with dynamic trail
-export default async function EditPage({ params }) {
-  const { id } = await params
-  return (
-    <DomainLayout breadcrumbs={[
-      { label: "Home",    href: "/dashboard" },
-      { label: "Raporty", href: "/raporty" },
-      { label: `Raport #${id}` },
-    ]}>
-      <EditClient id={id} />
-    </DomainLayout>
-  )
+```ts
+// registry entry for a route not covered by MenuConfig
+{
+  match: "/raporty/:id",
+  map: ({ params }) => [
+    { label: "Start",   href: "/dashboard" },
+    { label: "Raporty", href: "/raporty" },
+    { label: `Raport #${params.id}` },
+  ],
 }
 ```
 
 ### ❌ Wrong
 
 ```tsx
-{/* Calling getNavLayout in the domain layout — DomainLayout does this */}
+{/* Re-introducing a per-page chrome wrapper */}
+import { DomainLayout } from "@/components/domain-layout"   // ← deleted
+
+{/* Calling getNavLayout in a page or layout */}
 const navLayout = getNavLayout()
 
-{/* Importing SiteHeader directly in a domain layout */}
+{/* Importing SiteHeader directly */}
 import { SiteHeader } from "@/components/site-header"
 
-{/* Writing h2 manually */}
+{/* Writing h2 / h1 manually for the page title */}
 <h2 className="text-2xl font-bold tracking-tight">Raporty</h2>
+<h1>Raporty</h1>
 
-{/* Breadcrumbs in page.tsx instead of layout.tsx or DomainLayout */}
+{/* Inlining breadcrumbs in a page or layout */}
 export default function RaportyPage() {
   return <div><Breadcrumb>...</Breadcrumb><RaportyTable /></div>
 }
-
-{/* Using h1 */}
-<h1>Raporty</h1>
 ```
 
 ### Checklist — before marking a domain complete
 
-- [ ] Domain uses `<DomainLayout breadcrumbs={BREADCRUMBS}>` — not manual SiteHeader / nav check
-- [ ] Last `BREADCRUMBS` entry has no `href`
-- [ ] Root anchor is `{ label: "Home", href: "/dashboard" }`
-- [ ] Static domains: `DomainLayout` in `layout.tsx`; dynamic/distinct headings: server shell per page
-- [ ] Client-only logic extracted to `_name.tsx` child component
-- [ ] No `getNavLayout`, `SiteHeader`, or `<h2>` written directly in domain files
-- [ ] Pages inside a layout-based domain contain content only
+- [ ] Page renders content only — no `<DomainLayout>`, `<SiteHeader>`, `<Breadcrumb*>`, or `<h2>`/`<h1>` page title
+- [ ] Route is either present in `MenuConfig` or has a `breadcrumbRegistry` entry
+- [ ] Last entry of the resolved trail has no `href`
+- [ ] Root anchor is `{ label: "Start", href: "/dashboard" }` when an explicit registry trail is needed
+- [ ] Dynamic labels use `params` from the registry mapper, not the page
+- [ ] No `getNavLayout` or `useNavLayout` reads in domain files
+- [ ] Optional `layout.tsx` only carries metadata or shared padding — never chrome
 ---
 
 ## Quick Reference

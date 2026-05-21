@@ -18,23 +18,12 @@ Project-level follow-ups captured by agents.
   - Branch: `master`
   - Domain: ui
 
-- [ ] Add breadcrumbs navigation to the app iunfer from path - replace polish chars.
-  - Priority: high
-  - Date: 2026-05-11
-  - Branch: `012-tasks-showcase-module`
-  - Domain: uiP
-
 - [ ] Roles +  Implement RBAC (role-based access control)/kc integration, special pages, forbidden, unauthorized from Next.js.
   - Priority: critical
   - Date: 2026-05-12
   - Branch: `014-json-menu-gen`
   - Domain: auth
 
-- [ ] Dodac linki nawigacji do strony kursu Udemy oraz dokumentacji projektu.
-  - Priority: medium
-  - Date: 2026-05-20
-  - Branch: `master`
-  - Domain: general
 
 - [ ] Add an env validator to verify all required environment variables are present and correctly typed at startup.
   - Priority: medium
@@ -45,5 +34,11 @@ Project-level follow-ups captured by agents.
 - [ ] Implement forking workflow, Change the application theme workflow/documentation.
   - Priority: critical
   - Date: 2026-05-21
+  - Branch: `master`
+  - Domain: general
+- 
+- [ ] Dodac linki nawigacji do strony kursu Udemy oraz dokumentacji projektu.
+  - Priority: low
+  - Date: 2026-05-20
   - Branch: `master`
   - Domain: general
