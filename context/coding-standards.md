@@ -62,7 +62,7 @@
 
 - Use Zod as the project standard for all runtime validation and schema definition.
 - Define schemas with `z.object()` and infer TypeScript types with `z.infer<typeof schema>` — never duplicate types manually.
-- Place shared schemas in the closest domain module that owns the data; avoid a global `schemas/` dumping ground.
+- Co-locate schemas with the single file that uses them (e.g. define `signInSchema` at the top of `sign-in-form.tsx`). Move a schema to `src/lib/<domain>/` only when a second real consumer appears. Never create a global `schemas/` dumping ground.
 - Use `.parse()` at system boundaries (form submission, API responses, route params); use `.safeParse()` when you need to handle errors without throwing.
 - Do not use Yup, Joi, or other validation libraries.
 
