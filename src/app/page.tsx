@@ -5,20 +5,21 @@ import { ArrowRight, BadgeCheck, CircleHelp, Component, GitBranch, Globe, Shield
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { appConfig } from "@/lib/config/app";
 import { getLandingPageContent } from "@/lib/api/domains/landing-page/queries";
 
 const _description =
   "Server-first API layer for modern web applications built with Next.js App Router, shadcn/ui, and type-safe data fetching.";
 
 export const metadata: Metadata = {
-  title: "CI-PRS Web Platform",
+  title: `${appConfig.name} Web Platform`,
   description: _description,
   openGraph: {
-    title: "CI-PRS Web Platform",
+    title: `${appConfig.name} Web Platform`,
     description: _description,
   },
   twitter: {
-    title: "CI-PRS Web Platform",
+    title: `${appConfig.name} Web Platform`,
     description: _description,
   },
 };
@@ -65,7 +66,7 @@ export default async function Home() {
       <div className="mx-auto flex min-h-screen max-w-5xl flex-col px-6 pb-16 pt-4 sm:px-8">
         {/* Header */}
         <header className="flex items-center justify-between">
-          <p className="text-base font-semibold tracking-tight">CI-PRS Web Platform</p>
+          <p className="text-base font-semibold tracking-tight">{appConfig.name} Web Platform</p>
           <ThemeToggle />
         </header>
 

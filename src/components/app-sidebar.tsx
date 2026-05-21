@@ -17,6 +17,7 @@ import {
 import { useMenuConfig } from "@/hooks/menu/useMenuConfig"
 import { useNavLayout } from "@/hooks/menu/useNavLayout"
 import { filterFeatures, filterSettings } from "@/lib/menu/filter"
+import { appConfig } from "@/lib/config/app"
 
 type User = {
   name: string
@@ -59,7 +60,7 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
         <div className="flex items-center justify-between px-2 py-1 group-data-[collapsible=icon]:justify-center">
           <div className="flex items-center gap-2 group-data-[collapsible=icon]:hidden">
             <span className="text-lg font-bold tracking-tight">
-              eNGO
+              {appConfig.name}
             </span>
           </div>
           <SidebarTrigger />
