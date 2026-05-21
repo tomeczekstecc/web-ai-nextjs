@@ -21,7 +21,7 @@ export const breadcrumbRegistry: RegistryEntry[] = [
   // Dashboard — short, single-crumb trail (overrides menu's "Przegląd → Dashboard").
   {
     match: "/dashboard",
-    map: () => [{ label: "Przegląd" }],
+    map: () => [{ label: "Twoja aplikacja" }],
   },
 
   // Applications listing root (the menu only declares deeper paths like
