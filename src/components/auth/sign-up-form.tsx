@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useForm, type StandardSchemaV1 } from "@tanstack/react-form";
 import { z } from "zod";
 
@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Field,
+  FieldDescription,
   FieldError,
   FieldGroup,
   FieldLabel,
@@ -21,30 +22,27 @@ import {
   AUTH_ROUTES,
   buildSignInHref,
   buildVerifyEmailCallback,
-  sanitizeReturnTo,
 } from "@/lib/auth/redirects";
 
 const genericResponse =
-  "Jesli konto moglo zostac utworzone, wyslemy dalsze instrukcje na podany adres e-mail.";
+  "Jeśli konto mogło zostać utworzone, wyślemy dalsze instrukcje na podany adres e-mail.";
 
 const signUpSchema = z.object({
-  email: z.string().email("Nieprawidlowy adres e-mail."),
+  email: z.string().email("Nieprawidłowy adres e-mail."),
   username: z.string().optional(),
-  password: z.string().min(12, "Haslo musi miec co najmniej 12 znakow."),
+  password: z.string().min(12, "Hasło musi mieć co najmniej 12 znaków."),
   acceptedTerms: z.boolean().refine((v) => v === true, {
-    message: "Zaakceptuj regulamin i zasady prywatnosci, aby kontynuowac.",
+    message: "Zaakceptuj regulamin i zasady prywatności, aby kontynuować.",
   }),
 });
 
-export function SignUpForm() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const [serverMessage, setServerMessage] = useState<string | null>(null);
+type SignUpFormProps = {
+  returnTo: string;
+};
 
-  const returnTo = useMemo(
-    () => sanitizeReturnTo(searchParams.get("returnTo")),
-    [searchParams],
-  );
+export function SignUpForm({ returnTo }: SignUpFormProps) {
+  const router = useRouter();
+  const [serverMessage, setServerMessage] = useState<string | null>(null);
 
   const form = useForm({
     defaultValues: {
@@ -88,138 +86,139 @@ export function SignUpForm() {
   });
 
   return (
-    <div className="space-y-5">
-      {serverMessage ? (
-        <Alert className="border-primary/20 bg-primary/10">
-          <AlertDescription className="text-foreground">{serverMessage}</AlertDescription>
-        </Alert>
-      ) : null}
-      <form
-        className="space-y-4"
-        onSubmit={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          void form.handleSubmit();
-        }}
-      >
-        <FieldGroup>
-          <form.Field name="email">
-            {(field) => {
-              const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
-              return (
-                <Field data-invalid={isInvalid}>
-                  <FieldLabel htmlFor={field.name}>Adres e-mail</FieldLabel>
-                  <Input
-                    id={field.name}
-                    name={field.name}
-                    autoComplete="email"
-                    disabled={form.state.isSubmitting}
-                    placeholder="jan@example.com"
-                    type="email"
-                    value={field.state.value}
-                    onBlur={field.handleBlur}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    aria-invalid={isInvalid}
-                  />
-                  {isInvalid && <FieldError errors={field.state.meta.errors} />}
-                </Field>
-              );
-            }}
-          </form.Field>
-          <form.Field name="username">
-            {(field) => (
-              <Field>
-                <FieldLabel htmlFor={field.name}>
-                  Nazwa uzytkownika (opcjonalnie)
-                </FieldLabel>
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        void form.handleSubmit();
+      }}
+    >
+      <FieldGroup>
+        {serverMessage ? (
+          <Alert className="border-primary/20 bg-primary/10">
+            <AlertDescription className="text-foreground">{serverMessage}</AlertDescription>
+          </Alert>
+        ) : null}
+
+        <form.Field name="email">
+          {(field) => {
+            const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+            return (
+              <Field data-invalid={isInvalid}>
+                <FieldLabel htmlFor={field.name}>Adres e-mail</FieldLabel>
                 <Input
                   id={field.name}
                   name={field.name}
-                  autoComplete="username"
+                  autoComplete="email"
                   disabled={form.state.isSubmitting}
-                  placeholder="jan.kowalski"
+                  placeholder="jan@example.com"
+                  type="email"
                   value={field.state.value}
                   onBlur={field.handleBlur}
                   onChange={(e) => field.handleChange(e.target.value)}
+                  aria-invalid={isInvalid}
                 />
+                {isInvalid && <FieldError errors={field.state.meta.errors} />}
               </Field>
-            )}
-          </form.Field>
-          <form.Field name="password">
-            {(field) => {
-              const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
-              return (
-                <Field data-invalid={isInvalid}>
-                  <FieldLabel htmlFor={field.name}>Haslo</FieldLabel>
-                  <Input
-                    id={field.name}
-                    name={field.name}
-                    autoComplete="new-password"
-                    disabled={form.state.isSubmitting}
-                    type="password"
-                    value={field.state.value}
-                    onBlur={field.handleBlur}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    aria-invalid={isInvalid}
-                    aria-describedby={`${field.name}-hint`}
-                  />
-                  <p id={`${field.name}-hint`} className="text-xs text-muted-foreground">
-                    Uzyj co najmniej 12 znakow.
-                  </p>
-                  {isInvalid && <FieldError errors={field.state.meta.errors} />}
-                </Field>
-              );
-            }}
-          </form.Field>
-          <form.Field name="acceptedTerms">
-            {(field) => {
-              const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
-              return (
-                <Field
-                  orientation="horizontal"
-                  data-invalid={isInvalid}
-                  className="rounded-lg border border-border/70 bg-muted/40 px-3 py-3"
-                >
-                  <Checkbox
-                    id={field.name}
-                    checked={field.state.value}
-                    disabled={form.state.isSubmitting}
-                    onCheckedChange={(checked) =>
-                      field.handleChange(checked === true)
-                    }
-                    aria-invalid={isInvalid}
-                  />
-                  <div className="flex flex-col gap-1">
-                    <FieldLabel htmlFor={field.name} className="text-sm leading-6">
-                      Akceptuje regulamin i zasady prywatnosci potrzebne do
-                      utworzenia konta.
-                    </FieldLabel>
-                    {isInvalid && (
-                      <FieldError errors={field.state.meta.errors} />
-                    )}
-                  </div>
-                </Field>
-              );
-            }}
-          </form.Field>
-        </FieldGroup>
-        <Button
-          className="w-full"
-          disabled={form.state.isSubmitting}
-          type="submit"
-        >
-          {form.state.isSubmitting ? "Tworzenie konta..." : "Utworz konto"}
-        </Button>
-      </form>
-      <p className="text-sm text-muted-foreground">
-        Masz juz konto?{" "}
-        <Link
-          className="font-medium text-primary underline-offset-4 hover:underline"
-          href={buildSignInHref(returnTo)}
-        >
-          Wroc do logowania
-        </Link>
-      </p>
-    </div>
+            );
+          }}
+        </form.Field>
+
+        <form.Field name="username">
+          {(field) => (
+            <Field>
+              <FieldLabel htmlFor={field.name}>
+                Nazwa użytkownika (opcjonalnie)
+              </FieldLabel>
+              <Input
+                id={field.name}
+                name={field.name}
+                autoComplete="username"
+                disabled={form.state.isSubmitting}
+                placeholder="jan.kowalski"
+                value={field.state.value}
+                onBlur={field.handleBlur}
+                onChange={(e) => field.handleChange(e.target.value)}
+              />
+            </Field>
+          )}
+        </form.Field>
+
+        <form.Field name="password">
+          {(field) => {
+            const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+            return (
+              <Field data-invalid={isInvalid}>
+                <FieldLabel htmlFor={field.name}>Hasło</FieldLabel>
+                <Input
+                  id={field.name}
+                  name={field.name}
+                  autoComplete="new-password"
+                  disabled={form.state.isSubmitting}
+                  type="password"
+                  value={field.state.value}
+                  onBlur={field.handleBlur}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  aria-invalid={isInvalid}
+                  aria-describedby={`${field.name}-hint`}
+                />
+                <p id={`${field.name}-hint`} className="text-xs text-muted-foreground">
+                  Użyj co najmniej 12 znaków.
+                </p>
+                {isInvalid && <FieldError errors={field.state.meta.errors} />}
+              </Field>
+            );
+          }}
+        </form.Field>
+
+        <form.Field name="acceptedTerms">
+          {(field) => {
+            const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+            return (
+              <Field
+                orientation="horizontal"
+                data-invalid={isInvalid}
+                className="rounded-lg border border-border/70 bg-muted/40 px-3 py-3"
+              >
+                <Checkbox
+                  id={field.name}
+                  checked={field.state.value}
+                  disabled={form.state.isSubmitting}
+                  onCheckedChange={(checked) =>
+                    field.handleChange(checked === true)
+                  }
+                  aria-invalid={isInvalid}
+                />
+                <div className="flex flex-col gap-1">
+                  <FieldLabel htmlFor={field.name} className="text-sm leading-6">
+                    Akceptuję regulamin i zasady prywatności potrzebne do
+                    utworzenia konta.
+                  </FieldLabel>
+                  {isInvalid && (
+                    <FieldError errors={field.state.meta.errors} />
+                  )}
+                </div>
+              </Field>
+            );
+          }}
+        </form.Field>
+
+        <Field>
+          <Button className="w-full" disabled={form.state.isSubmitting} type="submit">
+            {form.state.isSubmitting ? "Tworzenie konta…" : "Utwórz konto"}
+          </Button>
+        </Field>
+
+        <FieldDescription className="text-center">
+          Masz już konto?{" "}
+          <Link
+            className="font-medium text-primary underline-offset-4 hover:underline"
+            href={buildSignInHref(returnTo)}
+          >
+            Wróć do logowania
+          </Link>
+        </FieldDescription>
+      </FieldGroup>
+    </form>
   );
 }

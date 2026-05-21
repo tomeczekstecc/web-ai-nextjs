@@ -1,36 +1,74 @@
 import type { Metadata } from "next";
 
-import { AuthShell } from "@/components/auth/auth-shell";
+import { Card, CardContent } from "@/components/ui/card";
+import { RightPanel } from "@/components/auth/right-panel";
 import { SignInForm } from "@/components/auth/sign-in-form";
 import { SsoButton } from "@/components/auth/sso-button";
+import { sanitizeReturnTo } from "@/lib/auth/redirects";
 import { redirectIfAuthenticated } from "@/lib/auth/session";
 
 export const metadata: Metadata = {
   robots: { index: false },
 };
 
-export default async function SignInPage() {
+export default async function SignInPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ returnTo?: string; message?: string }>;
+}) {
   await redirectIfAuthenticated();
 
   const ssoEnabled = process.env.AUTH_SSO_ENABLED === "true";
+  const socialEnabled = process.env.AUTH_SOCIAL_LOGIN_ENABLED === "true";
+
+  const { returnTo: rawReturnTo, message } = await searchParams;
+  const returnTo = sanitizeReturnTo(rawReturnTo ?? null);
 
   return (
-    <AuthShell
-      title="Zaloguj sie do panelu"
-      description="Korzystaj z aplikacyjnego logowania i wroc do pracy bez opuszczania naszego interfejsu."
-      footer={<p>Jesli korzystasz z dostepu organizacyjnego, mozesz wybrac oddzielna sciezke SSO.</p>}
-    >
-      <SignInForm />
-      {ssoEnabled ? (
-        <div className="space-y-3">
-          <div className="flex items-center gap-3 text-xs uppercase tracking-[0.18em] text-muted-foreground">
-            <span className="h-px flex-1 bg-border" />
-            <span>Opcjonalnie</span>
-            <span className="h-px flex-1 bg-border" />
-          </div>
-          <SsoButton />
+    <main className="flex min-h-svh flex-col items-center justify-center bg-muted p-6 md:p-10">
+      <div className="flex w-full max-w-sm flex-col gap-6 md:max-w-4xl">
+        <div className="flex flex-col gap-6">
+          <Card className="overflow-hidden p-0">
+            <CardContent className="grid p-0 md:grid-cols-2">
+              <div className="p-6 md:p-8">
+                <div className="mb-6 flex flex-col items-center gap-2 text-center">
+                  <h1 className="text-2xl font-bold">Logowanie</h1>
+                  <p className="text-balance text-muted-foreground">
+                    Zaloguj się do aplikacji.
+                  </p>
+                </div>
+                <SignInForm
+                  returnTo={returnTo}
+                  message={message ?? null}
+                  socialEnabled={socialEnabled}
+                />
+              </div>
+              <RightPanel />
+            </CardContent>
+          </Card>
+          <p className="px-6 text-center text-sm text-muted-foreground">
+            Kontynuując, akceptujesz nasze{" "}
+            <a href="#" className="underline underline-offset-4 hover:text-primary">
+              Warunki korzystania
+            </a>{" "}
+            i{" "}
+            <a href="#" className="underline underline-offset-4 hover:text-primary">
+              Politykę prywatności
+            </a>
+            .
+          </p>
         </div>
-      ) : null}
-    </AuthShell>
+        {ssoEnabled ? (
+          <div className="space-y-3">
+            <div className="flex items-center gap-3 text-xs uppercase tracking-[0.18em] text-muted-foreground">
+              <span className="h-px flex-1 bg-border" />
+              <span>Opcjonalnie</span>
+              <span className="h-px flex-1 bg-border" />
+            </div>
+            <SsoButton returnTo={returnTo} />
+          </div>
+        ) : null}
+      </div>
+    </main>
   );
 }

@@ -1,0 +1,187 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 900" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0.4" y2="1">
+      <stop offset="0%" stop-color="#09091e"/>
+      <stop offset="100%" stop-color="#0e0b26"/>
+    </linearGradient>
+
+    <radialGradient id="centerGlow" cx="50%" cy="48%" r="45%">
+      <stop offset="0%" stop-color="#6366f1" stop-opacity="0.07"/>
+      <stop offset="100%" stop-color="#6366f1" stop-opacity="0"/>
+    </radialGradient>
+
+    <radialGradient id="topGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#818cf8" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#818cf8" stop-opacity="0"/>
+    </radialGradient>
+
+    <radialGradient id="bottomGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#7c3aed" stop-opacity="0.06"/>
+      <stop offset="100%" stop-color="#7c3aed" stop-opacity="0"/>
+    </radialGradient>
+
+    <filter id="nodeBlur">
+      <feGaussianBlur stdDeviation="5"/>
+    </filter>
+
+    <pattern id="dots" width="44" height="44" patternUnits="userSpaceOnUse">
+      <circle cx="22" cy="22" r="0.65" fill="#ffffff" fill-opacity="0.055"/>
+    </pattern>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="900" fill="url(#bg)"/>
+
+  <!-- Dot grid -->
+  <rect width="800" height="900" fill="url(#dots)"/>
+
+  <!-- Ambient glows -->
+  <ellipse cx="400" cy="430" rx="340" ry="320" fill="url(#centerGlow)"/>
+  <ellipse cx="260" cy="180" rx="200" ry="180" fill="url(#topGlow)"/>
+  <ellipse cx="560" cy="740" rx="220" ry="200" fill="url(#bottomGlow)"/>
+
+  <!--
+    Neural network
+    L0  x=190  y = 225, 390, 555, 720       (4 nodes)
+    L1  x=360  y = 145, 295, 450, 605, 760  (5 nodes)
+    L2  x=530  y = 145, 295, 450, 605, 760  (5 nodes)
+    L3  x=690  y = 270, 450, 635            (3 nodes)
+  -->
+
+  <!-- L0 → L1 (very dim) -->
+  <g stroke="#818cf8" stroke-width="0.65" fill="none" stroke-opacity="0.09">
+    <line x1="190" y1="225" x2="360" y2="145"/>
+    <line x1="190" y1="225" x2="360" y2="295"/>
+    <line x1="190" y1="225" x2="360" y2="450"/>
+    <line x1="190" y1="225" x2="360" y2="605"/>
+    <line x1="190" y1="225" x2="360" y2="760"/>
+    <line x1="190" y1="390" x2="360" y2="145"/>
+    <line x1="190" y1="390" x2="360" y2="295"/>
+    <line x1="190" y1="390" x2="360" y2="450"/>
+    <line x1="190" y1="390" x2="360" y2="605"/>
+    <line x1="190" y1="390" x2="360" y2="760"/>
+    <line x1="190" y1="555" x2="360" y2="145"/>
+    <line x1="190" y1="555" x2="360" y2="295"/>
+    <line x1="190" y1="555" x2="360" y2="450"/>
+    <line x1="190" y1="555" x2="360" y2="605"/>
+    <line x1="190" y1="555" x2="360" y2="760"/>
+    <line x1="190" y1="720" x2="360" y2="145"/>
+    <line x1="190" y1="720" x2="360" y2="295"/>
+    <line x1="190" y1="720" x2="360" y2="450"/>
+    <line x1="190" y1="720" x2="360" y2="605"/>
+    <line x1="190" y1="720" x2="360" y2="760"/>
+  </g>
+
+  <!-- L1 → L2 (very dim) -->
+  <g stroke="#7c3aed" stroke-width="0.65" fill="none" stroke-opacity="0.08">
+    <line x1="360" y1="145" x2="530" y2="145"/>
+    <line x1="360" y1="145" x2="530" y2="295"/>
+    <line x1="360" y1="145" x2="530" y2="450"/>
+    <line x1="360" y1="145" x2="530" y2="605"/>
+    <line x1="360" y1="145" x2="530" y2="760"/>
+    <line x1="360" y1="295" x2="530" y2="145"/>
+    <line x1="360" y1="295" x2="530" y2="295"/>
+    <line x1="360" y1="295" x2="530" y2="450"/>
+    <line x1="360" y1="295" x2="530" y2="605"/>
+    <line x1="360" y1="295" x2="530" y2="760"/>
+    <line x1="360" y1="450" x2="530" y2="145"/>
+    <line x1="360" y1="450" x2="530" y2="295"/>
+    <line x1="360" y1="450" x2="530" y2="450"/>
+    <line x1="360" y1="450" x2="530" y2="605"/>
+    <line x1="360" y1="450" x2="530" y2="760"/>
+    <line x1="360" y1="605" x2="530" y2="145"/>
+    <line x1="360" y1="605" x2="530" y2="295"/>
+    <line x1="360" y1="605" x2="530" y2="450"/>
+    <line x1="360" y1="605" x2="530" y2="605"/>
+    <line x1="360" y1="605" x2="530" y2="760"/>
+    <line x1="360" y1="760" x2="530" y2="145"/>
+    <line x1="360" y1="760" x2="530" y2="295"/>
+    <line x1="360" y1="760" x2="530" y2="450"/>
+    <line x1="360" y1="760" x2="530" y2="605"/>
+    <line x1="360" y1="760" x2="530" y2="760"/>
+  </g>
+
+  <!-- L2 → L3 (very dim) -->
+  <g stroke="#818cf8" stroke-width="0.65" fill="none" stroke-opacity="0.09">
+    <line x1="530" y1="145" x2="690" y2="270"/>
+    <line x1="530" y1="145" x2="690" y2="450"/>
+    <line x1="530" y1="145" x2="690" y2="635"/>
+    <line x1="530" y1="295" x2="690" y2="270"/>
+    <line x1="530" y1="295" x2="690" y2="450"/>
+    <line x1="530" y1="295" x2="690" y2="635"/>
+    <line x1="530" y1="450" x2="690" y2="270"/>
+    <line x1="530" y1="450" x2="690" y2="450"/>
+    <line x1="530" y1="450" x2="690" y2="635"/>
+    <line x1="530" y1="605" x2="690" y2="270"/>
+    <line x1="530" y1="605" x2="690" y2="450"/>
+    <line x1="530" y1="605" x2="690" y2="635"/>
+    <line x1="530" y1="760" x2="690" y2="270"/>
+    <line x1="530" y1="760" x2="690" y2="450"/>
+    <line x1="530" y1="760" x2="690" y2="635"/>
+  </g>
+
+  <!-- Single soft activation path (barely brighter) -->
+  <!-- L0n1(190,390) → L1n2(360,450) → L2n2(530,450) → L3n1(690,450) -->
+  <g stroke="#a5b4fc" stroke-width="1.1" fill="none" stroke-opacity="0.28">
+    <line x1="190" y1="390" x2="360" y2="450"/>
+    <line x1="360" y1="450" x2="530" y2="450"/>
+    <line x1="530" y1="450" x2="690" y2="450"/>
+  </g>
+
+  <!-- Node halos (blurred, very soft) -->
+  <g filter="url(#nodeBlur)">
+    <!-- L0 -->
+    <circle cx="190" cy="225" r="8"  fill="#818cf8" fill-opacity="0.28"/>
+    <circle cx="190" cy="390" r="10" fill="#a5b4fc" fill-opacity="0.38"/>
+    <circle cx="190" cy="555" r="8"  fill="#818cf8" fill-opacity="0.26"/>
+    <circle cx="190" cy="720" r="7"  fill="#818cf8" fill-opacity="0.22"/>
+    <!-- L1 -->
+    <circle cx="360" cy="145" r="7"  fill="#818cf8" fill-opacity="0.24"/>
+    <circle cx="360" cy="295" r="8"  fill="#818cf8" fill-opacity="0.26"/>
+    <circle cx="360" cy="450" r="11" fill="#a5b4fc" fill-opacity="0.38"/>
+    <circle cx="360" cy="605" r="7"  fill="#818cf8" fill-opacity="0.24"/>
+    <circle cx="360" cy="760" r="7"  fill="#818cf8" fill-opacity="0.22"/>
+    <!-- L2 -->
+    <circle cx="530" cy="145" r="7"  fill="#818cf8" fill-opacity="0.22"/>
+    <circle cx="530" cy="295" r="8"  fill="#818cf8" fill-opacity="0.24"/>
+    <circle cx="530" cy="450" r="11" fill="#a5b4fc" fill-opacity="0.36"/>
+    <circle cx="530" cy="605" r="7"  fill="#818cf8" fill-opacity="0.22"/>
+    <circle cx="530" cy="760" r="7"  fill="#818cf8" fill-opacity="0.2"/>
+    <!-- L3 -->
+    <circle cx="690" cy="270" r="8"  fill="#818cf8" fill-opacity="0.26"/>
+    <circle cx="690" cy="450" r="12" fill="#a5b4fc" fill-opacity="0.4"/>
+    <circle cx="690" cy="635" r="8"  fill="#818cf8" fill-opacity="0.24"/>
+  </g>
+
+  <!-- Node cores -->
+  <!-- L0 -->
+  <circle cx="190" cy="225" r="3"   fill="#c7d2fe" fill-opacity="0.55"/>
+  <circle cx="190" cy="390" r="3.8" fill="#e0e7ff" fill-opacity="0.75"/>
+  <circle cx="190" cy="555" r="3"   fill="#c7d2fe" fill-opacity="0.5"/>
+  <circle cx="190" cy="720" r="2.8" fill="#c7d2fe" fill-opacity="0.45"/>
+  <!-- L1 -->
+  <circle cx="360" cy="145" r="2.8" fill="#c7d2fe" fill-opacity="0.5"/>
+  <circle cx="360" cy="295" r="3"   fill="#c7d2fe" fill-opacity="0.52"/>
+  <circle cx="360" cy="450" r="4"   fill="#e0e7ff" fill-opacity="0.78"/>
+  <circle cx="360" cy="605" r="2.8" fill="#c7d2fe" fill-opacity="0.48"/>
+  <circle cx="360" cy="760" r="2.6" fill="#c7d2fe" fill-opacity="0.44"/>
+  <!-- L2 -->
+  <circle cx="530" cy="145" r="2.8" fill="#c7d2fe" fill-opacity="0.48"/>
+  <circle cx="530" cy="295" r="3"   fill="#c7d2fe" fill-opacity="0.5"/>
+  <circle cx="530" cy="450" r="4"   fill="#e0e7ff" fill-opacity="0.75"/>
+  <circle cx="530" cy="605" r="2.8" fill="#c7d2fe" fill-opacity="0.46"/>
+  <circle cx="530" cy="760" r="2.6" fill="#c7d2fe" fill-opacity="0.42"/>
+  <!-- L3 -->
+  <circle cx="690" cy="270" r="3.2" fill="#c7d2fe" fill-opacity="0.55"/>
+  <circle cx="690" cy="450" r="4.5" fill="#ffffff" fill-opacity="0.7"/>
+  <circle cx="690" cy="635" r="3"   fill="#c7d2fe" fill-opacity="0.5"/>
+
+  <!-- Outer ring on primary output node -->
+  <circle cx="690" cy="450" r="9"  fill="none" stroke="#a5b4fc" stroke-width="0.6" stroke-opacity="0.2"/>
+  <circle cx="690" cy="450" r="14" fill="none" stroke="#818cf8" stroke-width="0.5" stroke-opacity="0.1"/>
+
+  <!-- Tiny accent dots along activation path -->
+  <circle cx="275" cy="421" r="1.5" fill="#a5b4fc" fill-opacity="0.3"/>
+  <circle cx="445" cy="450" r="1.5" fill="#a5b4fc" fill-opacity="0.3"/>
+  <circle cx="611" cy="450" r="1.5" fill="#a5b4fc" fill-opacity="0.3"/>
+</svg>
