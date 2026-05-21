@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { Card, CardContent } from "@/components/ui/card";
 import { RightPanel } from "@/components/auth/right-panel";
 import { SignInForm } from "@/components/auth/sign-in-form";
-import { SsoButton } from "@/components/auth/sso-button";
+import { enabledSocialProviders } from "@/lib/auth";
 import { sanitizeReturnTo } from "@/lib/auth/redirects";
 import { redirectIfAuthenticated } from "@/lib/auth/session";
 
@@ -18,8 +18,12 @@ export default async function SignInPage({
 }) {
   await redirectIfAuthenticated();
 
-  const ssoEnabled = process.env.AUTH_SSO_ENABLED === "true";
-  const socialEnabled = process.env.AUTH_SOCIAL_LOGIN_ENABLED === "true";
+  // Social UI is shown only when at least one provider is configured
+  // server-side AND the feature flag is on. Provider-level checks live in
+  // `src/lib/auth.ts:buildSocialProviders`.
+  const socialEnabled =
+    process.env.AUTH_SOCIAL_LOGIN_ENABLED === "true" &&
+    enabledSocialProviders.length > 0;
 
   const { returnTo: rawReturnTo, message } = await searchParams;
   const returnTo = sanitizeReturnTo(rawReturnTo ?? null);
@@ -41,6 +45,7 @@ export default async function SignInPage({
                   returnTo={returnTo}
                   message={message ?? null}
                   socialEnabled={socialEnabled}
+                  enabledProviders={enabledSocialProviders}
                 />
               </div>
               <RightPanel />
@@ -58,16 +63,6 @@ export default async function SignInPage({
             .
           </p>
         </div>
-        {ssoEnabled ? (
-          <div className="space-y-3">
-            <div className="flex items-center gap-3 text-xs uppercase tracking-[0.18em] text-muted-foreground">
-              <span className="h-px flex-1 bg-border" />
-              <span>Opcjonalnie</span>
-              <span className="h-px flex-1 bg-border" />
-            </div>
-            <SsoButton returnTo={returnTo} />
-          </div>
-        ) : null}
       </div>
     </main>
   );

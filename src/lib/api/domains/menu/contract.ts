@@ -1,3 +1,5 @@
+import type { AppRole } from "@/lib/auth/principal";
+
 export type PermRule = {
   list: string[];
   mode?: "all" | "any";
@@ -17,7 +19,12 @@ export type FeatureItem = {
   icon: string;
   to?: string;
   submenu?: SubMenuItem[];
-  display?: string[];
+  /**
+   * Role gate for this menu entry. Matched case-sensitively against the
+   * principal's `roles` (PascalCase `AppRole` literals). Omit / leave empty
+   * to skip the role check.
+   */
+  display?: readonly AppRole[];
   perms?: PermRule;
 };
 
@@ -27,7 +34,7 @@ export type SettingsItem = {
   icon: string;
   to?: string;
   action?: string;
-  display?: string[];
+  display?: readonly AppRole[];
   perms?: PermRule;
 };
 

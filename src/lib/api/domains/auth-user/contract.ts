@@ -1,4 +1,4 @@
-export type AuthProvider = "password" | "sso";
+export type AuthProvider = "password";
 
 export type AuthIdentity = {
   email: string;

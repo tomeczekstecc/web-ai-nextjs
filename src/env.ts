@@ -41,20 +41,34 @@ export const env = createEnv({
 
     // Auth feature flags
     AUTH_SIGNUP_ENABLED: boolish.default("true"),
-    AUTH_SSO_ENABLED: boolish.default("false"),
     AUTH_SOCIAL_LOGIN_ENABLED: boolish.default("false"),
     AUTH_LARAVEL_MOCK_ENABLED: boolish.default("false"),
     AUTH_SESSION_BYPASS_ENABLED: boolish.default("false"),
 
-    // Optional support contact (shown on auth pages)
-    AUTH_SUPPORT_LABEL: optionalString,
-    AUTH_SUPPORT_URL: optionalString,
+    // RBAC — the canonical role catalog is the `AppRole` literal union in
+    // `src/lib/auth/principal.ts`. There is no runtime env for it: a string
+    // env would not constrain the TS types, and we want the type union to be
+    // the single source of truth.
+    //
+    // `AUTH_MOCK_ROLE` selects which role the dev-mock principal acts as
+    // (only honored when bypass or laravel-mock is enabled — both of which
+    // are hard-disabled in production by `src/lib/api/domains/auth-user/mock.ts`).
+    AUTH_MOCK_ROLE: z.enum(["User", "Oper", "Admin"]).default("Admin"),
 
-    // Generic OIDC SSO provider (required only when AUTH_SSO_ENABLED=true).
-    // Provider-agnostic: works with any OIDC issuer (e.g. Keycloak, Authentik, Auth0).
-    AUTH_SSO_CLIENT_ID: optionalString,
-    AUTH_SSO_CLIENT_SECRET: optionalString,
-    AUTH_SSO_ISSUER: optionalString,
+    // Optional support contact (shown on auth pages). URL is validated so a
+    // typo can't break navigation when rendered into a <Link href>.
+    AUTH_SUPPORT_LABEL: optionalString,
+    AUTH_SUPPORT_URL: z.url().optional(),
+
+    // Native better-auth social providers. A provider is only registered when
+    // BOTH its client id and secret are set. See `src/lib/auth.ts`.
+    GOOGLE_CLIENT_ID: optionalString,
+    GOOGLE_CLIENT_SECRET: optionalString,
+    APPLE_CLIENT_ID: optionalString,
+    APPLE_CLIENT_SECRET: optionalString,
+    APPLE_APP_BUNDLE_IDENTIFIER: optionalString,
+    FACEBOOK_CLIENT_ID: optionalString,
+    FACEBOOK_CLIENT_SECRET: optionalString,
   },
 
   client: {
@@ -99,5 +113,29 @@ export const env = createEnv({
    */
   emptyStringAsUndefined: true,
 });
+
+/**
+ * Hard guard: refuse to boot a production build with development auth
+ * shortcuts enabled. `mock.ts` already gates these at runtime, but failing
+ * here makes the misconfiguration impossible to ship in the first place.
+ *
+ * Skipped when `SKIP_ENV_VALIDATION=1` (lint/typegen contexts).
+ */
+if (
+  !process.env.SKIP_ENV_VALIDATION &&
+  process.env.NODE_ENV === "production"
+) {
+  const offenders: string[] = [];
+  if (process.env.AUTH_LARAVEL_MOCK_ENABLED === "true")
+    offenders.push("AUTH_LARAVEL_MOCK_ENABLED");
+  if (process.env.AUTH_SESSION_BYPASS_ENABLED === "true")
+    offenders.push("AUTH_SESSION_BYPASS_ENABLED");
+  if (offenders.length > 0) {
+    throw new Error(
+      `Refusing to start: ${offenders.join(", ")} must not be "true" when NODE_ENV=production. ` +
+        `These flags exist for local development only and grant unauthenticated Admin access.`,
+    );
+  }
+}
 
 export type Env = typeof env;

@@ -6,6 +6,12 @@ import type { NextConfig } from "next";
 import "./src/env";
 
 const nextConfig: NextConfig = {
+  experimental: {
+    // Enables `unauthorized()` / `forbidden()` from `next/navigation` and the
+    // matching `unauthorized.tsx` / `forbidden.tsx` special files.
+    // See src/app/unauthorized.tsx, src/app/forbidden.tsx, src/lib/auth/rbac.ts.
+    authInterrupts: true,
+  },
   async redirects() {
     return [
       {

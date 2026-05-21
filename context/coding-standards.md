@@ -23,6 +23,28 @@
 - Prefer server-side data loading for route content.
 - Use route-level loading and error files when that improves UX and matches the existing pattern.
 
+## Authorization (RBAC)
+
+- Roles: `"User" | "Oper" | "Admin"` from `src/lib/auth/principal.ts`.
+- Permissions follow `domain:action` (e.g. `tasks:write`).
+- **Server gates are mandatory.** Every privileged path — server component,
+  route handler, server action — must call `requireRole(...)` or
+  `requirePermission(...)` from `src/lib/auth/rbac.ts`. Layout gates only
+  protect rendering; the underlying server action / route endpoint is still
+  callable by any authenticated user unless it re-checks.
+- **Wrap server actions with `withRole` / `withPermission`** so the gate runs
+  before any code in the action body. Do not roll your own role checks.
+- **Client-side gates (`<RoleGate>`, `<PermissionGate>`, `<AuthorizedView>`,
+  `usePrincipal`) are UX only — never the sole guard.** Hiding a button does
+  not stop a `fetch` to the underlying endpoint.
+- **Never `try/catch` around `requireRole` / `requirePermission` / `withRole` /
+  `withPermission`.** They throw special Next interrupts (`forbidden()` /
+  `unauthorized()`); catching them silently fails open.
+- Dev-only shortcuts (`AUTH_SESSION_BYPASS_ENABLED`,
+  `AUTH_LARAVEL_MOCK_ENABLED`) are hard-disabled when `NODE_ENV=production`,
+  and `src/env.ts` refuses to boot a prod build with either flag on. Do not
+  weaken these guards.
+
 ## Domain-Driven Organization
 
 - Organize feature routes by bounded context under `src/app/<domain>/`.

@@ -1,7 +1,7 @@
 import { betterAuth } from "better-auth";
 import { APIError, createAuthMiddleware } from "better-auth/api";
 import { toNextJsHandler } from "better-auth/next-js";
-import { genericOAuth, username } from "better-auth/plugins";
+import { username } from "better-auth/plugins";
 import { Pool } from "pg";
 
 import { logAuthAudit } from "@/lib/auth/audit";
@@ -84,36 +84,55 @@ if (process.env.NODE_ENV !== "production") {
   globalForAuth.__authPool = authPool;
 }
 
-const ssoEnabled =
-  process.env.AUTH_SSO_ENABLED === "true" &&
-  Boolean(process.env.AUTH_SSO_CLIENT_ID) &&
-  Boolean(process.env.AUTH_SSO_CLIENT_SECRET) &&
-  Boolean(process.env.AUTH_SSO_ISSUER);
+const plugins = [username()];
 
-// Stable, provider-agnostic id used by the frontend SSO button and account
-// linking. The actual upstream OIDC provider (Keycloak, Authentik, Auth0, …)
-// is configured via AUTH_SSO_* env vars and is opaque to the UI.
-export const SSO_PROVIDER_ID = "sso";
+/**
+ * Native better-auth social providers. We only register a provider when both
+ * its client id and secret are present in the environment. Trying to enable a
+ * provider with missing credentials would crash on startup.
+ *
+ * Supported here: Google, Apple (JWT client secret pre-generated), Facebook.
+ * Add more by extending `SocialProvidersConfig` below.
+ */
+type SocialProvidersConfig = NonNullable<
+  Parameters<typeof betterAuth>[0]["socialProviders"]
+>;
 
-const plugins = [
-  username(),
-  ...(ssoEnabled
-    ? [
-        genericOAuth({
-          config: [
-            {
-              providerId: SSO_PROVIDER_ID,
-              clientId: process.env.AUTH_SSO_CLIENT_ID!,
-              clientSecret: process.env.AUTH_SSO_CLIENT_SECRET!,
-              discoveryUrl: `${process.env.AUTH_SSO_ISSUER!.replace(/\/$/, "")}/.well-known/openid-configuration`,
-              scopes: ["openid", "profile", "email"],
-              pkce: true,
-            },
-          ],
-        }),
-      ]
-    : []),
-];
+function buildSocialProviders(): SocialProvidersConfig {
+  const providers: SocialProvidersConfig = {};
+
+  if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+    providers.google = {
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    };
+  }
+
+  if (process.env.APPLE_CLIENT_ID && process.env.APPLE_CLIENT_SECRET) {
+    providers.apple = {
+      clientId: process.env.APPLE_CLIENT_ID,
+      clientSecret: process.env.APPLE_CLIENT_SECRET,
+      ...(process.env.APPLE_APP_BUNDLE_IDENTIFIER
+        ? { appBundleIdentifier: process.env.APPLE_APP_BUNDLE_IDENTIFIER }
+        : {}),
+    };
+  }
+
+  if (process.env.FACEBOOK_CLIENT_ID && process.env.FACEBOOK_CLIENT_SECRET) {
+    providers.facebook = {
+      clientId: process.env.FACEBOOK_CLIENT_ID,
+      clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
+    };
+  }
+
+  return providers;
+}
+
+const socialProviders = buildSocialProviders();
+
+export const enabledSocialProviders = Object.keys(
+  socialProviders,
+) as readonly (keyof SocialProvidersConfig)[];
 
 export const auth = betterAuth({
   secret: process.env.BETTER_AUTH_SECRET,
@@ -132,6 +151,15 @@ export const auth = betterAuth({
     },
     expiresIn: 60 * 60 * 24,
     updateAge: 60 * 60 * 4,
+    // Signed-cookie cache of the session payload so `auth.api.getSession()`
+    // skips the DB for up to 5 minutes after a successful read. Combined with
+    // `React.cache` in `session.ts` / `rbac.ts`, a typical render does 0 DB
+    // hits for auth in the steady state. Sign-out and explicit revocations
+    // still invalidate immediately because they clear the cookie.
+    cookieCache: {
+      enabled: true,
+      maxAge: 5 * 60,
+    },
   },
   account: {
     modelName: "auth_accounts",
@@ -149,8 +177,7 @@ export const auth = betterAuth({
     },
     storeAccountCookie: true,
     accountLinking: {
-      enabled: true,
-      trustedProviders: [SSO_PROVIDER_ID],
+      enabled: false,
       allowDifferentEmails: false,
     },
   },
@@ -242,6 +269,7 @@ export const auth = betterAuth({
     }),
   },
   plugins,
+  socialProviders,
 });
 
 export const authHandlers = toNextJsHandler(auth);

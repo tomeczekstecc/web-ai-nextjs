@@ -1,6 +1,7 @@
 import type { FeatureItem, SettingsItem, PermRule } from "@/lib/api/domains/menu/contract"
+import type { AppRole } from "@/lib/auth/principal"
 
-function checkPerms(perms: PermRule | undefined, userPerms: string[]): boolean {
+function checkPerms(perms: PermRule | undefined, userPerms: readonly string[]): boolean {
   if (!perms || perms.list.length === 0) return true
   const mode = perms.mode ?? "all"
   if (mode === "all") {
@@ -9,15 +10,15 @@ function checkPerms(perms: PermRule | undefined, userPerms: string[]): boolean {
   return perms.list.some((p) => userPerms.includes(p))
 }
 
-function checkDisplay(display: string[] | undefined, userRoles: string[]): boolean {
+function checkDisplay(display: readonly AppRole[] | undefined, userRoles: readonly AppRole[]): boolean {
   if (!display || display.length === 0) return true
   return display.some((role) => userRoles.includes(role))
 }
 
 export function filterFeatures(
   features: FeatureItem[],
-  userPerms: string[],
-  userRoles: string[]
+  userPerms: readonly string[],
+  userRoles: readonly AppRole[],
 ): FeatureItem[] {
   return features.reduce<FeatureItem[]>((acc, item) => {
     if (!checkDisplay(item.display, userRoles)) return acc
@@ -39,8 +40,8 @@ export function filterFeatures(
 
 export function filterSettings(
   settings: SettingsItem[],
-  userPerms: string[],
-  userRoles: string[]
+  userPerms: readonly string[],
+  userRoles: readonly AppRole[],
 ): SettingsItem[] {
   return settings.filter((item) => {
     if (!checkDisplay(item.display, userRoles)) return false

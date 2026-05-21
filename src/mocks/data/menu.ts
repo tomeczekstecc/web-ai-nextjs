@@ -6,7 +6,7 @@ export const menuConfigFixture: MenuConfig = {
       key: "dashboard",
       label: "Przegląd",
       icon: "layout-dashboard",
-      display: ["local-user", "user"],
+      display: ["User", "Oper", "Admin"],
       perms: { list: ["dashboard:read"], mode: "all" },
       submenu: [
         {
@@ -21,7 +21,7 @@ export const menuConfigFixture: MenuConfig = {
       key: "competitions",
       label: "Konkursy",
       icon: "trophy",
-      display: ["local-user", "user"],
+      display: ["User", "Oper", "Admin"],
       perms: { list: ["applications:read"], mode: "all" },
       submenu: [
         {
@@ -42,7 +42,7 @@ export const menuConfigFixture: MenuConfig = {
       key: "applications",
       label: "Moje wnioski",
       icon: "file-text",
-      display: ["local-user", "user"],
+      display: ["User", "Oper", "Admin"],
       perms: { list: ["applications:read"], mode: "all" },
       submenu: [
         {
@@ -70,7 +70,7 @@ export const menuConfigFixture: MenuConfig = {
       label: "Kalendarz",
       icon: "calendar",
       to: "/calendar",
-      display: ["local-user", "user"],
+      display: ["User", "Oper", "Admin"],
       perms: { list: ["dashboard:read"], mode: "all" },
     },
     {
@@ -78,14 +78,14 @@ export const menuConfigFixture: MenuConfig = {
       label: "Raporty",
       icon: "bar-chart-3",
       to: "/reports",
-      display: ["local-user", "user"],
+      display: ["User", "Oper", "Admin"],
       perms: { list: ["dashboard:read"], mode: "all" },
     },
     {
       key: "projects",
       label: "Projekty",
       icon: "folder",
-      display: ["local-user", "user"],
+      display: ["User", "Oper", "Admin"],
       perms: { list: ["applications:read"], mode: "all" },
       submenu: [
         {
@@ -109,7 +109,7 @@ export const menuConfigFixture: MenuConfig = {
       label: "Moje konto",
       icon: "circle-user",
       to: "/account",
-      display: ["local-user", "user"],
+      display: ["User", "Oper", "Admin"],
       perms: { list: [], mode: "all" },
     },
     {
@@ -117,7 +117,7 @@ export const menuConfigFixture: MenuConfig = {
       label: "Powiadomienia",
       icon: "bell",
       to: "/notifications",
-      display: ["local-user", "user"],
+      display: ["User", "Oper", "Admin"],
       perms: { list: [], mode: "all" },
     },
     {
@@ -125,7 +125,7 @@ export const menuConfigFixture: MenuConfig = {
       label: "Wyloguj",
       icon: "log-out",
       action: "logout",
-      display: ["local-user", "user"],
+      display: ["User", "Oper", "Admin"],
     },
   ],
 };

@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation"
 import { ChevronRightIcon, MenuIcon } from "lucide-react"
 
 import { NavMainTop } from "@/components/nav-main-top"
+import type { AppRole } from "@/lib/auth/principal"
 import { NavUser } from "@/components/nav-user"
 import { Button, buttonVariants } from "@/components/ui/button"
 import {
@@ -26,8 +27,8 @@ export type AppTopNavUser = {
   email: string
   avatar?: string
   organizationName?: string
-  roles?: string[]
-  permissions?: string[]
+  roles?: readonly AppRole[]
+  permissions?: readonly string[]
 }
 
 interface AppTopNavProps {

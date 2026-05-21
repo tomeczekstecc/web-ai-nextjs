@@ -4,6 +4,7 @@ import * as React from "react"
 
 import { NavMain } from "@/components/nav-main"
 import { NavUser } from "@/components/nav-user"
+import type { AppRole } from "@/lib/auth/principal"
 import {
   Sidebar,
   SidebarContent,
@@ -24,8 +25,8 @@ type User = {
   email: string
   avatar?: string
   organizationName?: string
-  roles?: string[]
-  permissions?: string[]
+  roles?: readonly AppRole[]
+  permissions?: readonly string[]
 }
 
 type AppSidebarProps = React.ComponentProps<typeof Sidebar> & {

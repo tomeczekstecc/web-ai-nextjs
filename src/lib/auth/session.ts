@@ -1,5 +1,6 @@
 import "server-only";
 
+import { cache } from "react";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -12,17 +13,12 @@ import type {
   AuthProvider,
   AuthUserAccessResult,
 } from "@/lib/api/domains/auth-user/contract";
-import { auth, authPool, SSO_PROVIDER_ID } from "@/lib/auth";
+import { auth } from "@/lib/auth";
 import { AUTH_ROUTES, buildSignInHref } from "@/lib/auth/redirects";
 import {
   getMockBypassSession,
   isSessionBypassEnabled,
 } from "@/lib/api/domains/auth-user/mock";
-
-type AuthAccountRow = {
-  provider_id: string;
-  account_id: string | null;
-};
 
 export type BetterAuthSession = NonNullable<
   Awaited<ReturnType<typeof auth.api.getSession>>
@@ -34,51 +30,53 @@ export type AuthorizedAppSession = {
   access: Extract<AuthUserAccessResult, { status: "authorized" }>;
 };
 
-async function getAuthAccountRows(userId: string) {
-  const result = await authPool.query<AuthAccountRow>(
-    "select provider_id, account_id from auth_accounts where user_id = $1",
-    [userId],
-  );
+// SSO/Keycloak removed: only first-party password auth + native social
+// providers (Google/Apple/Facebook) remain. The Laravel bridge keys identity
+// by email, so the provider field is always reported as "password". Native
+// social accounts are still stored in `auth_accounts` (better-auth manages
+// that table) and linked to the local user by email at sign-in time.
+const PASSWORD_PROVIDER = {
+  provider: "password" as AuthProvider,
+  providerSubject: null as string | null,
+};
 
-  return result.rows;
-}
-
-function mapProvider(rows: AuthAccountRow[]): {
-  provider: AuthProvider;
-  providerSubject: string | null;
-} {
-  const ssoAccount = rows.find((row) => row.provider_id === SSO_PROVIDER_ID);
-
-  if (ssoAccount) {
-    return {
-      provider: "sso",
-      providerSubject: ssoAccount.account_id,
-    };
-  }
-
-  return {
-    provider: "password",
-    providerSubject: null,
-  };
-}
-
-export async function getBetterAuthSession() {
+/**
+ * Per-request memoized session resolver. `React.cache` deduplicates calls
+ * **within a single render pass**: any number of `requireAuthorizedAppSession`,
+ * `getCurrentPrincipal`, layout, and page calls within one request hit the
+ * Better-Auth API once. Combined with `session.cookieCache` in `src/lib/auth.ts`,
+ * most reads also skip the DB entirely.
+ */
+export const getBetterAuthSession = cache(async () => {
   return auth.api.getSession({
     headers: await headers(),
   });
-}
+});
 
-export async function getAuthIdentityFromSession(
+/**
+ * Per-request memoized full access resolution (session → identity → Laravel
+ * `/me`). Same dedup behavior as `getBetterAuthSession`; this is what stops a
+ * `(app)/layout` → `(app)/admin/layout` → `(app)/admin/page` stack from
+ * calling Laravel three times per navigation.
+ */
+const getAccessForCurrentRequest = cache(
+  async (): Promise<
+    (AuthUserAccessResult & { authIdentity: AuthIdentity }) | null
+  > => {
+    const session = await getBetterAuthSession();
+    if (!session) return null;
+    return resolveAuthAccessForSession(session);
+  },
+);
+
+export function getAuthIdentityFromSession(
   session: BetterAuthSession,
-): Promise<AuthIdentity> {
-  const rows = await getAuthAccountRows(session.user.id);
-  const { provider, providerSubject } = mapProvider(rows);
-
+): AuthIdentity {
   return {
     email: session.user.email,
     emailVerified: Boolean(session.user.emailVerified),
-    provider,
-    providerSubject,
+    provider: PASSWORD_PROVIDER.provider,
+    providerSubject: PASSWORD_PROVIDER.providerSubject,
     username:
       "username" in session.user && typeof session.user.username === "string"
         ? session.user.username
@@ -91,7 +89,7 @@ export async function getAuthIdentityFromSession(
 export async function resolveAuthAccessForSession(
   session: BetterAuthSession,
 ): Promise<AuthUserAccessResult & { authIdentity: AuthIdentity }> {
-  const authIdentity = await getAuthIdentityFromSession(session);
+  const authIdentity = getAuthIdentityFromSession(session);
   const currentUser = await getCurrentAuthUser(authIdentity);
 
   if (currentUser.status === "authorized") {
@@ -126,7 +124,9 @@ export async function requireAuthorizedAppSession(returnTo?: string | null) {
     redirect(buildSignInHref(returnTo));
   }
 
-  const access = await resolveAuthAccessForSession(session);
+  // Reuses the per-request memo when `getCurrentPrincipal` (or anything else)
+  // already resolved access in this render pass.
+  const access = (await getAccessForCurrentRequest())!;
 
   if (access.status === "authorized") {
     return {
@@ -150,3 +150,5 @@ export async function redirectIfAuthenticated() {
     redirect("/dashboard");
   }
 }
+
+export { getAccessForCurrentRequest };
