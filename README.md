@@ -1,5 +1,50 @@
 # CI-PRS Web
 
+## Gitflow skill
+
+This workspace includes a production-grade local `gitflow` skill for branch,
+release, hotfix, tag, and PR-target guidance.
+
+Use it naturally in Codex:
+
+```text
+Use gitflow to start a new feature branch for JIRA-123 user login
+```
+
+```text
+$gitflow create a hotfix branch for v1.2.1 login crash
+```
+
+```text
+Use gitflow and inspect this repo for the next branch I should create
+```
+
+The skill inspects repository state before acting: current branch, dirty or
+untracked files, remotes, `main` versus `master`, `develop`, active `release/*`
+branches, and upstream divergence when available.
+
+Branch flow summary:
+
+| Work type | Branch pattern | Source branch | Primary target | Propagation target |
+| --- | --- | --- | --- | --- |
+| Feature | `feature/<ticket-id>-<description>` | `develop` | `develop` | None |
+| Development bugfix | `bugfix/<ticket-id>-<description>` | `develop` | `develop` | None |
+| Release bugfix | `bugfix/<ticket-id>-<description>` | Active `release/*` | Active `release/*` | `develop` later or by cherry-pick |
+| Release | `release/v<major>.<minor>.<patch>` | `develop` | `main` or `master` | `develop` |
+| Hotfix | `hotfix/v<major>.<minor>.<patch>-<description>` | `main` or `master` | `main` or `master` | `develop` and active `release/*` if present |
+
+The skill requires explicit confirmation before risky operations such as merging
+into protected branches, pushing shared branches or tags, deleting branches,
+rebasing shared branches, force pushing, hard resets, or rewriting published
+release tags.
+
+Local skill files:
+
+- `C:\Users\stect\.agents\skills\gitflow\SKILL.md`
+- `C:\Users\stect\.agents\skills\gitflow\README.md`
+- `C:\Users\stect\.agents\skills\gitflow\references\branching-model.md`
+- `C:\Users\stect\.agents\skills\gitflow\references\policies.md`
+
 ## API integration pattern
 
 This project uses a server-first API layer in `src/lib/api` so page and component code stay small even when backend integration grows.
