@@ -1,46 +1,18 @@
-import React from "react"
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
+import { BreadcrumbTrail } from "@/components/breadcrumb-bar"
 
-export type BreadcrumbEntry = { label: string; href?: string }
-
-interface SiteHeaderProps {
-  breadcrumbs?: BreadcrumbEntry[]
-}
-
-export function SiteHeader({ breadcrumbs = [] }: SiteHeaderProps) {
+/**
+ * Top header bar for the sidebar navigation layout. Hosts the breadcrumb
+ * trail derived from the current pathname.
+ *
+ * The trail is resolved inside `BreadcrumbTrail` (a client component that
+ * reads `usePathname()` and the menu config), so this component itself stays
+ * a server component with no per-route props.
+ */
+export function SiteHeader() {
   return (
     <header className="flex h-(--header-height) shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">
       <div className="flex w-full items-center gap-1 px-4 lg:gap-2 lg:px-6">
-        {breadcrumbs.length > 0 && (
-          <Breadcrumb>
-            <BreadcrumbList>
-              {breadcrumbs.map((crumb, index) => {
-                const isLast = index === breadcrumbs.length - 1
-                return (
-                  <React.Fragment key={crumb.label}>
-                    {index > 0 && <BreadcrumbSeparator />}
-                    <BreadcrumbItem>
-                      {isLast ? (
-                        <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
-                      ) : (
-                        <BreadcrumbLink href={crumb.href}>
-                          {crumb.label}
-                        </BreadcrumbLink>
-                      )}
-                    </BreadcrumbItem>
-                  </React.Fragment>
-                )
-              })}
-            </BreadcrumbList>
-          </Breadcrumb>
-        )}
+        <BreadcrumbTrail />
       </div>
     </header>
   )

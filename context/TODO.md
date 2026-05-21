@@ -24,7 +24,7 @@ Project-level follow-ups captured by agents.
   - Branch: `012-tasks-showcase-module`
   - Domain: uiP
 
-- [ ] Roles +  Implement RBAC (role-based access control)/kc integration
+- [ ] Roles +  Implement RBAC (role-based access control)/kc integration, special pages, forbidden, unauthorized from Next.js.
   - Priority: critical
   - Date: 2026-05-12
   - Branch: `014-json-menu-gen`
@@ -42,14 +42,8 @@ Project-level follow-ups captured by agents.
   - Branch: `015-top-nav-layout`
   - Domain: api
 
-- [ ] Implement forking workflow.
+- [ ] Implement forking workflow, Change the application theme workflow/documentation.
   - Priority: critical
   - Date: 2026-05-21
   - Branch: `master`
   - Domain: general
-
-- [ ] Change the application theme workflow/documentation.
-  - Priority: critical
-  - Date: 2026-05-21
-  - Branch: `master`
-  - Domain: ui

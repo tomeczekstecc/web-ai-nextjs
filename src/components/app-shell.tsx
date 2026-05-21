@@ -1,6 +1,8 @@
 import type { AppTopNavUser } from "@/components/app-top-nav"
 import { AppTopNav } from "@/components/app-top-nav"
 import { AppSidebar } from "@/components/app-sidebar"
+import { BreadcrumbBar, PageTitle } from "@/components/breadcrumb-bar"
+import { SiteHeader } from "@/components/site-header"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { requireAuthorizedAppSession } from "@/lib/auth/session"
 import { getNavLayout } from "@/lib/menu/env"
@@ -27,6 +29,8 @@ export async function AppShell({ children, returnTo = "/" }: AppShellProps) {
     return (
       <div className="flex min-h-svh flex-col">
         <AppTopNav user={user} />
+        <BreadcrumbBar />
+        <PageTitle />
         <main className="flex flex-1 flex-col">{children}</main>
       </div>
     )
@@ -43,6 +47,8 @@ export async function AppShell({ children, returnTo = "/" }: AppShellProps) {
     >
       <AppSidebar user={user} variant="inset" />
       <SidebarInset>
+        <SiteHeader />
+        <PageTitle />
         <div className="flex flex-1 flex-col">{children}</div>
       </SidebarInset>
     </SidebarProvider>
