@@ -34,3 +34,11 @@ export async function deleteDashboardReviewItem(id: number): Promise<void> {
   });
   if (!result.ok) throw new Error(result.error.message);
 }
+
+export async function deleteDashboardReviewItems(ids: number[]): Promise<void> {
+  const result = await browserFetch<void>("/dashboard/review-items", {
+    method: "DELETE",
+    body: JSON.stringify({ ids }),
+  });
+  if (!result.ok) throw new Error(result.error.message);
+}

@@ -22,7 +22,7 @@ Project-level follow-ups captured by agents.
   - Priority: high
   - Date: 2026-05-11
   - Branch: `012-tasks-showcase-module`
-  - Domain: ui
+  - Domain: uiP
 
 - [ ] Roles +  Implement RBAC (role-based access control)/kc integration
   - Priority: critical

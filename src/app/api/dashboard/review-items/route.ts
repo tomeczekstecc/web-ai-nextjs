@@ -61,3 +61,10 @@ export async function POST(request: Request) {
   const created = { id: Date.now(), ...body };
   return NextResponse.json(created, { status: 201 });
 }
+
+export async function DELETE(request: Request) {
+  const { ids } = (await request.json()) as { ids: number[] };
+  // TODO: persist to backend
+  void ids;
+  return new NextResponse(null, { status: 204 });
+}

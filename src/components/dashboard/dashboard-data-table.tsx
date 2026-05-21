@@ -1,6 +1,8 @@
 "use client"
 
+import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
+import type { RowSelectionState } from "@tanstack/react-table"
 
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { DataTable, DataTableSkeleton } from "@/components/data-table"
@@ -9,8 +11,12 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { dashboardReviewItemsOptions } from "@/lib/api/domains/dashboard/query-options"
 import { AddProjectDrawer } from "./add-project-dialog"
 import { dashboardColumns } from "./dashboard-columns"
+import { DashboardBulkActions } from "./dashboard-bulk-actions"
 
 export function DashboardDataTable() {
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
+  const selectedIds = Object.keys(rowSelection).map(Number)
+
   const { data: reviewItemsData, isLoading, isError, refetch } = useQuery(
     dashboardReviewItemsOptions(),
   )
@@ -51,7 +57,7 @@ export function DashboardDataTable() {
           placeholder: "Szukaj projektów...",
         }}
         visibility={{ enabled: true }}
-        selection={{ enabled: true }}
+        selection={{ enabled: true, state: rowSelection, onChange: setRowSelection }}
         pagination={{
           pageSizeOptions: [10, 20, 30, 40, 50],
           initialPageSize: 10,
@@ -60,6 +66,12 @@ export function DashboardDataTable() {
         reorder={false}
         sorting={{}}
         toolbar={{
+          selectionContent: (
+            <DashboardBulkActions
+              selectedIds={selectedIds}
+              onClear={() => setRowSelection({})}
+            />
+          ),
           right: <AddProjectDrawer />,
         }}
         emptyState="Brak projektów."
