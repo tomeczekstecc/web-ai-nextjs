@@ -15,19 +15,20 @@ Find patterns that appear in two or more real places, are non-obvious to a new c
 
 ### 1. Read existing context docs
 
-Read every file in `context/` to know what is already documented. Do not re-propose patterns already covered.
+List the current `context/` contents dynamically — do not rely on a hardcoded list, it goes stale:
 
+```bash
+ls context/*.md
 ```
-context/
-├── coding-standards.md      ← TypeScript, React, Next.js, API layer rules
-├── component-patterns.md    ← Custom hooks + feature component extraction
-├── nextjs-patterns.md       ← Server/client boundaries, data fetching
-├── ui-patterns.md           ← Visual hierarchy, spacing, loading, error states
-├── accessibility.md         ← ARIA, keyboard, semantic HTML
-├── performance.md           ← Bundle size, dynamic imports, memoization
-├── wizard-pattern.md        ← Multi-page form system (if present)
-└── ...                      ← Any other registered patterns
-```
+
+Read every pattern file to know what is already documented. Do not re-propose patterns already covered.
+
+Skip these files when looking for patterns (they are not patterns):
+
+- `project-overview.md`, `project-spec.md` — product/feature scope
+- `TODO.md` — backlog
+- `coding-standards.md` — baseline rules
+- `ai-interaction.md` — agent collaboration notes
 
 ### 2. Scan the codebase
 
@@ -114,7 +115,21 @@ Documentation must include:
 
 Keep documentation grounded in the actual codebase — use real file paths, real type names, and real API shapes. Do not invent generic examples.
 
-### 6. Commit (optional)
+### 6. Register matching skill
+
+Every registered pattern must have a corresponding skill. Without it, `pattern-skill-sync-check` will flag the pattern as missing coverage.
+
+For each approved pattern:
+
+1. Create `.agents/skills/<slug>-check/SKILL.md` with front-matter (`name`, `description`) and a body that:
+   - Opens with `**Pattern source:** \`context/<slug>.md\`` as the first non-heading line — the literal path is required so the meta-skill grep finds it.
+   - Has `## Overview`, `## Workflow`, `## Rules`, `## Validation` sections aligned with the pattern doc.
+2. Mirror the file to `.claude/skills/<slug>-check/SKILL.md` (byte-identical).
+3. Run `pattern-skill-sync-check` to confirm the new pattern is covered and both skill copies are in sync.
+
+Naming: `<pattern-slug>-check` matching the pattern file slug (e.g. `context/foo-pattern.md` → `.agents/skills/foo-pattern-check/`).
+
+### 7. Commit (optional)
 
 If the user wants to commit after registration, use the `git-add-push` skill.
 
@@ -126,3 +141,5 @@ If the user wants to commit after registration, use the `git-add-push` skill.
 - A pattern found in only one place is a candidate only if it is clearly intended to be reused (e.g. it is exported as a public API or referenced in multiple routes).
 - Keep proposed file names lowercase, hyphenated, and under 40 characters.
 - When in doubt about whether a pattern deserves its own file, propose it as a section in the most relevant existing file and let the user decide.
+- Registering a pattern in `context/` without a matching `<slug>-check` skill is incomplete — always finish step 6 and verify with `pattern-skill-sync-check`.
+- When extending an existing context file instead of creating a new one, update the corresponding existing skill (do not create a duplicate skill).

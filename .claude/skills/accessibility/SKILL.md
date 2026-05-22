@@ -5,6 +5,8 @@ description: Use when improving accessibility in this repository's frontend, esp
 
 # Web Accessibility
 
+**Pattern source:** `context/accessibility.md` — read it before applying this skill. It is the single source of truth for the project's accessibility rules and examples.
+
 ## Overview
 
 Use this skill when frontend work changes interaction, forms, modals, navigation, or custom UI. Keep accessibility built into the design instead of treating it as cleanup at the end.

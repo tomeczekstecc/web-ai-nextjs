@@ -9,6 +9,7 @@ import { SchedulePage, scheduleCalc } from './pages/SchedulePage'
 import { AssignmentPage } from './pages/AssignmentPage'
 import { RelatedPage } from './pages/RelatedPage'
 import { SummaryPage } from './pages/SummaryPage'
+import { AttachmentsPage } from './pages/AttachmentsPage'
 
 type Props = {
   id?: number
@@ -17,15 +18,16 @@ type Props = {
 
 type TaskForm = Record<string, unknown>
 
-const pages: WizardPage<TaskForm>[] = [
-  { name: 'start',      form: <StartPage />,      schema: startSchema },
-  { name: 'schedule',   form: <SchedulePage />,   calc: scheduleCalc },
-  { name: 'assignment', form: <AssignmentPage /> },
-  { name: 'related',    form: <RelatedPage /> },
-  { name: 'summary',    form: <SummaryPage />,    isSummaryPage: true },
-]
-
 export function TasksWizard({ id, mode }: Props) {
+  const pages: WizardPage<TaskForm>[] = [
+    { name: 'start',       form: <StartPage />,                          schema: startSchema },
+    { name: 'attachments', form: <AttachmentsPage taskId={id ?? null} mode={mode} />, noPayload: true },
+    { name: 'schedule',    form: <SchedulePage />,                       calc: scheduleCalc },
+    { name: 'assignment',  form: <AssignmentPage /> },
+    { name: 'related',     form: <RelatedPage /> },
+    { name: 'summary',     form: <SummaryPage />,                        isSummaryPage: true },
+  ]
+
   const router = useRouter()
   const dataUrl = id != null
     ? `/api/tasks/wizard/data/${id}`

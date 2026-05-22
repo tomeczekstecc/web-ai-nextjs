@@ -5,6 +5,8 @@ description: Use when designing or redesigning UI in this repository, especially
 
 # Web UI Design
 
+**Pattern source:** `context/ui-patterns.md` — read it before applying this skill. It is the single source of truth for the project's visual hierarchy, spacing, and design system rules.
+
 ## Overview
 
 Use this skill for visual design quality in `apps/web`. Favor intentional hierarchy, strong composition, and cohesive styling over generic card grids or default-looking interfaces.

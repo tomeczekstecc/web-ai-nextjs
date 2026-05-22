@@ -1,6 +1,7 @@
 import { accountHandlers } from "@/mocks/handlers/account";
 import { applicationsHandlers } from "@/mocks/handlers/applications";
 import { taskWizardHandlers } from "@/mocks/handlers/tasks-wizard";
+import { taskFilesHandlers } from "@/mocks/handlers/task-files";
 import { dashboardHandlers } from "@/mocks/handlers/dashboard";
 import { menuHandlers } from "@/mocks/handlers/menu";
 import {
@@ -69,5 +70,6 @@ export const handlers = [
   ...applicationsHandlers,
   ...wizardDemoHandlers,
   ...taskWizardHandlers,
+  ...taskFilesHandlers,
   ...menuHandlers,
 ];

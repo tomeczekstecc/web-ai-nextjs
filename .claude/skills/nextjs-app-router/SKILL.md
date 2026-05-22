@@ -5,6 +5,8 @@ description: Use when building or refactoring Next.js App Router features in thi
 
 # Web Next.js App Router
 
+**Pattern source:** `context/nextjs-patterns.md` — read it before applying this skill. It is the single source of truth for App Router structure and rendering decisions in this repo.
+
 ## Overview
 
 Use this skill for `apps/web` work that depends on Next.js App Router structure and rendering decisions. Keep routing, layouts, and component boundaries aligned with the existing app while checking exact framework behavior with `$context7-first` when needed.

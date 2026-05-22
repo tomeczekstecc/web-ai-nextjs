@@ -5,6 +5,8 @@ description: Use when improving frontend performance in this repository, especia
 
 # Web Performance
 
+**Pattern source:** `context/performance.md` — read it before applying this skill. It is the single source of truth for the project's performance budgets and techniques.
+
 ## Overview
 
 Use this skill for frontend performance work in `apps/web`. Focus on the biggest sources of cost first: too much client rendering, repeated work, broad invalidation, oversized assets, and poor loading behavior.

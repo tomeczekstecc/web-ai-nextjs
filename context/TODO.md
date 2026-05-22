@@ -35,3 +35,19 @@ we mock 3 roles for now (User, Oper, Admin)
   - Date: 2026-05-22
   - Branch: `018-copy-to-clipboard`
   - Domain: docs
+
+
+- [ ] fully configurable upload to backend component 
+  - upload area
+  - list to upload / uploaded
+  - progress bar
+  - success message
+  - error message 
+  - upload all button
+  - cancel button
+  - upload one
+  - configurable max uploads
+  - max size
+  - extentions allowed list
+  - demo as a step in zadanie wizard
+file downloader 
