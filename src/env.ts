@@ -25,7 +25,11 @@ export const env = createEnv({
       .default("development"),
 
     // Backend API (server-side fetch base URL)
-    API_URL: z.url(),
+    // Optional in development: when unset (or NODE_ENV !== 'production'),
+    // `src/lib/api/domains/auth-user/mock.ts` auto-enables the Laravel `/me`
+    // mock + the Better-Auth session bypass so the app boots without a
+    // running backend. Required in production.
+    API_URL: z.url().optional(),
 
     // better-auth
     BETTER_AUTH_SECRET: z.string().min(1),
@@ -156,6 +160,15 @@ if (
     throw new Error(
       `Refusing to start: ${offenders.join(", ")} must not be "true" when NODE_ENV=production. ` +
         `These flags exist for local development only and grant unauthenticated Admin access.`,
+    );
+  }
+  // API_URL is optional only in development (so the dev auto-mock can kick
+  // in). In production a missing/empty API_URL would silently degrade to the
+  // mock principal — refuse to boot instead.
+  if (!process.env.API_URL) {
+    throw new Error(
+      `Refusing to start: API_URL is required when NODE_ENV=production. ` +
+        `Set it to the backend base URL (e.g. https://api.example.com).`,
     );
   }
 }

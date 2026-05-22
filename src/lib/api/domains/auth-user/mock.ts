@@ -12,19 +12,39 @@ import {
   type AppRole,
 } from "@/lib/auth/principal";
 
+/**
+ * Dev-only auto-mock: when API_URL is missing/empty AND we're not in
+ * production, behave as if both `AUTH_LARAVEL_MOCK_ENABLED` and
+ * `AUTH_SESSION_BYPASS_ENABLED` were `"true"`. This lets the app boot and
+ * sign-in flow short-circuit to a hardcoded dev principal without having to
+ * stand up the Laravel backend or seed a Better-Auth user.
+ *
+ * Production safety: the same hard guard as the explicit flags below
+ * (`NODE_ENV === "production" → false`), plus `src/env.ts` refuses to boot
+ * in production when API_URL is missing, so this branch is unreachable
+ * outside development/test.
+ */
+export function isDevAutoMockEnabled() {
+  if (process.env.NODE_ENV === "production") return false;
+  const apiUrl = process.env.API_URL?.trim();
+  return !apiUrl;
+}
+
 export function isLaravelAuthMockEnabled() {
   // Hard production guard: the Laravel mock fabricates `LaravelAppUser`
   // payloads (including roles), so leaving it on in prod = silent privilege
   // grant. Always off outside development/test, regardless of env value.
   if (process.env.NODE_ENV === "production") return false;
-  return process.env.AUTH_LARAVEL_MOCK_ENABLED === "true";
+  if (process.env.AUTH_LARAVEL_MOCK_ENABLED === "true") return true;
+  return isDevAutoMockEnabled();
 }
 
 export function isSessionBypassEnabled() {
   // Hard production guard: bypass returns a hardcoded `dev@localhost`
   // principal with `AUTH_MOCK_ROLE` (default Admin). Never honor in prod.
   if (process.env.NODE_ENV === "production") return false;
-  return process.env.AUTH_SESSION_BYPASS_ENABLED === "true";
+  if (process.env.AUTH_SESSION_BYPASS_ENABLED === "true") return true;
+  return isDevAutoMockEnabled();
 }
 
 const BYPASS_IDENTITY: AuthIdentity = {

@@ -144,6 +144,13 @@ export async function requireAuthorizedAppSession(returnTo?: string | null) {
 }
 
 export async function redirectIfAuthenticated() {
+  // Dev session bypass / dev auto-mock: treat the bypass principal as
+  // already-authenticated so visiting /auth/sign-in doesn't dead-end on a
+  // Better-Auth password check that has no real user behind it.
+  if (isSessionBypassEnabled()) {
+    redirect("/dashboard");
+  }
+
   const session = await getBetterAuthSession();
 
   if (session) {
