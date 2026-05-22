@@ -1,0 +1,2 @@
+export const REPORT_POLL_INTERVAL_MS = 3_000
+export const REPORT_POLL_MAX_ATTEMPTS = 20

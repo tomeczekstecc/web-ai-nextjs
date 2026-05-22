@@ -67,6 +67,39 @@ export const breadcrumbRegistry: RegistryEntry[] = [
       { label: `Podgląd zadania #${params.id}` },
     ],
   },
+
+  // Reports module
+  {
+    match: '/reports',
+    map: () => [
+      { label: 'Start', href: '/dashboard' },
+      { label: 'Raporty' },
+    ],
+  },
+  {
+    match: '/reports/new',
+    map: () => [
+      { label: 'Start', href: '/dashboard' },
+      { label: 'Raporty', href: '/reports' },
+      { label: 'Nowy raport' },
+    ],
+  },
+  {
+    match: '/reports/:id',
+    map: ({ params }) => [
+      { label: 'Start', href: '/dashboard' },
+      { label: 'Raporty', href: '/reports' },
+      { label: `Edycja raportu #${params.id}` },
+    ],
+  },
+  {
+    match: '/reports/:id/view',
+    map: ({ params }) => [
+      { label: 'Start', href: '/dashboard' },
+      { label: 'Raporty', href: '/reports' },
+      { label: `Podgląd raportu #${params.id}` },
+    ],
+  },
 ]
 
 export function resolveFromRegistry(

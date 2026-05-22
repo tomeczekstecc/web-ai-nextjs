@@ -16,4 +16,12 @@ export type WizardSlice = {
   clearWizard: (name: string) => void
 }
 
-export type StoreState = WizardSlice
+export type GenerationState = 'idle' | 'pending' | 'done' | 'failed'
+
+export type ReportsSlice = {
+  generationStates: Record<number, GenerationState>
+  setGenerationState: (reportId: number, state: GenerationState) => void
+  clearGenerationState: (reportId: number) => void
+}
+
+export type StoreState = WizardSlice & ReportsSlice
