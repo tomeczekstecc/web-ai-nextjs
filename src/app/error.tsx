@@ -15,6 +15,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { CopyButton } from "@/components/ui/copy-button";
 
 export default function Error({
   error,
@@ -32,6 +33,7 @@ export default function Error({
     error.digest && `Digest: ${error.digest}`,
     error.stack,
   ].filter(Boolean);
+  const diagnosticsText = diagnostics.join("\n\n");
 
   return (
     <main className="min-h-svh bg-background px-4 py-8 text-foreground sm:px-6 lg:px-10">
@@ -82,16 +84,25 @@ export default function Error({
 
             {diagnostics.length > 0 ? (
               <Collapsible className="group/error-details rounded-xl border bg-muted/30">
-                <CollapsibleTrigger className="group flex w-full items-center justify-between gap-3 px-4 py-3 text-left text-sm font-medium outline-none transition-colors hover:bg-muted/60 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
-                  Szczegóły techniczne błędu
-                  <ChevronDownIcon
-                    className="size-4 shrink-0 transition-transform group-data-open/error-details:rotate-180"
-                    aria-hidden="true"
+                <div className="flex w-full items-center">
+                  <CollapsibleTrigger className="group flex flex-1 items-center justify-between gap-3 px-4 py-3 text-left text-sm font-medium outline-none transition-colors hover:bg-muted/60 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+                    Szczegóły techniczne błędu
+                    <ChevronDownIcon
+                      className="size-4 shrink-0 transition-transform group-data-open/error-details:rotate-180"
+                      aria-hidden="true"
+                    />
+                  </CollapsibleTrigger>
+                  <CopyButton
+                    className="mr-2"
+                    value={diagnosticsText}
+                    label="Kopiuj szczegóły błędu"
+                    copiedLabel="Skopiowano"
+                    failedLabel="Nie udało się skopiować"
                   />
-                </CollapsibleTrigger>
+                </div>
                 <CollapsibleContent className="border-t px-4 py-3">
                   <pre className="max-h-72 overflow-auto whitespace-pre-wrap break-words rounded-lg bg-background p-3 text-xs leading-5 text-muted-foreground">
-                    {diagnostics.join("\n\n")}
+                    {diagnosticsText}
                   </pre>
                 </CollapsibleContent>
               </Collapsible>

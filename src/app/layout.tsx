@@ -3,6 +3,7 @@ import { IBM_Plex_Mono, Inter } from "next/font/google";
 
 import { MSWProvider } from "@/components/providers/msw-provider";
 import { QueryProvider } from "@/components/providers/query-provider";
+import { AppTooltipProvider } from "@/components/providers/tooltip-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { appConfig } from "@/lib/config/app";
@@ -65,7 +66,9 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <MSWProvider>
-            <QueryProvider>{children}</QueryProvider>
+            <QueryProvider>
+              <AppTooltipProvider>{children}</AppTooltipProvider>
+            </QueryProvider>
           </MSWProvider>
           <Toaster />
         </ThemeProvider>

@@ -562,6 +562,52 @@ The available semantic variant is `destructive`. Use it **only** when the action
 </Button>
 ```
 
+### Icon-Only Buttons with Tooltip
+
+**Rule:** When a button has only an icon (no visible label), wrap it in a `Tooltip`
+so the label is discoverable on hover and via assistive technology. The button
+still needs `aria-label` for screen readers — the tooltip provides the visual
+label for sighted users.
+
+Use this pattern for compact toolbar actions where labels would crowd the UI
+(table toolbars, sidebar actions, dense forms). Prefer labelled buttons for
+primary or destructive actions where the consequence must be obvious without
+hover.
+
+```tsx
+import { Button } from "@/components/ui/button"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { resolveIcon } from "@/lib/icons"
+
+const FileSpreadsheetIcon = resolveIcon("FileSpreadsheet")
+
+<Tooltip>
+  <TooltipTrigger
+    render={
+      <Button
+        variant="outline"
+        size="icon-sm"
+        onClick={onExport}
+        disabled={isExporting}
+        aria-label="Eksportuj"
+      />
+    }
+  >
+    <FileSpreadsheetIcon />
+  </TooltipTrigger>
+  <TooltipContent>Eksportuj</TooltipContent>
+</Tooltip>
+```
+
+Button size pairings for icon-only buttons:
+
+| Use alongside | Icon-only size |
+|---|---|
+| `size="xs"` (`h-6`) | `size="icon-xs"` |
+| `size="sm"` (`h-7`) | `size="icon-sm"` |
+| `size="default"` (`h-8`) | `size="icon"` |
+| `size="lg"` (`h-9`) | `size="icon-lg"` |
+
 ### Loading State
 
 ```tsx
@@ -774,7 +820,7 @@ Any departure from the rules above must be listed here. Do not remove entries �
 
 ### Central Icon Registry
 
-**Rule:** All icon usage must go through the central icon registry at `src/lib/icons.ts`. Do not import icons directly from `lucide-react` in components — always use `resolveIcon()` or `getIcon()`.
+**Rule:** All icon usage must go through the central icon registry at `src/lib/icons.ts`. Do not import icons directly from `lucide-react` in components — always use `resolveIcon()`.
 
 This ensures:
 - Consistent icon usage across the app
@@ -784,13 +830,15 @@ This ensures:
 
 ```tsx
 // ✅ Correct — always use the registry
-import { resolveIcon, getIcon } from "@/lib/icons";
+import { resolveIcon } from "@/lib/icons";
+
+// Resolve once at module scope (avoids re-resolving on every render)
+const ArrowRight = resolveIcon("ArrowRight");
 
 function NavButton() {
-  const ArrowRight = getIcon("ArrowRight");  // exact name, type-safe
   return (
     <Button>
-      <ArrowRight className="h-4 w-4" />
+      <ArrowRight />
       Continue
     </Button>
   );
@@ -828,9 +876,10 @@ const Icon = resolveIcon("unknown");           // → Circle
 
 | Function | Purpose |
 |----------|--------|
-| `resolveIcon(name)` | Resolve icon name to component. Accepts kebab-case, snake_case, or PascalCase. Returns `Circle` fallback if not found. Has TypeScript autocomplete. |
+| `resolveIcon(name)` | Resolve icon name to component. Accepts kebab-case, snake_case, or PascalCase. Returns `Circle` fallback if not found. Has TypeScript autocomplete on registered names. |
 | `getIconNames()` | List all registered icon names (useful for icon pickers). |
 | `isIconName(name)` | Type guard for checking if a string is a valid icon name. |
+| `FallbackIcon` | The fallback component (`Circle`) used when resolution fails. |
 
 ### Adding Icons to the Registry
 

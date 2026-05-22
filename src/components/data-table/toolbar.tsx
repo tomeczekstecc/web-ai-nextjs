@@ -9,6 +9,14 @@ import type { Column } from "@tanstack/react-table"
 
 import { Button } from "@/components/ui/button"
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+import { resolveIcon } from "@/lib/icons"
+
+const FileSpreadsheetIcon = resolveIcon("FileSpreadsheet")
+import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
@@ -32,6 +40,10 @@ interface DataTableToolbarProps<TData> {
   filterableColumns: Column<TData>[]
   hasActiveFilters: boolean
   onResetFilters: () => void
+  isExportEnabled: boolean
+  isExporting: boolean
+  onExport: () => void
+  exportLabel: string
 }
 
 export function DataTableToolbar<TData>({
@@ -46,6 +58,10 @@ export function DataTableToolbar<TData>({
   filterableColumns,
   hasActiveFilters,
   onResetFilters,
+  isExportEnabled,
+  isExporting,
+  onExport,
+  exportLabel,
 }: DataTableToolbarProps<TData>) {
   return (
     <div className="flex flex-col gap-2">
@@ -76,6 +92,24 @@ export function DataTableToolbar<TData>({
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {toolbar?.selectionContent}
+          {isExportEnabled && (
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <Button
+                    variant="outline"
+                    size="icon-sm"
+                    onClick={onExport}
+                    disabled={isExporting}
+                    aria-label={exportLabel}
+                  />
+                }
+              >
+                <FileSpreadsheetIcon />
+              </TooltipTrigger>
+              <TooltipContent>{exportLabel}</TooltipContent>
+            </Tooltip>
+          )}
           {visibilityEnabled && hideableColumns.length > 0 && (
             <DropdownMenu>
               <DropdownMenuTrigger render={<Button variant="outline" size="sm" />}>

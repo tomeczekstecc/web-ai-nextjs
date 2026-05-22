@@ -74,6 +74,44 @@ export type DataTableToolbarOptions = {
   selectionContent?: React.ReactNode
 }
 
+export type DataTableExportColumn = {
+  header: string
+  key: string
+  width?: number
+}
+
+export type DataTableExportPayload = {
+  filename: string
+  sheetName: string
+  columns: DataTableExportColumn[]
+  rows: Record<string, unknown>[]
+}
+
+export type DataTableExportOptions<TData> = {
+  /** Defaults to true. */
+  enabled?: boolean
+  /** Static filename or factory; `.xlsx` is appended if missing. */
+  filename?: string | (() => string)
+  /** Excel sheet name (max 31 chars). Defaults to "Sheet1". */
+  sheetName?: string
+  /** Toolbar button label. */
+  label?: string
+  /**
+   * Override columns. If omitted, derived from currently visible columns
+   * (skipping control columns), using `meta.label ?? column.id` as header.
+   */
+  columns?: DataTableExportColumn[]
+  /**
+   * Cell value resolver. Defaults to the column's accessor value via
+   * `row.getValue(columnId)`. Use this to flatten JSX cells back to data.
+   */
+  getCellValue?: (row: TData, columnId: string) => unknown
+  /** Hook to customise the full payload before it is sent. */
+  transformPayload?: (payload: DataTableExportPayload) => DataTableExportPayload
+  /** Endpoint override. Defaults to `/api/internal/excel-export`. */
+  endpoint?: string
+}
+
 export type DataTableProps<TData> = {
   data: TData[]
   columns: ColumnDef<TData>[]
@@ -84,6 +122,7 @@ export type DataTableProps<TData> = {
   pagination?: false | DataTablePaginationOptions
   sorting?: false | DataTableSortingOptions
   reorder?: false | DataTableReorderOptions<TData>
+  export?: false | DataTableExportOptions<TData>
   persistence?: DataTablePersistenceOptions | false
   toolbar?: DataTableToolbarOptions
   emptyState?: React.ReactNode

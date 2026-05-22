@@ -39,6 +39,7 @@ import { usePathname } from "next/navigation"
 import { getColumnId, getColumnMeta, readPreferences, writePreferences } from "@/lib/data-table/utils"
 import { useControlledState } from "@/hooks/data-table/use-controlled-state"
 import { useDataTableControlColumns } from "@/hooks/data-table/use-data-table-control-columns"
+import { useDataTableExport } from "@/hooks/data-table/use-data-table-export"
 import { useDataTablePreferences } from "@/hooks/data-table/use-data-table-preferences"
 import { useDataTableReorder } from "@/hooks/data-table/use-data-table-reorder"
 import { useDataTableSearch } from "@/hooks/data-table/use-data-table-search"
@@ -57,6 +58,7 @@ export function DataTable<TData>({
   pagination,
   sorting,
   reorder,
+  export: exportProp,
   persistence: persistenceRaw,
   toolbar,
   emptyState = "Brak danych.",
@@ -326,6 +328,15 @@ export function DataTable<TData>({
       isPaginationEnabled && !paginationOptions?.manual ? getPaginationRowModel() : undefined,
   })
 
+  // ── Export ─────────────────────────────────────────────────────────────
+  const exportOptions = exportProp === false ? undefined : exportProp
+  const isExportEnabled = exportProp !== false && (exportOptions?.enabled ?? true)
+  const { triggerExport, isExporting } = useDataTableExport({
+    table,
+    exportOptions,
+    isExportEnabled,
+  })
+
   // ── Derived UI state ───────────────────────────────────────────────────
   const visibleRows = table.getRowModel().rows
   const shouldShowEmpty = !isLoading && !error && data.length === 0
@@ -365,6 +376,10 @@ export function DataTable<TData>({
         filterableColumns={filterableColumns}
         hasActiveFilters={hasActiveFilters}
         onResetFilters={() => setColumnFilters([])}
+        isExportEnabled={isExportEnabled}
+        isExporting={isExporting}
+        onExport={triggerExport}
+        exportLabel={exportOptions?.label ?? "Eksportuj do excel"}
       />
 
       {/* Table */}

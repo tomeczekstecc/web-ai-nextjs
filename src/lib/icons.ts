@@ -30,6 +30,7 @@ import {
   // Content & Data
   Folder,
   FileText,
+  FileSpreadsheet,
   BookOpen,
   
   // Features & Concepts
@@ -116,6 +117,7 @@ const iconRegistry = {
   // Content & Data
   Folder,
   FileText,
+  FileSpreadsheet,
   BookOpen,
   
   // Features & Concepts

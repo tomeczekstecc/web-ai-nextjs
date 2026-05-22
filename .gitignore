@@ -10,3 +10,4 @@ coverage
 .env*
 next-env.d.ts
 .superpowers/
+.pnpm-lock.yaml
