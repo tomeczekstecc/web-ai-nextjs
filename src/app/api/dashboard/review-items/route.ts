@@ -10,7 +10,7 @@ export async function GET() {
         type: "Społeczne",
         status: "Złożony",
         target: "50 000",
-        limit: "30.06.2026",
+        limit: "2026-06-30",
         reviewer: "Anna Kowalska",
       },
       {
@@ -19,7 +19,7 @@ export async function GET() {
         type: "Lokalne",
         status: "Przyznany",
         target: "100 000",
-        limit: "15.07.2026",
+        limit: "2026-07-15",
         reviewer: "Marek Nowak",
       },
       {
@@ -28,7 +28,7 @@ export async function GET() {
         type: "Ekologia",
         status: "Do poprawy",
         target: "25 000",
-        limit: "01.08.2026",
+        limit: "2026-08-01",
         reviewer: "Assign reviewer",
       },
       {
@@ -37,7 +37,7 @@ export async function GET() {
         type: "Młodzież",
         status: "W trakcie",
         target: "75 000",
-        limit: "20.06.2026",
+        limit: "2026-06-20",
         reviewer: "Anna Kowalska",
       },
       {
@@ -46,7 +46,7 @@ export async function GET() {
         type: "Seniorzy",
         status: "Złożony",
         target: "40 000",
-        limit: "10.07.2026",
+        limit: "2026-07-10",
         reviewer: "Katarzyna Wiśniewska",
       },
     ],

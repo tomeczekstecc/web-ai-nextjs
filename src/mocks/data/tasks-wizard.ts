@@ -6,6 +6,7 @@ export type TaskListItem = {
   type: string
   priority: 'low' | 'normal' | 'high'
   deadline: string
+  updatedAt: string
 }
 
 export type DictOption = {
@@ -247,15 +248,39 @@ export const TASK_FIXTURES: Record<number, Record<string, unknown>> = (() => {
   }
 })()
 
-export const TASK_LIST: TaskListItem[] = Object.entries(TASK_FIXTURES).map(
-  ([id, f]) => ({
-    id: Number(id),
-    title: (f.title as string) || '(bez tytułu)',
-    type: f.type as string,
-    priority: f.priority as TaskListItem['priority'],
-    deadline: (f.deadline as string) || '',
-  }),
-)
+export const TASK_LIST: TaskListItem[] = (() => {
+  // Spread "last updated" across a believable window so the relative-time
+  // column shows a mix of „minutę temu”, „godzinę temu”, „3 dni temu”, etc.
+  // Offsets are in minutes back from `now`.
+  const now = Date.now()
+  const minute = 60_000
+  const updatedOffsetsMin: Record<number, number> = {
+    1:  2,           // 2 min temu
+    2:  37,          // ~37 min temu
+    3:  3 * 60,      // ~3 godz. temu
+    4:  9 * 60,      // ~9 godz. temu
+    5:  24 * 60,     // 1 dzień temu
+    6:  2 * 24 * 60, // 2 dni temu
+    7:  4 * 24 * 60,
+    8:  7 * 24 * 60,
+    9:  10 * 24 * 60,
+    10: 14 * 24 * 60,
+    11: 21 * 24 * 60,
+    12: 30 * 24 * 60,
+  }
+  return Object.entries(TASK_FIXTURES).map(([rawId, f]) => {
+    const id = Number(rawId)
+    const offset = updatedOffsetsMin[id] ?? 60
+    return {
+      id,
+      title: (f.title as string) || '(bez tytułu)',
+      type: f.type as string,
+      priority: f.priority as TaskListItem['priority'],
+      deadline: (f.deadline as string) || '',
+      updatedAt: new Date(now - offset * minute).toISOString(),
+    }
+  })
+})()
 
 export const TASK_TYPES: DictOption[] = [
   { value: 'złożone',  label: 'Złożone' },

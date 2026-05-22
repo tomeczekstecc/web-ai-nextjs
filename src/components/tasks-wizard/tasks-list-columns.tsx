@@ -6,8 +6,10 @@ import Link from "next/link"
 import type { DataTableColumnMeta } from "@/components/data-table"
 import { SortableHeader } from "@/components/data-table"
 import { multiSelectFilterFnMeta } from "@/lib/data-table/utils"
+import { formatDate } from "@/lib/format/date"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { RelativeTime } from "@/components/ui/relative-time"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -88,9 +90,25 @@ export const tasksListColumns: ColumnDef<TaskListItem>[] = [
   {
     accessorKey: "deadline",
     header: ({ column }) => <SortableHeader column={column} label="Termin" />,
-    cell: ({ row }) => row.original.deadline,
+    cell: ({ row }) => formatDate(row.original.deadline),
     meta: {
       label: "Termin",
+    } satisfies DataTableColumnMeta<TaskListItem>,
+  },
+  {
+    accessorKey: "updatedAt",
+    header: ({ column }) => <SortableHeader column={column} label="Zaktualizowano" />,
+    sortingFn: (a, b) =>
+      new Date(a.original.updatedAt).getTime() -
+      new Date(b.original.updatedAt).getTime(),
+    cell: ({ row }) => (
+      <RelativeTime
+        value={row.original.updatedAt}
+        className="text-muted-foreground"
+      />
+    ),
+    meta: {
+      label: "Zaktualizowano",
     } satisfies DataTableColumnMeta<TaskListItem>,
   },
   {

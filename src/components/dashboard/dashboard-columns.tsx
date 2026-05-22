@@ -10,6 +10,7 @@ import { toast } from "@/components/toast"
 
 import { type DataTableColumnMeta } from "@/components/data-table"
 import { multiSelectFilterFnMeta } from "@/lib/data-table/utils"
+import { formatDate } from "@/lib/format/date"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -141,7 +142,7 @@ export const dashboardColumns: ColumnDef<DashboardReviewItem>[] = [
         </Label>
         <Input
           className="h-8 w-28 border-transparent bg-transparent text-right shadow-none hover:bg-input/30 focus-visible:border focus-visible:bg-background dark:bg-transparent dark:hover:bg-input/30 dark:focus-visible:bg-input/30"
-          defaultValue={row.original.limit}
+          defaultValue={formatDate(row.original.limit)}
           id={`${row.original.id}-limit`}
         />
       </form>

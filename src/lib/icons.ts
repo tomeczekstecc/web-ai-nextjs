@@ -9,6 +9,7 @@ import {
   ChevronsUpDown,
   GripVertical,
   MoreHorizontal,
+  EllipsisVertical,
   PanelLeft,
   
   // Actions
@@ -96,6 +97,7 @@ const iconRegistry = {
   ChevronsUpDown,
   GripVertical,
   MoreHorizontal,
+  EllipsisVertical,
   PanelLeft,
   
   // Actions

@@ -1224,3 +1224,297 @@ design system.
 - [ ] No `<Button variant="destructive">Anuluj</Button>` or similar style-driven misuse
 - [ ] Trigger of a destructive flow is **not** `destructive` if the confirm dialog already is
 - [ ] No hard-coded `bg-red-*` / `bg-green-*` colors used to fake a missing variant
+
+---
+
+## Destructive Actions Always Confirm
+
+**Rule:** Every irreversible / destructive action (delete, remove, discard,
+withdraw, revoke, archive-without-undo) **must** be preceded by a confirmation
+dialog. The trigger button is non-destructive; the **dialog's confirm button**
+carries the `destructive` variant.
+
+This applies to: pojedyncze wiersze, akcje masowe (`bulk delete`), kasowanie
+zasobów z poziomu szczegółów, „Wycofaj wniosek”, „Odrzuć” itp. Wyjątek: “undo”
+lub “soft-delete with toast undo” — wtedy potwierdzenie nie jest wymagane, ale
+musi być widoczny mechanizm cofnięcia w stylu Sonner toast z `action`.
+
+### Why
+
+- Color alone (“red button”) is not enough — colorblind users, mis-clicks,
+  muscle memory.
+- The dialog forces a deliberate second action and surfaces *what* will be
+  deleted („Usunąć wniosek #1234?”) plus *consequences* („Tej operacji nie
+  można cofnąć”).
+- Centralises destructive UX so it looks and behaves the same everywhere.
+
+### Pattern
+
+```tsx
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogClose,
+} from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
+import { resolveIcon } from "@/lib/icons"
+
+const Trash2Icon = resolveIcon("Trash2")
+
+<Dialog>
+  {/* Trigger — NOT destructive. Ghost / outline depending on density. */}
+  <DialogTrigger
+    render={
+      <Button variant="ghost" size="icon-sm" aria-label="Usuń wniosek" />
+    }
+  >
+    <Trash2Icon />
+  </DialogTrigger>
+
+  <DialogContent>
+    <DialogHeader>
+      <DialogTitle>Usunąć wniosek?</DialogTitle>
+      <DialogDescription>
+        Wniosek „{title}” zostanie trwale usunięty. Tej operacji nie można cofnąć.
+      </DialogDescription>
+    </DialogHeader>
+    <DialogFooter>
+      <DialogClose render={<Button variant="outline">Anuluj</Button>} />
+      <Button
+        variant="destructive"
+        onClick={() => onDelete(id)}
+        disabled={isPending}
+      >
+        {isPending ? "Usuwanie…" : "Usuń wniosek"}
+      </Button>
+    </DialogFooter>
+  </DialogContent>
+</Dialog>
+```
+
+### Bulk delete variant
+
+The trigger jest najczęściej w pasku akcji zaznaczonych wierszy. Pokazać liczbę:
+
+```tsx
+<DialogTitle>Usunąć {count} wnioski?</DialogTitle>
+<DialogDescription>
+  Wybrane wnioski zostaną trwale usunięte. Tej operacji nie można cofnąć.
+</DialogDescription>
+…
+<Button variant="destructive" onClick={() => onDelete(selectedIds)}>
+  {isPending ? "Usuwanie…" : `Usuń zaznaczone (${count})`}
+</Button>
+```
+
+Dla *bardzo* dużych operacji (10+ rekordów, kaskadowe efekty) wymagać wpisania
+frazy potwierdzającej („USUŃ”) zanim przycisk destructive się odblokuje.
+
+### Anti-patterns
+
+```tsx
+{/* ❌ Bezpośrednie usunięcie z triggera — brak potwierdzenia */}
+<Button variant="destructive" onClick={() => deleteItems(ids)}>
+  Usuń zaznaczone
+</Button>
+
+{/* ❌ destructive na triggerze I na confirm — dwa razy czerwone, bez eskalacji */}
+<DialogTrigger render={<Button variant="destructive">Usuń</Button>} />
+…
+<Button variant="destructive">Usuń</Button>
+
+{/* ❌ window.confirm — nie używamy natywnych dialogów, niezgodne ze stylem aplikacji */}
+if (window.confirm("Usunąć?")) deleteItem(id)
+
+{/* ❌ Dialog bez nazwanego zasobu — użytkownik nie wie co usuwa */}
+<DialogTitle>Czy na pewno?</DialogTitle>
+```
+
+### Checklist for every destructive action
+
+- [ ] Trigger button is `ghost` / `outline`, **never** `destructive`
+- [ ] Confirmation `Dialog` (or `AlertDialog`) opens before the mutation fires
+- [ ] Dialog title names the **specific resource** being deleted („Usunąć wniosek „XYZ”?”), or the count for bulk
+- [ ] Dialog description explicitly states irreversibility („Tej operacji nie można cofnąć”)
+- [ ] Confirm button uses `variant="destructive"` and an action verb label („Usuń”, not „OK”)
+- [ ] Cancel button uses `variant="outline"` with label „Anuluj”
+- [ ] Confirm button shows a pending state („Usuwanie…”) and is disabled while the mutation runs
+- [ ] Bulk operations show the count in both trigger and confirm
+- [ ] Exception (soft-delete + undo toast): use Sonner toast with `action: { label: "Cofnij", onClick }`
+
+---
+
+## Date Format — ISO by Default
+
+**Rule:** The default visible date format across the app is **ISO 8601 short**:
+`YYYY-MM-DD` (np. `2026-05-31`). For timestamps with time: `YYYY-MM-DD HH:mm`
+(local time, np. `2026-05-31 14:23`). Wszędzie tam gdzie data jest wyświetlana
+użytkownikowi — tabele, listy, karty, badge’e terminu, eksport CSV/XLSX, tooltipy,
+formatery DataTable — stosuj ten format, chyba że konkretny widok ma
+udokumentowany wyjątek (patrz niżej).
+
+### Why ISO
+
+- **Jednoznaczne** — nie ma wątpliwości czy `05/06/2026` to maj czy czerwiec.
+- **Sortowalne leksykograficznie** — `"2026-05-31" < "2026-06-01"` działa jak string sort, co upraszcza eksport, CSV, debug.
+- **Spójne między backendem a frontendem** — API zwraca ISO; renderowanie ISO eliminuje warstwę formatowania, która mogłaby się zdesynchronizować.
+- **A11y / i18n-neutral** — nie zależy od locale przeglądarki.
+
+### How
+
+Używaj `date-fns` (już jest w `package.json`) z formatem `"yyyy-MM-dd"`.
+Nie używaj `toLocaleDateString()`, `Intl.DateTimeFormat` bez explicit locale,
+ani ręcznych `${y}-${m}-${d}` z paddingiem.
+
+```ts
+import { format, parseISO } from "date-fns"
+
+export function formatDate(value: string | Date): string {
+  const date = typeof value === "string" ? parseISO(value) : value
+  return format(date, "yyyy-MM-dd")
+}
+
+export function formatDateTime(value: string | Date): string {
+  const date = typeof value === "string" ? parseISO(value) : value
+  return format(date, "yyyy-MM-dd HH:mm")
+}
+```
+
+Centralise these helpers in `src/lib/format/date.ts` (utwórz jeśli nie istnieje)
+i importuj wszędzie zamiast formatować inline.
+
+### Examples
+
+```tsx
+// ✅ Correct — ISO format via shared helper
+import { formatDate } from "@/lib/format/date"
+
+<TableCell>{formatDate(item.deadline)}</TableCell>
+<Badge>Termin: {formatDate(deadline)}</Badge>
+
+// ❌ Wrong — ambiguous locale-dependent format
+<TableCell>{new Date(item.deadline).toLocaleDateString()}</TableCell>
+
+// ❌ Wrong — polski format pisany ręcznie
+<TableCell>{`${d}.${m}.${y}`}</TableCell>     {/* „31.05.2026” */}
+
+// ❌ Wrong — wymyślony format, niespójny z resztą aplikacji
+<TableCell>{format(date, "d MMMM yyyy", { locale: pl })}</TableCell>
+```
+
+### Inputs
+
+Native `<input type="date">` już używa ISO w `value` — nic nie zmieniamy.
+W komponencie `react-day-picker` formatuj wyświetlaną wartość przez
+`formatDate()` (nie `format(date, "PPP")`).
+
+### Exceptions (require explicit approval)
+
+Dopuszczalne wyłącznie gdy:
+
+- Widok jest ściśle „prosowy” / marketingowy (landing, e-mail, summary tekstowy) — wtedy możesz użyć dłuższego formatu `"d MMMM yyyy"` z polską lokalizacją.
+- Komponent jawnie reprezentuje *względny* czas („2 godziny temu”) — wtedy użyj `formatDistanceToNow` z `date-fns`, ale **zawsze** dodaj ISO w `title` / tooltipie:
+  ```tsx
+  <span title={formatDateTime(value)}>{formatDistanceToNow(parseISO(value))}</span>
+  ```
+
+Każdy taki wyjątek dokumentujemy w tabeli poniżej (analogicznie do tabeli
+„Approved Deviations from the No-Custom-CSS Rule”).
+
+### Relative Time („minutę temu”, „godzinę temu”)
+
+Dla pól o charakterze „kiedy się to wydarzyło” (timeline, activity feed,
+„Ostatnio edytowane”, badge’e „Utworzone…”, listy zdarzeń) renderuj **względny**
+czas po polsku zamiast surowej daty ISO. To czytelniejsze dla człowieka, ale
+**zawsze** musi towarzyszyć mu absolutna data ISO w `title` / tooltipie —
+użytkownik musi móc sprawdzić dokładny moment.
+
+#### Use the `<RelativeTime>` component (preferred)
+
+```tsx
+import { RelativeTime } from "@/components/ui/relative-time"
+
+<RelativeTime value={item.updatedAt} />
+// → <time dateTime="2026-05-31 14:23" title="2026-05-31 14:23">
+//     2 godziny temu
+//   </time>
+```
+
+Komponent:
+
+- renderuje semantyczny `<time>` z `dateTime` i `title` w formacie ISO,
+- automatycznie spełnia regułę „ISO w tooltipie”,
+- jest server component (zero JS na kliencie),
+- akceptuje `fallback` dla `null` / niepoprawnej wartości.
+
+#### Or compose manually with `formatRelative`
+
+Gdy potrzebujesz własnego wrappera (inline w prozie, własne style, kompozycja
+z innymi elementami), użyj helpera bezpośrednio — ale pamiętaj o `title`:
+
+```tsx
+import { formatDateTime, formatRelative } from "@/lib/format/date"
+
+<time dateTime={formatDateTime(value)} title={formatDateTime(value)}>
+  {formatRelative(value)}
+</time>
+```
+
+#### Example outputs (locale = pl)
+
+| Distance | Output |
+|---|---|
+| < 60 s | „mniej niż minutę temu” |
+| 1 min | „minutę temu” |
+| 15 min | „15 minut temu” |
+| 1 h | „około godziny temu” |
+| 3 h | „około 3 godzin temu” |
+| 1 d | „1 dzień temu” |
+| przyszłość | „za 2 dni”, „za minutę” |
+
+#### When to use vs. ISO
+
+| Surface | Use |
+|---|---|
+| Activity / audit log, „Ostatnia aktywność”, notyfikacje | `<RelativeTime>` |
+| Kolumna „Termin” / „Data złożenia” w tabeli operacyjnej | ISO przez `formatDate()` |
+| Eksport XLSX/CSV, raporty | ISO przez `formatDate()` |
+| „Ostatnio edytowane 3 godziny temu” w nagłówku karty | `<RelativeTime>` |
+| Date pickery, formularze | ISO (`yyyy-MM-dd`) w state, ISO w display |
+
+Reguła kciuka: **względny** dla zdarzeń świeżych w czasie, **ISO** dla danych
+operacyjnych / planowanych / eksportowanych.
+
+#### Auto-refresh („tykający” zegar)
+
+`<RelativeTime>` to server component — etykieta jest liczona raz przy renderze.
+W długo otwartych widokach „2 minuty temu” nie zamieni się w „3 minuty temu”
+samo z siebie. Jeśli tego potrzebujesz (np. ekran monitoringu / live feed):
+
+- owiń `<RelativeTime>` w cienki client component, który trzyma `useState` na
+  numer ticka i `useEffect` z `setInterval(..., 60_000)` — i przekazuje
+  `key={tick}` żeby wymusić re-render,
+- nie używaj `setInterval` o częstotliwości < 30 s — marnujesz CPU i baterię.
+
+Na razie ten przypadek nie występuje; jeśli kiedyś się pojawi, dodaj
+`<RelativeTimeLive>` w `src/components/ui/` zamiast inline’ować w każdym miejscu.
+
+### Approved Deviations from the ISO Date Rule
+
+| File | Format used | Reason | Status |
+|------|-------------|--------|--------|
+| `src/components/ui/calendar.tsx` (line ~43) | `date.toLocaleString(locale?.code, { month: "short" })` for the calendar month header („Sty”, „Lut”…) | Upstream shadcn/ui registry file — same status as other `src/components/ui/` deviations registered in the CSS table | ✅ Approved |
+| `src/components/ui/calendar.tsx` (line ~200) | `date.toLocaleDateString(locale?.code)` for the internal `data-day` HTML attribute (non-visible, used as a selector) | Upstream shadcn/ui registry file; not user-visible text | ✅ Approved |
+
+### Checklist
+
+- [ ] Wszystkie daty w UI przechodzą przez `formatDate` / `formatDateTime` z `src/lib/format/date.ts`
+- [ ] Żadnych `toLocaleDateString()` ani inline `${y}-${m}-${d}`
+- [ ] Eksport XLSX/CSV trzyma ISO (`yyyy-MM-dd`) chyba że raport ma udokumentowany wyjątek
+- [ ] Względne daty („2h temu”) mają ISO w `title`
+- [ ] Inputy dat zwracają ISO do form state (`yyyy-MM-dd`)

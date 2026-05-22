@@ -6,6 +6,8 @@ export type TaskListItem = {
   type: string;
   priority: TaskPriority;
   deadline: string;
+  /** ISO 8601 timestamp of the last modification. */
+  updatedAt: string;
 };
 
 export type TaskListResponse = TaskListItem[];

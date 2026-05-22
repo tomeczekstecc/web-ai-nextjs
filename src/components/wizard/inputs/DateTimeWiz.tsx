@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Input } from '@/components/ui/input'
+import { formatDate, formatDateTime } from '@/lib/format/date'
 import { ValidationWrapper } from '../ValidationWrapper'
 import { useWizardField } from '@/hooks/wizard/useWizardField'
 import { cn } from '@/lib/utils'
@@ -60,8 +61,8 @@ export function DateTimeWiz({ keyName, hideTime, hide, label: labelOverride }: P
 
   const displayValue = selectedDate
     ? hideTime
-      ? format(selectedDate, 'd MMMM yyyy', { locale: pl })
-      : format(selectedDate, 'd MMMM yyyy, HH:mm', { locale: pl })
+      ? formatDate(selectedDate)
+      : formatDateTime(selectedDate)
     : 'Wybierz datę'
 
   return (

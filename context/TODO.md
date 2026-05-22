@@ -4,13 +4,6 @@ Project-level follow-ups captured by agents.
 
 ## Open
 
-- [ ] Ensure all buttons have meaningful, descriptive labels (no generic "OK" / "Submit").
-  - Priority: critical
-  - Date: 2026-05-21
-  - Branch: `master`
-  - Domain: ui
-
-
 Roles + permisions: Implement RBAC (role-based access control)/kc integration, use forbidden, unauthorized from Next.js special files. 
 we mock 3 roles for now (User, Oper, Admin)
   - Priority: critical
@@ -37,4 +30,8 @@ we mock 3 roles for now (User, Oper, Admin)
   - Domain: web
 
 
--  [ ] serverside paginantion
+- [ ] Stworzyc skill per pattern z `context/` oraz meta-skill weryfikujacy, ze kazdy pattern ma odpowiadajacy mu skill - skill musi zawierac wyrazne odniesienie do pliku patternu (sciezka w `context/`).
+  - Priority: medium
+  - Date: 2026-05-22
+  - Branch: `018-copy-to-clipboard`
+  - Domain: docs
