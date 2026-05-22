@@ -10,11 +10,6 @@ Project-level follow-ups captured by agents.
   - Branch: `master`
   - Domain: ui
 
-- [ ] Ogarnąć lepszy layout wizarda.
-  - Priority: high
-  - Date: 2026-05-10
-  - Branch: `master`
-  - Domain: ui
 
 Roles + permisions: Implement RBAC (role-based access control)/kc integration, use forbidden, unauthorized from Next.js special files. 
 we mock 3 roles for now (User, Oper, Admin)
@@ -40,3 +35,6 @@ we mock 3 roles for now (User, Oper, Admin)
   - Date: 2026-05-21
   - Branch: `master`
   - Domain: web
+
+
+-  [ ] serverside paginantion

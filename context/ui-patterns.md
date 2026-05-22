@@ -1130,3 +1130,97 @@ export default function RaportyPage() {
 **Responsive:** Mobile-first, test at 320px
 
 **When in doubt:** Look at existing pages and match the pattern.
+
+---
+
+## Choosing a Button Variant at the Call Site
+
+**Rule:** Pick the variant that matches the *intent of the action in its surface*,
+not the desired color. The project ships only these variants:
+`default` · `outline` · `secondary` · `ghost` · `destructive` · `link`.
+There is **no `success` / `warning` / `info` variant** — see the
+"Variant = Context, Not Style" rule above for why.
+
+### Intent → variant mapping
+
+| Intent at the call site | Variant | Example labels |
+|---|---|---|
+| **Primary forward action** — the next step the user is meant to take on this surface | `default` | Zapisz, Kontynuuj, Utwórz, Wyślij, Złóż wniosek, Dalej |
+| **Destructive / irreversible** — deletes data, cannot be undone without effort | `destructive` | Usuń, Odrzuć, Wycofaj wniosek |
+| **Secondary action** alongside a primary one on the same surface | `outline` | Anuluj, Wstecz, Edytuj (as a side action) |
+| **Tertiary / contextual action** in a dense surface (toolbar, row, card header) | `ghost` | Szczegóły, Pokaż więcej, akcje ikon-only |
+| **Grouped / chip-like control** (toggle groups, filter bar segments) | `secondary` | filtry, segmenty |
+| **Inline navigation in prose** | `link` | „zobacz dokumentację” w opisie |
+
+### Heuristic for multi-button surfaces
+
+Think of every surface (dialog, form, card footer, toolbar) as a small decision
+tree with **one** primary path forward:
+
+- **One** primary forward action → `default`
+- A „go back / cancel / leave as is” sibling → `outline`
+- A “discard / delete / wycofaj” sibling → `destructive`
+- Anything else → `ghost`
+
+This gives sighted users the same cue a colored “success” variant would —
+“this is the path forward, this is the dangerous one” — without breaking the
+design system.
+
+### Examples
+
+#### ✅ Dialog footer: save vs. cancel vs. delete
+
+```tsx
+<DialogFooter>
+  <Button variant="destructive" onClick={onDelete}>Usuń</Button>
+  <Button variant="outline" onClick={onClose}>Anuluj</Button>
+  <Button onClick={onSave}>Zapisz</Button>     {/* default = primary forward */}
+</DialogFooter>
+```
+
+#### ✅ Wizard step footer
+
+```tsx
+<div className="flex justify-between">
+  <Button variant="ghost" onClick={onBack}>Wstecz</Button>
+  <Button onClick={onNext}>Dalej</Button>           {/* default = forward */}
+</div>
+```
+
+#### ✅ Table row actions
+
+```tsx
+<Button variant="ghost" size="icon-sm" aria-label="Edytuj"><EditIcon /></Button>
+<Button variant="ghost" size="icon-sm" aria-label="Usuń"><TrashIcon /></Button>
+{/* destructive *colour* is not used in dense row UI — the confirm dialog carries the destructive variant */}
+```
+
+#### ❌ Anti-patterns
+
+```tsx
+{/* ❌ destructive used for styling, not meaning */}
+<Button variant="destructive">Anuluj</Button>
+
+{/* ❌ two primary buttons competing for attention on the same surface */}
+<Button>Zapisz</Button>
+<Button>Wyślij do akceptacji</Button>
+
+{/* ❌ destructive on the trigger AND the confirm — user sees red twice with no escalation */}
+<Button variant="destructive">Usuń wniosek</Button>
+// …opens dialog…
+<Button variant="destructive">Usuń</Button>
+{/* Prefer: trigger = ghost/outline, confirm in dialog = destructive */}
+
+{/* ❌ reaching for a non-existent semantic variant */}
+<Button variant="success">Zatwierdź</Button>   {/* use default */}
+<Button variant="warning">Wycofaj</Button>     {/* use destructive or outline */}
+```
+
+### Checklist before merging a surface with multiple buttons
+
+- [ ] Exactly one `default` (primary forward action) per surface
+- [ ] `destructive` only when the action is irreversible (delete, discard, withdraw)
+- [ ] `outline` used for “cancel / back / side action”, not for styling
+- [ ] No `<Button variant="destructive">Anuluj</Button>` or similar style-driven misuse
+- [ ] Trigger of a destructive flow is **not** `destructive` if the confirm dialog already is
+- [ ] No hard-coded `bg-red-*` / `bg-green-*` colors used to fake a missing variant
