@@ -331,7 +331,7 @@ export function DataTable<TData>({
   // ── Export ─────────────────────────────────────────────────────────────
   const exportOptions = exportProp === false ? undefined : exportProp
   const isExportEnabled = exportProp !== false && (exportOptions?.enabled ?? true)
-  const { triggerExport, isExporting } = useDataTableExport({
+  const { triggerExport, isExporting, getClipboardText } = useDataTableExport({
     table,
     exportOptions,
     isExportEnabled,
@@ -379,6 +379,7 @@ export function DataTable<TData>({
         isExportEnabled={isExportEnabled}
         isExporting={isExporting}
         onExport={triggerExport}
+        getClipboardText={getClipboardText}
         exportLabel={exportOptions?.label ?? "Eksportuj do excel"}
       />
 

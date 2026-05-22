@@ -88,7 +88,32 @@ export function useDataTableExport<TData>({
     }
   }, [buildPayload, exportOptions?.endpoint, isExportEnabled, isExporting])
 
-  return { triggerExport, isExporting }
+  const getClipboardText = React.useCallback((): string => {
+    return payloadToTsv(buildPayload())
+  }, [buildPayload])
+
+  return { triggerExport, isExporting, getClipboardText }
+}
+
+function payloadToTsv(payload: DataTableExportPayload): string {
+  const header = payload.columns.map((column) => sanitizeTsvCell(column.header))
+  const body = payload.rows.map((row) =>
+    payload.columns
+      .map((column) => sanitizeTsvCell(formatCellForClipboard(row[column.key])))
+      .join("\t"),
+  )
+  return [header.join("\t"), ...body].join("\n")
+}
+
+function formatCellForClipboard(value: unknown): string {
+  if (value === null || value === undefined) return ""
+  if (value instanceof Date) return value.toISOString()
+  if (typeof value === "object") return JSON.stringify(value)
+  return String(value)
+}
+
+function sanitizeTsvCell(value: string): string {
+  return value.replace(/[\t\r\n]+/g, " ")
 }
 
 function safeGetValue<TData>(

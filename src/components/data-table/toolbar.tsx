@@ -8,6 +8,7 @@ import {
 import type { Column } from "@tanstack/react-table"
 
 import { Button } from "@/components/ui/button"
+import { CopyButton } from "@/components/ui/copy-button"
 import {
   Tooltip,
   TooltipContent,
@@ -44,6 +45,7 @@ interface DataTableToolbarProps<TData> {
   isExporting: boolean
   onExport: () => void
   exportLabel: string
+  getClipboardText?: () => string
 }
 
 export function DataTableToolbar<TData>({
@@ -62,6 +64,7 @@ export function DataTableToolbar<TData>({
   isExporting,
   onExport,
   exportLabel,
+  getClipboardText,
 }: DataTableToolbarProps<TData>) {
   return (
     <div className="flex flex-col gap-2">
@@ -93,22 +96,34 @@ export function DataTableToolbar<TData>({
         <div className="flex flex-wrap items-center gap-2">
           {toolbar?.selectionContent}
           {isExportEnabled && (
-            <Tooltip>
-              <TooltipTrigger
-                render={
-                  <Button
-                    variant="outline"
-                    size="icon-sm"
-                    onClick={onExport}
-                    disabled={isExporting}
-                    aria-label={exportLabel}
-                  />
-                }
-              >
-                <FileSpreadsheetIcon />
-              </TooltipTrigger>
-              <TooltipContent>{exportLabel}</TooltipContent>
-            </Tooltip>
+            <>
+              {getClipboardText && (
+                <CopyButton
+                  variant="outline"
+                  size="icon-sm"
+                  value={getClipboardText()}
+                  label="Kopiuj dane do schowka"
+                  copiedLabel="Skopiowano"
+                  failedLabel="Nie udało się skopiować"
+                />
+              )}
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <Button
+                      variant="outline"
+                      size="icon-sm"
+                      onClick={onExport}
+                      disabled={isExporting}
+                      aria-label={exportLabel}
+                    />
+                  }
+                >
+                  <FileSpreadsheetIcon />
+                </TooltipTrigger>
+                <TooltipContent>{exportLabel}</TooltipContent>
+              </Tooltip>
+            </>
           )}
           {visibilityEnabled && hideableColumns.length > 0 && (
             <DropdownMenu>
