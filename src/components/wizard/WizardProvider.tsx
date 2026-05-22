@@ -32,8 +32,10 @@ export function WizardProvider<T extends Record<string, unknown>>({
   const [summary, setSummary] = useState<SummaryResult | null>(null)
   const scrollToRef = useRef<string | null>(null)
 
-  const { wizards, setWizardData, setWizardValidation, clearWizard } = useStore()
-  const wizardEntry = wizards[name] ?? { form: {}, meta: { validation: [] } }
+  const wizardEntry = useStore(s => s.wizards[name]) ?? { form: {}, meta: { validation: [] } }
+  const setWizardData = useStore(s => s.setWizardData)
+  const setWizardValidation = useStore(s => s.setWizardValidation)
+  const clearWizard = useStore(s => s.clearWizard)
   const form = wizardEntry.form as T
   const validation = wizardEntry.meta.validation
 
