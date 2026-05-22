@@ -11,7 +11,7 @@ export async function GET() {
         status: "Złożony",
         target: "50 000",
         limit: "2026-06-30",
-        reviewer: "Anna Kowalska",
+        reviewer: "Anna Kowalska", parameters: [], instruments: [],
       },
       {
         id: 2,
@@ -20,7 +20,7 @@ export async function GET() {
         status: "Przyznany",
         target: "100 000",
         limit: "2026-07-15",
-        reviewer: "Marek Nowak",
+        reviewer: "Marek Nowak", parameters: [], instruments: [],
       },
       {
         id: 3,
@@ -29,7 +29,7 @@ export async function GET() {
         status: "Do poprawy",
         target: "25 000",
         limit: "2026-08-01",
-        reviewer: "Assign reviewer",
+        reviewer: "Assign reviewer", parameters: [], instruments: [],
       },
       {
         id: 4,
@@ -38,7 +38,7 @@ export async function GET() {
         status: "W trakcie",
         target: "75 000",
         limit: "2026-06-20",
-        reviewer: "Anna Kowalska",
+        reviewer: "Anna Kowalska", parameters: [], instruments: [],
       },
       {
         id: 5,
@@ -47,7 +47,7 @@ export async function GET() {
         status: "Złożony",
         target: "40 000",
         limit: "2026-07-10",
-        reviewer: "Katarzyna Wiśniewska",
+        reviewer: "Katarzyna Wiśniewska", parameters: [], instruments: [],
       },
     ],
   };

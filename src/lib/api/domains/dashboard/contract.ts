@@ -1,3 +1,16 @@
+export type DashboardReviewParameter = {
+  name: string;
+  type: string;
+  value: string;
+  description: string;
+};
+
+export type DashboardReviewInstrument = {
+  name: string;
+  amountPln: string;
+  amountEur: string;
+};
+
 export type DashboardReviewItem = {
   id: number;
   header: string;
@@ -6,6 +19,8 @@ export type DashboardReviewItem = {
   target: string;
   limit: string;
   reviewer: string;
+  parameters: DashboardReviewParameter[];
+  instruments: DashboardReviewInstrument[];
 };
 
 export type CreateDashboardReviewItemInput = {
@@ -15,6 +30,8 @@ export type CreateDashboardReviewItemInput = {
   target: string;
   limit: string;
   reviewer: string;
+  parameters: DashboardReviewParameter[];
+  instruments: DashboardReviewInstrument[];
 };
 
 export type UpdateDashboardReviewItemInput = {
@@ -24,6 +41,8 @@ export type UpdateDashboardReviewItemInput = {
   target: string;
   limit: string;
   reviewer: string;
+  parameters: DashboardReviewParameter[];
+  instruments: DashboardReviewInstrument[];
 };
 
 export type DashboardChartPoint = {

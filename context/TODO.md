@@ -50,4 +50,16 @@ we mock 3 roles for now (User, Oper, Admin)
   - max size
   - extentions allowed list
   - demo as a step in zadanie wizard
-file downloader 
+file downloader
+
+- [ ] Build reusable form-repeater and table-repeater components.
+  - Priority: critical
+  - Date: 2026-05-22
+  - Branch: `020-reports-management`
+  - Domain: ui
+
+- [ ] Dodac logo aplikacji.
+  - Priority: critical
+  - Date: 2026-05-22
+  - Branch: `020-reports-management`
+  - Domain: ui

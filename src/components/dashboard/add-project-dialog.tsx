@@ -78,7 +78,7 @@ export function AddProjectDrawer() {
       onSubmit: schema as unknown as StandardSchemaV1<FormValues>,
     },
     onSubmit: async ({ value }) => {
-      mutation.mutate(value)
+      mutation.mutate({ ...value, parameters: [], instruments: [] })
     },
   })
 
