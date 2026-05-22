@@ -41,7 +41,7 @@ export function useDataTableSearch<TData>({
   )
 
   const filteredData = React.useMemo(() => {
-    if (!isSearchEnabled || !searchValue.trim()) {
+    if (!isSearchEnabled || searchOptions?.manual || !searchValue.trim()) {
       return orderedData
     }
 

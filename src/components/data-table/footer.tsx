@@ -23,6 +23,7 @@ interface DataTableFooterProps<TData> {
   sortableId: string
   isSelectionEnabled: boolean
   isPaginationEnabled: boolean
+  isPaginationManual?: boolean
   table: Table<TData>
   pageSizeOptions: number[]
 }
@@ -31,16 +32,24 @@ export function DataTableFooter<TData>({
   sortableId,
   isSelectionEnabled,
   isPaginationEnabled,
+  isPaginationManual = false,
   table,
   pageSizeOptions,
 }: DataTableFooterProps<TData>) {
   if (!isSelectionEnabled && !isPaginationEnabled) return null
 
+  // In manual pagination mode, `getFilteredRowModel()` only contains the
+  // current page. Use `table.getRowCount()` (backed by `options.rowCount`)
+  // for the total instead.
+  const totalRowCount = isPaginationManual
+    ? table.getRowCount()
+    : table.getFilteredRowModel().rows.length
+
   return (
     <div className="flex flex-col gap-3 px-1 lg:flex-row lg:items-center lg:justify-between">
       <div className="text-sm text-muted-foreground">
         {isSelectionEnabled
-          ? `${table.getFilteredSelectedRowModel().rows.length} z ${table.getFilteredRowModel().rows.length} zaznaczonych wierszy.`
+          ? `${table.getFilteredSelectedRowModel().rows.length} z ${totalRowCount} zaznaczonych wierszy.`
           : null}
       </div>
       {isPaginationEnabled && (

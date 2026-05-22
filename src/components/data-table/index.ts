@@ -9,6 +9,7 @@ export type {
   DataTableSelectionOptions,
   DataTablePaginationOptions,
   DataTableSortingOptions,
+  DataTableColumnFiltersOptions,
   DataTablePersistenceOptions,
   DataTableReorderResult,
   DataTableReorderOptions,

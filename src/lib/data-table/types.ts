@@ -18,6 +18,12 @@ export type DataTableSearchOptions<TData> = {
   onChange?: (value: string) => void
   getSearchValues?: (row: TData) => unknown[]
   compare?: (query: string, values: unknown[], row: TData) => boolean
+  /**
+   * When true, the table will not filter rows locally based on the search value.
+   * The current value is still emitted via `onChange` so the consumer can fetch
+   * pre-filtered data from the server.
+   */
+  manual?: boolean
 }
 
 export type DataTableVisibilityOptions = {
@@ -38,13 +44,30 @@ export type DataTablePaginationOptions = {
   initialPageSize?: number
   state?: PaginationState
   onChange?: OnChangeFn<PaginationState>
+  /** Total number of pages on the server. Used when `manual` is true. */
   pageCount?: number
+  /**
+   * Total number of rows on the server (across all pages). TanStack uses this
+   * to derive `pageCount` if `pageCount` is not provided, and exposes it via
+   * `table.getRowCount()` for footer totals.
+   */
+  rowCount?: number
   manual?: boolean
 }
 
 export type DataTableSortingOptions = {
   state?: SortingState
   onChange?: OnChangeFn<SortingState>
+  manual?: boolean
+}
+
+export type DataTableColumnFiltersOptions = {
+  state?: ColumnFiltersState
+  onChange?: OnChangeFn<ColumnFiltersState>
+  /**
+   * When true, client-side filtering is disabled. Filter changes are emitted
+   * via `onChange`; the consumer is expected to fetch pre-filtered data.
+   */
   manual?: boolean
 }
 
@@ -121,6 +144,7 @@ export type DataTableProps<TData> = {
   selection?: false | DataTableSelectionOptions
   pagination?: false | DataTablePaginationOptions
   sorting?: false | DataTableSortingOptions
+  columnFilters?: false | DataTableColumnFiltersOptions
   reorder?: false | DataTableReorderOptions<TData>
   export?: false | DataTableExportOptions<TData>
   persistence?: DataTablePersistenceOptions | false

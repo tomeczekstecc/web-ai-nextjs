@@ -57,6 +57,7 @@ export function DataTable<TData>({
   selection,
   pagination,
   sorting,
+  columnFilters: columnFiltersProp,
   reorder,
   export: exportProp,
   persistence: persistenceRaw,
@@ -142,7 +143,12 @@ export function DataTable<TData>({
   )
 
   // ── Column filters ─────────────────────────────────────────────────────
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
+  const columnFiltersOptions = columnFiltersProp === false ? undefined : columnFiltersProp
+  const [columnFilters, setColumnFilters] = useControlledState(
+    columnFiltersOptions?.state,
+    columnFiltersOptions?.onChange,
+    [] as ColumnFiltersState,
+  )
 
   // ── Restore persisted state (one-time, after localStorage loads) ─────────────
   const restoredRef = React.useRef(false)
@@ -318,7 +324,9 @@ export function DataTable<TData>({
     onPaginationChange: setPaginationState,
     manualPagination: Boolean(paginationOptions?.manual),
     manualSorting: Boolean(sortingOptions?.manual),
+    manualFiltering: Boolean(searchOptions?.manual || columnFiltersOptions?.manual),
     pageCount: paginationOptions?.pageCount,
+    rowCount: paginationOptions?.rowCount,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
@@ -460,6 +468,7 @@ export function DataTable<TData>({
         sortableId={sortableId}
         isSelectionEnabled={isSelectionEnabled}
         isPaginationEnabled={isPaginationEnabled}
+        isPaginationManual={Boolean(paginationOptions?.manual)}
         table={table}
         pageSizeOptions={pageSizeOptions}
       />
