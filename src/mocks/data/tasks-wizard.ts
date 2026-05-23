@@ -25,6 +25,11 @@ export const TASK_MAPPING: PageMapping[] = [
     ],
   },
   {
+    name: 'attachments',
+    label: 'Załączniki',
+    fields: [],
+  },
+  {
     name: 'schedule',
     label: 'Harmonogram',
     fields: [

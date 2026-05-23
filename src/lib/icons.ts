@@ -11,7 +11,7 @@ import {
   MoreHorizontal,
   EllipsisVertical,
   PanelLeft,
-  
+
   // Actions
   Plus,
   Trash2,
@@ -99,6 +99,7 @@ const iconRegistry = {
   MoreHorizontal,
   EllipsisVertical,
   PanelLeft,
+  CircleCheck,
   
   // Actions
   Plus,
@@ -109,7 +110,6 @@ const iconRegistry = {
   Loader2,
   
   // Status & Feedback
-  CircleCheck,
   OctagonX,
   TriangleAlert,
   Info,

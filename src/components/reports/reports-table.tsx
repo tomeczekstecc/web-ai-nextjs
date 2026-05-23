@@ -62,7 +62,7 @@ export function ReportsTable() {
           sorting={{}}
           toolbar={{
             right: (
-              <Button size="sm" render={<Link href="/reports/new" />}>
+              <Button size="sm" nativeButton={false} render={<Link href="/reports/new" />}>
                 <PlusIcon />
                 <span className="hidden lg:inline">Dodaj raport</span>
               </Button>

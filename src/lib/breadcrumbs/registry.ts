@@ -31,7 +31,6 @@ export const breadcrumbRegistry: RegistryEntry[] = [
     map: () => [
       { label: "Start", href: "/dashboard" },
       { label: "Applications", href: "/applications" },
-      { label: "All Applications" },
     ],
   },
 

@@ -66,6 +66,7 @@ export function ReportsRowActions({ report, onGenerate }: Props) {
           variant="ghost"
           size="icon-sm"
           disabled={anyPending}
+          nativeButton={false}
           render={<Link href={`/reports/${report.id}`} aria-label="Edytuj raport" />}
         >
           <PencilIcon />

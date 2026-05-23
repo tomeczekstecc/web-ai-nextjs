@@ -42,16 +42,16 @@ export const menuConfigFixture: MenuConfig = {
       display: ["User", "Oper", "Admin"],
       perms: { list: ["applications:read"], mode: "all" },
       submenu: [
+
         {
-          // Widoczny dla wszystkich — User, Oper, Admin
-          key: "applications-list",
-          label: "Lista wniosków",
-          to: "/applications",
-          perms: { list: ["applications:read"], mode: "all" },
+          // Widoczny tylko dla Oper i Admin — wszystkie wnioski w systemie
+          key: "applications-all",
+          label: "Wszystkie wnioski",
+          to: "/applications/all",
+          perms: { list: ["applications:write"], mode: "all" },
         },
         {
           // Widoczny tylko dla Oper i Admin — applications:write
-          // User nie ma tej permissions → pozycja filtrowana przez filterFeatures()
           key: "applications-new",
           label: "Nowy wniosek",
           to: "/applications/new",

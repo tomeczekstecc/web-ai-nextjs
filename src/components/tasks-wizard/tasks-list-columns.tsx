@@ -129,10 +129,10 @@ export const tasksListColumns: ColumnDef<TaskListItem>[] = [
           <span className="sr-only">Otwórz menu</span>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-36">
-          <DropdownMenuItem render={<Link href={`/wizard-demo/${row.original.id}`} />}>
+          <DropdownMenuItem render={<Link href={`/zadania/${row.original.id}`} />}>
             Edytuj
           </DropdownMenuItem>
-          <DropdownMenuItem render={<Link href={`/wizard-demo/${row.original.id}/view`} />}>
+          <DropdownMenuItem render={<Link href={`/zadania/${row.original.id}/view`} />}>
             Podgląd
           </DropdownMenuItem>
           <DropdownMenuSeparator />
