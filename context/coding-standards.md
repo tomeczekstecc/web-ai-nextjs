@@ -25,6 +25,9 @@
 
 ## Authorization (RBAC)
 
+> Full pattern with code examples: `context/rbac-pattern.md`.
+> Deep design record and worked traces: `docs/rbac-plan.md`.
+
 - Roles: `"User" | "Oper" | "Admin"` from `src/lib/auth/principal.ts`.
 - Permissions follow `domain:action` (e.g. `tasks:write`).
 - **Server gates are mandatory.** Every privileged path — server component,

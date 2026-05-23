@@ -593,6 +593,94 @@ Use consistent type sizes:
 
 ---
 
+## Disabled vs. Hidden — widoczność elementów interaktywnych
+
+**Zasada:** element UI jest nieaktywny (`disabled`) tylko wtedy, gdy istnieje okoliczność, w której **ten sam użytkownik** będzie mógł go użyć po spełnieniu warunku. Jeśli użytkownik **nigdy** nie będzie mógł wejść w interakcję z elementem ze względu na rolę lub uprawnienia — element jest ukryty całkowicie.
+
+```
+disabled  →  teraz nie, ale będziesz mógł (zmiana stanu, ładowanie, zatwierdzenie)
+hidden    →  nigdy nie będziesz mógł (rola, brak uprawnienia)
+```
+
+### ✅ Poprawne użycie `disabled`
+
+```tsx
+// Loading — stan przejściowy, użytkownik będzie mógł kliknąć po zakończeniu
+<Button disabled={isPending} onClick={handleSubmit}>
+  {isPending ? "Zapisywanie…" : "Zapisz"}
+</Button>
+
+// Status-dependent — wniosek w statusie draft można złożyć; po złożeniu przycisk jest disabled
+// bo status może wrócić do draft (np. po odrzuceniu)
+<Button disabled={app.status !== "draft"} onClick={handleSubmit}>
+  Złóż wniosek
+</Button>
+
+// Walidacja formularza — formularz jest niekompletny, ale użytkownik go uzupełni
+<Button disabled={!form.state.isValid} type="submit">
+  Wyślij
+</Button>
+```
+
+### ✅ Poprawne użycie ukrycia (`hidden` / `RoleGate` / `PermissionGate`)
+
+```tsx
+// User nigdy nie będzie miał applications:write — przycisk w ogóle nie istnieje w jego UI
+<PermissionGate permissions="applications:write">
+  <Button onClick={handleCreate}>Nowy wniosek</Button>
+</PermissionGate>
+
+// Tylko Admin — rola nigdy się nie zmieni dla tego użytkownika w tej sesji
+<RoleGate roles="Admin">
+  <Button variant="outline">Konfiguruj</Button>
+</RoleGate>
+
+// Panel sekcji — użytkownik bez uprawnienia nigdy go nie zobaczy
+<AuthorizedView permissions="admin:access">
+  <AdminPanel />
+</AuthorizedView>
+```
+
+### ❌ Niepoprawne — disabled zamiast hidden dla roli/uprawnienia
+
+```tsx
+// ❌ Zły wzorzec — przycisk jest widoczny ale zawsze disabled dla Usera.
+// User widzi go, pyta "czemu nie mogę kliknąć" — frustracja bez powodu.
+<Button disabled={!canWrite} onClick={handleCreate}>
+  Nowy wniosek
+</Button>
+
+// ❌ Zły wzorzec — tooltip "Brak uprawnień" na zawsze disabled
+// To nie jest wskazówka dla użytkownika; to szum w interfejsie.
+<Tooltip content="Brak uprawnień">
+  <Button disabled>Archiwizuj</Button>
+</Tooltip>
+```
+
+### Wyjątek — disabled z kontekstem zmiany roli
+
+Jeśli w produkcie **istnieje** ścieżka zdobycia uprawnienia przez tego samego użytkownika
+(np. prośba o dostęp, upgrade planu, zatwierdzenie przez administratora), wtedy
+`disabled` + tooltip z wyjaśnieniem jest uzasadniony:
+
+```tsx
+// ✅ OK — użytkownik MOŻE uzyskać dostęp przez konkretną akcję
+<Tooltip content="Poproś administratora o dostęp do modułu raportów">
+  <Button disabled>Eksportuj raport</Button>
+</Tooltip>
+```
+
+W tym projekcie role są przypisywane przez administratora systemu i nie zmieniają się
+samoczynnie — dlatego domyślna zasada to **ukryj**, nie `disabled`.
+
+### Powiązane wzorce
+
+- Implementacja ukrywania: `context/rbac-pattern.md` §6 (RoleGate, PermissionGate, AuthorizedView)
+- Loading state na przycisku: `context/button-patterns.md`
+- Potwierdzenie przed destrukcją: `context/destructive-actions.md`
+
+---
+
 ## Checklist
 
 Before marking UI complete:
@@ -614,6 +702,7 @@ Before marking UI complete:
 - [ ] Loading state (skeleton preferred)
 - [ ] Error state with action
 - [ ] Success feedback
+- [ ] Elementy interaktywne: `disabled` tylko gdy warunek jest tymczasowy; ukryte gdy rola/permission wyklucza dostęp na stałe
 
 ### Responsive
 - [ ] Works on mobile (320px width)

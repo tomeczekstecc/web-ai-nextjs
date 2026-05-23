@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import Link from "next/link"
 
 import { NavMain } from "@/components/nav-main"
 import { NavUser } from "@/components/nav-user"
@@ -73,9 +74,9 @@ export function AppSidebar({ user, mobileOnly = false, ...props }: AppSidebarPro
       <SidebarHeader>
         <div className="flex items-center justify-between px-2 py-1 group-data-[collapsible=icon]:justify-center">
           <div className="flex items-center gap-2 group-data-[collapsible=icon]:hidden">
-            <span className="text-lg font-bold tracking-tight">
+            <Link href="/dashboard" className="text-lg font-bold tracking-tight hover:opacity-80 transition-opacity">
               {appConfig.name}
-            </span>
+            </Link>
           </div>
           <SidebarTrigger />
         </div>

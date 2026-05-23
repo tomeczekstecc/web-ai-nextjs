@@ -6,16 +6,9 @@ export const menuConfigFixture: MenuConfig = {
       key: "dashboard",
       label: "Przegląd",
       icon: "layout-dashboard",
+      to: "/dashboard",
       display: ["User", "Oper", "Admin"],
       perms: { list: ["dashboard:read"], mode: "all" },
-      submenu: [
-        {
-          key: "overview",
-          label: "Dashboard",
-          to: "/dashboard",
-          perms: { list: ["dashboard:read"], mode: "all" },
-        },
-      ],
     },
     {
       key: "competitions",
@@ -39,37 +32,38 @@ export const menuConfigFixture: MenuConfig = {
       ],
     },
     {
+      // Wpis główny widoczny dla wszystkich z applications:read.
+      // Submenu demonstruje filtrowanie per permission:
+      //   - "Lista wniosków" — dostępna dla wszystkich z read
+      //   - "Nowy wniosek"  — dostępna tylko dla Oper i Admin (write)
       key: "applications",
-      label: "Moje wnioski",
+      label: "Wnioski",
       icon: "file-text",
       display: ["User", "Oper", "Admin"],
       perms: { list: ["applications:read"], mode: "all" },
       submenu: [
         {
-          key: "in-progress",
-          label: "W trakcie",
-          to: "/applications/in-progress",
+          // Widoczny dla wszystkich — User, Oper, Admin
+          key: "applications-list",
+          label: "Lista wniosków",
+          to: "/applications",
           perms: { list: ["applications:read"], mode: "all" },
         },
         {
-          key: "submitted",
-          label: "Złożone",
-          to: "/applications/submitted",
-          perms: { list: ["applications:read"], mode: "all" },
-        },
-        {
-          key: "to-fix",
-          label: "Do poprawy",
-          to: "/applications/to-fix",
-          perms: { list: ["applications:read"], mode: "all" },
+          // Widoczny tylko dla Oper i Admin — applications:write
+          // User nie ma tej permissions → pozycja filtrowana przez filterFeatures()
+          key: "applications-new",
+          label: "Nowy wniosek",
+          to: "/applications/new",
+          perms: { list: ["applications:write"], mode: "all" },
         },
       ],
     },
     {
-      key: "calendar",
-      label: "Kalendarz",
-      icon: "calendar",
-      to: "/calendar",
+      key: "zadania",
+      label: "Zadania",
+      icon: "circle-check",
+      to: "/zadania",
       display: ["User", "Oper", "Admin"],
       perms: { list: ["dashboard:read"], mode: "all" },
     },
@@ -119,6 +113,18 @@ export const menuConfigFixture: MenuConfig = {
       to: "/notifications",
       display: ["User", "Oper", "Admin"],
       perms: { list: [], mode: "all" },
+    },
+    {
+      // Demonstruje podwójny filtr: display I perms.
+      // display: ["Admin"] — tylko rola Admin widzi tę pozycję w ogóle.
+      // perms: admin:access  — dodatkowe zabezpieczenie od strony uprawnień
+      //   (użyteczne gdy admin:access może być kiedyś grantem dla innych ról).
+      key: "admin-panel",
+      label: "Panel admina",
+      icon: "shield",
+      to: "/admin",
+      display: ["Admin"],
+      perms: { list: ["admin:access"], mode: "all" },
     },
     {
       key: "logout",
