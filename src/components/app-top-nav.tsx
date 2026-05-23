@@ -22,9 +22,10 @@ export type AppTopNavUser = {
 
 interface AppTopNavProps {
   user: AppTopNavUser
+  trailing?: React.ReactNode
 }
 
-export function AppTopNav({ user }: AppTopNavProps) {
+export function AppTopNav({ user, trailing }: AppTopNavProps) {
   const { data: menuConfig, isLoading, isError } = useMenuConfig()
 
   if (isError) {
@@ -62,9 +63,10 @@ export function AppTopNav({ user }: AppTopNavProps) {
           ) : (
             <NavMainTop items={visibleFeatures} />
           )}
-          <div className="ml-auto">
-            <NavUser user={user} settings={visibleSettings} variant="topnav" />
-          </div>
+          <div className="ml-auto flex items-center gap-1">
+              {trailing}
+              <NavUser user={user} settings={visibleSettings} variant="topnav" />
+            </div>
         </div>
       </div>
     </header>

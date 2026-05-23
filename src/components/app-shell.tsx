@@ -4,13 +4,15 @@ import type { AppTopNavUser } from "@/components/app-top-nav"
 import { AppTopNav } from "@/components/app-top-nav"
 import { AppSidebar } from "@/components/app-sidebar"
 import { BreadcrumbBar, PageTitle } from "@/components/breadcrumb-bar"
+import { NavLayoutProvider } from "@/components/nav-layout-provider"
+import { NavLayoutToggle } from "@/components/nav-layout-toggle"
 import { SiteHeader } from "@/components/site-header"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { PrincipalProvider } from "@/components/auth/principal-provider"
 import { requireAuthorizedAppSession } from "@/lib/auth/session"
 import { principalFromAppUser } from "@/lib/auth/principal"
 import { sanitizeReturnTo } from "@/lib/auth/redirects"
-import { getNavLayout } from "@/lib/menu/env"
+import { getNavLayoutPreference } from "@/lib/menu/nav-layout-cookie"
 
 interface AppShellProps {
   children: React.ReactNode
@@ -33,7 +35,7 @@ async function resolveReturnTo(explicit: string | undefined) {
 export async function AppShell({ children, returnTo }: AppShellProps) {
   const resolvedReturnTo = await resolveReturnTo(returnTo)
   const appSession = await requireAuthorizedAppSession(resolvedReturnTo)
-  const navLayout = getNavLayout()
+  const navLayout = await getNavLayoutPreference()
   const principal = principalFromAppUser(appSession.access.appUser)
 
   const user: AppTopNavUser = {
@@ -50,49 +52,44 @@ export async function AppShell({ children, returnTo }: AppShellProps) {
     permissions: principal.permissions,
   }
 
+  const sidebarStyle = {
+    "--sidebar-width": "calc(var(--spacing) * 72)",
+    "--header-height": "calc(var(--spacing) * 12)",
+  } as React.CSSProperties
+
   if (navLayout === "top-menu") {
     return (
       <PrincipalProvider principal={principal}>
-        <SidebarProvider
-          style={
-            {
-              "--sidebar-width": "calc(var(--spacing) * 72)",
-              "--header-height": "calc(var(--spacing) * 12)",
-            } as React.CSSProperties
-          }
-        >
-          {/* Mobile-only sidebar: reuses the sidebar nav (and its sheet
-              behavior on mobile) so the hamburger in AppTopNav exposes
-              the same menu without duplicating navigation code. */}
-          <AppSidebar user={user} mobileOnly />
-          <div className="flex min-h-svh flex-1 flex-col">
-            <AppTopNav user={user} />
-            <BreadcrumbBar />
-            <PageTitle />
-            <main className="flex flex-1 flex-col">{children}</main>
-          </div>
-        </SidebarProvider>
+        <NavLayoutProvider mode={navLayout}>
+          <SidebarProvider style={sidebarStyle}>
+            {/* Mobile-only sidebar: reuses the sidebar nav (and its sheet
+                behavior on mobile) so the hamburger in AppTopNav exposes
+                the same menu without duplicating navigation code. */}
+            <AppSidebar user={user} mobileOnly />
+            <div className="flex min-h-svh flex-1 flex-col">
+              <AppTopNav user={user} trailing={<NavLayoutToggle />} />
+              <BreadcrumbBar />
+              <PageTitle />
+              <main className="flex flex-1 flex-col">{children}</main>
+            </div>
+          </SidebarProvider>
+        </NavLayoutProvider>
       </PrincipalProvider>
     )
   }
 
   return (
     <PrincipalProvider principal={principal}>
-      <SidebarProvider
-        style={
-          {
-            "--sidebar-width": "calc(var(--spacing) * 72)",
-            "--header-height": "calc(var(--spacing) * 12)",
-          } as React.CSSProperties
-        }
-      >
-        <AppSidebar user={user} variant="inset" />
-        <SidebarInset>
-          <SiteHeader />
-          <PageTitle />
-          <div className="flex flex-1 flex-col">{children}</div>
-        </SidebarInset>
-      </SidebarProvider>
+      <NavLayoutProvider mode={navLayout}>
+        <SidebarProvider style={sidebarStyle}>
+          <AppSidebar user={user} variant="inset" />
+          <SidebarInset>
+            <SiteHeader trailing={<NavLayoutToggle />} />
+            <PageTitle />
+            <div className="flex flex-1 flex-col">{children}</div>
+          </SidebarInset>
+        </SidebarProvider>
+      </NavLayoutProvider>
     </PrincipalProvider>
   )
 }

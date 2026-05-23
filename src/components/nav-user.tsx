@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useTransition } from "react"
 import { useRouter } from "next/navigation"
 
 import {
@@ -23,12 +24,14 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import { useIsMobile } from "@/hooks/use-mobile"
-import { ChevronsUpDownIcon, MoonIcon, SunIcon } from "lucide-react"
+import { ChevronsUpDownIcon, MoonIcon, SunIcon, PanelLeft, PanelTop, Loader2 } from "lucide-react"
 import { useTheme } from "next-themes"
 import type { SettingsItem } from "@/lib/api/domains/menu/contract"
 import { resolveIcon } from "@/lib/menu/icons"
 import { authClient } from "@/lib/auth-client"
 import { AUTH_ROUTES } from "@/lib/auth/redirects"
+import { setNavLayoutAction } from "@/app/actions/nav-layout"
+import { useCurrentNavLayout } from "@/components/nav-layout-provider"
 
 type User = {
   name: string
@@ -43,6 +46,34 @@ function getInitials(name: string): string {
     .slice(0, 2)
     .map((part) => part[0].toUpperCase())
     .join("")
+}
+
+function LayoutToggleItem() {
+  const currentLayout = useCurrentNavLayout()
+  const [isPending, startTransition] = useTransition()
+  const router = useRouter()
+
+  const nextMode = currentLayout === "sidebar" ? "top-menu" : "sidebar"
+  const Icon = isPending
+    ? Loader2
+    : currentLayout === "sidebar"
+      ? PanelTop
+      : PanelLeft
+  const label = currentLayout === "sidebar" ? "Menu górne" : "Panel boczny"
+
+  function handleClick() {
+    startTransition(async () => {
+      await setNavLayoutAction(nextMode)
+      router.refresh()
+    })
+  }
+
+  return (
+    <DropdownMenuItem onClick={handleClick} disabled={isPending}>
+      <Icon className={isPending ? "animate-spin" : undefined} />
+      {label}
+    </DropdownMenuItem>
+  )
 }
 
 function UserDropdownContent({
@@ -97,6 +128,7 @@ function UserDropdownContent({
           {isDark ? <SunIcon /> : <MoonIcon />}
           {isDark ? "Jasny motyw" : "Ciemny motyw"}
         </DropdownMenuItem>
+        <LayoutToggleItem />
       </DropdownMenuGroup>
       <DropdownMenuSeparator />
       <DropdownMenuGroup>
