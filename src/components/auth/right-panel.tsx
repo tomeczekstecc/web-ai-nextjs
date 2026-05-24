@@ -1,4 +1,4 @@
-import { Component } from "lucide-react";
+import Image from "next/image";
 
 import { appConfig } from "@/lib/config/app";
 
@@ -11,9 +11,16 @@ export function RightPanel() {
   return (
     <div className="relative hidden overflow-hidden md:block bg-foreground">
       <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 p-8 text-background">
-        {/* Logo placeholder */}
-        <div className="flex size-16 items-center justify-center rounded-2xl bg-background/10 ring-1 ring-background/20">
-          <Component className="size-8 text-background" strokeWidth={1.5} />
+        {/* App logo */}
+        <div className="flex size-16 items-center justify-center rounded-2xl bg-white/15 ring-1 ring-white/20 p-3">
+          <Image
+            src="/img/app_logo.png"
+            alt={appConfig.name}
+            width={48}
+            height={48}
+            className="size-10 object-contain"
+            priority
+          />
         </div>
 
         {/* App name */}

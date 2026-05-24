@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import Image from "next/image"
 import Link from "next/link"
 
 import { NavMain } from "@/components/nav-main"
@@ -72,10 +73,19 @@ export function AppSidebar({ user, mobileOnly = false, ...props }: AppSidebarPro
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <div className="flex items-center justify-between px-2 py-1 group-data-[collapsible=icon]:justify-center">
-          <div className="flex items-center gap-2 group-data-[collapsible=icon]:hidden">
-            <Link href="/dashboard" className="text-lg font-bold tracking-tight hover:opacity-80 transition-opacity">
-              {appConfig.name}
+        <div className="flex items-center justify-between px-1 py-0.5 group-data-[collapsible=icon]:justify-center">
+          {/* Expanded: logo + name */}
+          <div className="flex items-center group-data-[collapsible=icon]:hidden">
+            <Link href="/dashboard" className="flex items-center hover:opacity-80 transition-opacity">
+              <Image
+                src="/img/app_logo.png"
+                alt={appConfig.name}
+                width={48}
+                height={48}
+                className="size-12 object-contain"
+                priority
+              />
+              <span className="text-lg font-bold tracking-tight">{appConfig.name}</span>
             </Link>
           </div>
           <SidebarTrigger />

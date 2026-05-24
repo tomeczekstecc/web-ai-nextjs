@@ -1,8 +1,10 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useShallow } from 'zustand/react/shallow'
 import { WizardContext } from './WizardContext'
 import { useStore } from '@/lib/store'
+import { selectWizardEntry } from '@/lib/store/wizard.slice'
 import { useWizardMapping } from '@/hooks/wizard/useWizardMapping'
 import { useWizardData } from '@/hooks/wizard/useWizardData'
 import { useWizardSave } from '@/hooks/wizard/useWizardSave'
@@ -32,7 +34,7 @@ export function WizardProvider<T extends Record<string, unknown>>({
   const [summary, setSummary] = useState<SummaryResult | null>(null)
   const scrollToRef = useRef<string | null>(null)
 
-  const wizardEntry = useStore(s => s.wizards[name]) ?? { form: {}, meta: { validation: [] } }
+  const wizardEntry = useStore(useShallow(selectWizardEntry(name)))
   const setWizardData = useStore(s => s.setWizardData)
   const setWizardValidation = useStore(s => s.setWizardValidation)
   const clearWizard = useStore(s => s.clearWizard)

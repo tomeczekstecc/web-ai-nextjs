@@ -14,6 +14,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { useStore } from '@/lib/store'
+import { selectAnyPending, selectGenerationState } from '@/lib/store/reports.slice'
 import { useReportGeneration } from '@/hooks/reports/use-report-generation'
 import { useDeleteReport } from '@/hooks/reports/use-delete-report'
 import type { ReportListItem } from '@/lib/api/domains/reports/contract'
@@ -25,10 +26,8 @@ type Props = {
 
 export function ReportsRowActions({ report, onGenerate }: Props) {
   const [confirmOpen, setConfirmOpen] = useState(false)
-  const anyPending = useStore(s =>
-    Object.values(s.generationStates).some(st => st === 'pending'),
-  )
-  const generationState = useStore(s => s.generationStates[report.id] ?? 'idle')
+  const anyPending = useStore(selectAnyPending)
+  const generationState = useStore(selectGenerationState(report.id))
   const { generate } = useReportGeneration(report.id)
   const { mutate: deleteReport, isPending: isDeleting } = useDeleteReport(report)
 

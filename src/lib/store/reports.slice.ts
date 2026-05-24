@@ -1,6 +1,15 @@
 import type { StateCreator } from 'zustand'
 import type { GenerationState, ReportsSlice, StoreState } from './types'
 
+/** Named selector — stable reference, avoids inline object allocation in components. */
+export const selectGenerationState =
+  (reportId: number) => (s: StoreState) =>
+    s.generationStates[reportId] ?? 'idle'
+
+/** Named selector — returns a stable boolean; Object.values computed once per store update. */
+export const selectAnyPending = (s: StoreState) =>
+  Object.values(s.generationStates).some(st => st === 'pending')
+
 export const createReportsSlice: StateCreator<
   StoreState,
   [['zustand/devtools', never]],

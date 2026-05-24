@@ -305,3 +305,189 @@ setSidebarCollapsed: (collapsed) =>
 setSidebarCollapsed: (collapsed) =>
   set({ sidebarCollapsed: collapsed }, false, 'ui/setSidebarCollapsed'),
 ```
+
+---
+
+## Best Practices
+
+> Source: [Zustand Best Practices — YouTube](https://www.youtube.com/watch?v=6tEQ1nJZ51w)
+
+---
+
+### 1. Preventing unnecessary component re-renders
+
+Every `useStore(selector)` call subscribes the component to exactly the slice of state the selector returns. The component re-renders **only when that value changes** (strict equality check).
+
+**Rules:**
+- Always pass a selector — never call `useStore()` naked.
+- Return primitives where possible; they compare by value and never trigger spurious re-renders.
+- For derived objects/arrays, wrap with `useShallow` (see §2 below).
+- Extract actions via a separate `useStore(s => s.action)` call so the component is never re-rendered when unrelated state mutates.
+
+```tsx
+// ✅ Primitive selector — re-renders only when `count` changes
+const count = useStore((s) => s.count)
+
+// ✅ Action-only selector — never causes a re-render
+const increment = useStore((s) => s.increment)
+```
+
+---
+
+### 2. Atomic selectors with `useShallow` for better performance
+
+When a selector returns a **new object or array reference** on every call, Zustand's default equality check (`===`) sees it as changed every render, causing an infinite re-render loop.
+
+**Fix:** wrap with `useShallow` from `zustand/react/shallow` for shallow (one-level) equality, or provide a custom `equalityFn` for deep structures.
+
+```tsx
+import { useShallow } from 'zustand/react/shallow'
+
+// ✅ Shallow equality — only re-renders when form or validation values change
+const { form, validation } = useStore(
+  useShallow((s) => ({
+    form: s.wizards[name]?.form,
+    validation: s.wizards[name]?.meta.validation ?? [],
+  }))
+)
+```
+
+**Atomic selectors** — prefer selecting the smallest useful unit:
+
+```tsx
+// ✅ Atomic: two separate subscriptions, each re-renders independently
+const count  = useStore((s) => s.counter.count)
+const status = useStore((s) => s.counter.status)
+
+// ❌ Combined object — always a new reference, requires useShallow
+const { count, status } = useStore((s) => s.counter)
+```
+
+---
+
+### 3. Actions and state separation
+
+Keep **state** (data) and **actions** (functions that mutate state) clearly separated inside a slice. The recommended pattern is grouping actions under a nested `actions` key, or simply declaring them flat but using the naming convention `verb + noun`.
+
+```ts
+// src/lib/store/counter.slice.ts
+
+export type CounterSlice = {
+  // — state —
+  count: number
+  status: 'idle' | 'busy'
+
+  // — actions —
+  increment: () => void
+  decrement: () => void
+  reset: () => void
+  setStatus: (s: 'idle' | 'busy') => void
+}
+
+export const createCounterSlice: StateCreator<StoreState, [['zustand/devtools', never]], [], CounterSlice> =
+  (set) => ({
+    count: 0,
+    status: 'idle',
+
+    increment: () => set((s) => ({ count: s.count + 1 }), false, 'counter/increment'),
+    decrement: () => set((s) => ({ count: s.count - 1 }), false, 'counter/decrement'),
+    reset:     () => set({ count: 0, status: 'idle' },    false, 'counter/reset'),
+    setStatus: (status) => set({ status },                false, 'counter/setStatus'),
+  })
+```
+
+**Rules:**
+- Actions live in the slice alongside state — do **not** define them outside `create()`.
+- Never mutate state directly; always go through `set()`.
+- Complex multi-step mutations should call `get()` to read current state before setting:
+
+```ts
+import type { StateCreator } from 'zustand'
+
+// get() lets you read current state without subscribing
+const createCounterSlice: StateCreator<...> = (set, get) => ({
+  doubleIncrement: () => {
+    const current = get().count
+    set({ count: current + 2 }, false, 'counter/doubleIncrement')
+  },
+})
+```
+
+---
+
+### 4. Using middleware to enhance Zustand
+
+The store already uses `devtools`. These are the middlewares worth knowing:
+
+| Middleware | Import | Purpose |
+|---|---|---|
+| `devtools` | `zustand/middleware` | Redux DevTools integration; **always on in dev** |
+| `persist` | `zustand/middleware` | Serialise slice to `localStorage` / `sessionStorage` |
+| `immer` | `zustand/middleware/immer` | Write mutations as if state is mutable (Immer under the hood) |
+| `subscribeWithSelector` | `zustand/middleware` | `subscribe(selector, callback)` outside React |
+
+**Adding `persist` to a slice** (e.g. user preferences):
+
+```ts
+import { create } from 'zustand'
+import { devtools, persist } from 'zustand/middleware'
+import type { StoreState } from './types'
+
+// Wrap only the slice that needs persistence — not the whole store.
+// Recommended: create a separate small store for persisted preferences
+// rather than mixing persist + devtools on the main store.
+export const usePrefsStore = create<PrefsSlice>()(
+  devtools(
+    persist(
+      (set) => ({
+        theme: 'light',
+        setTheme: (theme) => set({ theme }, false, 'prefs/setTheme'),
+      }),
+      { name: 'app-prefs' } // localStorage key
+    ),
+    { name: 'prefs-store' }
+  )
+)
+```
+
+> **Convention for this project:** the main `useStore` stays `devtools`-only. If a slice needs persistence, extract it into its own `create()` call in `src/lib/store/<domain>.store.ts` and document it in `types.ts`.
+
+**Middleware ordering** — innermost runs first:
+```ts
+create()(devtools(persist(immer(fn), persistOpts), devtoolsOpts))
+//         outer       middle  inner
+```
+
+---
+
+### 5. Scaling Zustand in a large React project
+
+| Concern | Recommendation |
+|---|---|
+| **File layout** | One slice per domain under `src/lib/store/`. Types in `types.ts`, single `create()` in `index.ts`. |
+| **Selector co-location** | Export named selectors (`selectWizardForm`, `selectGenerationState`) from the slice file when used in ≥ 2 components. |
+| **Derived state** | Compute in the selector, not in the slice. Keep state minimal; derive in the component or a shared selector hook. |
+| **Async actions** | Handle async in the calling hook (TanStack mutation), not inside `set()`. Write result to the store only for UI state (e.g. `generationState`). |
+| **Testing** | Reset slices between tests with `useStore.setState(initialState, true)`. The `true` flag replaces (not merges) state. |
+| **DevTools** | Name every `set()` call `'slice/action'` — it's the only way time-travel debugging stays readable at scale. |
+
+**Named selectors pattern (for frequently shared state):**
+
+```ts
+// src/lib/store/reports.slice.ts
+export const selectGenerationState =
+  (reportId: number) => (s: StoreState) =>
+    s.generationStates[reportId] ?? 'idle'
+
+// usage in component
+const state = useStore(selectGenerationState(report.id))
+```
+
+**Store reset utility (useful in tests and logout flows):**
+
+```ts
+// src/lib/store/index.ts
+export function resetStore() {
+  useStore.setState(initialState, true)
+}
+```

@@ -5,7 +5,8 @@ import { AppTopNav } from "@/components/app-top-nav"
 import { AppSidebar } from "@/components/app-sidebar"
 import { BreadcrumbBar, PageTitle } from "@/components/breadcrumb-bar"
 import { NavLayoutProvider } from "@/components/nav-layout-provider"
-import { NavLayoutToggle } from "@/components/nav-layout-toggle"
+// [keep-commented:nav-layout-toggle] UI toggle disabled – layout controlled via .env; do not remove
+// import { NavLayoutToggle } from "@/components/nav-layout-toggle"
 import { SiteHeader } from "@/components/site-header"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { PrincipalProvider } from "@/components/auth/principal-provider"
@@ -67,7 +68,7 @@ export async function AppShell({ children, returnTo }: AppShellProps) {
                 the same menu without duplicating navigation code. */}
             <AppSidebar user={user} mobileOnly />
             <div className="flex min-h-svh flex-1 flex-col">
-              <AppTopNav user={user} trailing={<NavLayoutToggle />} />
+              <AppTopNav user={user} trailing={undefined} />
               <BreadcrumbBar />
               <PageTitle />
               <main className="flex flex-1 flex-col">{children}</main>
@@ -84,7 +85,7 @@ export async function AppShell({ children, returnTo }: AppShellProps) {
         <SidebarProvider style={sidebarStyle}>
           <AppSidebar user={user} variant="inset" />
           <SidebarInset>
-            <SiteHeader trailing={<NavLayoutToggle />} />
+            <SiteHeader trailing={undefined} />
             <PageTitle />
             <div className="flex flex-1 flex-col">{children}</div>
           </SidebarInset>

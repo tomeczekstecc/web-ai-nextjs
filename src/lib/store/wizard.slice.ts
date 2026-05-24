@@ -1,5 +1,12 @@
 import type { StateCreator } from 'zustand'
-import type { StoreState, WizardSlice } from './types'
+import type { StoreState, WizardSlice, WizardEntry } from './types'
+
+export const EMPTY_WIZARD_ENTRY: WizardEntry = { form: {}, meta: { validation: [] } }
+
+/** Stable named selector — use instead of an inline object selector to avoid useShallow overhead. */
+export const selectWizardEntry =
+  (name: string) => (s: StoreState) =>
+    s.wizards[name] ?? EMPTY_WIZARD_ENTRY
 
 export const createWizardSlice: StateCreator<
   StoreState,

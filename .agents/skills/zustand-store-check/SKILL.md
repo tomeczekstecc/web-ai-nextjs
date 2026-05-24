@@ -5,7 +5,7 @@ description: Use when adding a new Zustand slice, modifying the global store, or
 
 # Zustand Store Check
 
-**Pattern source:** `context/zustand-store.md` — read it before applying this skill. It defines the slice composition, types layout, and decision rules for state placement.
+**Pattern source:** `context/zustand-store.md` — read it before applying this skill. It defines the slice composition, types layout, decision rules for state placement, and the **Best Practices** section (re-render prevention, atomic selectors, actions/state separation, middleware, scaling) sourced from https://www.youtube.com/watch?v=6tEQ1nJZ51w.
 
 ## Overview
 
@@ -30,11 +30,17 @@ State placement decision:
 
 ## Rules
 
-- One store, many slices. **Do not** create a second `create()` call.
+- One store, many slices. **Do not** create a second `create()` call (exception: isolated `persist` stores go in `<domain>.store.ts`).
 - Slice files live only under `src/lib/store/`. No ad-hoc stores elsewhere.
 - Never put server data in Zustand — it goes in TanStack Query.
 - Keep slice interfaces narrow and named per domain in `types.ts`.
 - Devtools middleware stays enabled in development; do not strip it.
+- **Always select with a selector** — never call `useStore()` naked.
+- **`useShallow` for object/array selectors** — any selector returning a new object/array needs `useShallow` to avoid infinite re-renders.
+- **Actions-only selectors** — select actions separately from state so action consumers never re-render on state changes.
+- **Named selectors** — export a `selectX` function from the slice file when the same selector is used in ≥2 components.
+- **Action names are required** — always pass `'slice/actionName'` as the third argument to `set()`.
+- **Async work stays outside** — handle async in TanStack mutation hooks; write only resulting UI state into the store.
 
 ## Validation
 

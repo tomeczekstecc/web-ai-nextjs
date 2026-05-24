@@ -17,14 +17,15 @@ we mock 3 roles for now (User, Oper, Admin)
   - Branch: `master`
   - Domain: general
 
+Nauka
+ - NextJs: https://ci-prs.udemy.com/course/nextjs-react-the-complete-guide/learn/lecture/41160682#overview
+ - Typescript: https://ci-prs.udemy.com/course/react-typescript-the-practical-guide/
+ - Zustand - https://www.youtube.com/watch?v=6tEQ1nJZ51w&t=1s
+ - Shadcn UI - https://ci-prs.udemy.com/course/react-tutorial-and-projects-course/
+
+
 - [ ] Dopracowac strone profilu uzytkownika w aplikacji web.
   - Priority: critical
   - Date: 2026-05-21
   - Branch: `master`
   - Domain: web
-
-- [ ] Dodac logo aplikacji.
-  - Priority: critical
-  - Date: 2026-05-22
-  - Branch: `020-reports-management`
-  - Domain: ui
