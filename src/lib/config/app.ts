@@ -24,7 +24,7 @@ function resolveToastPosition(raw: string | undefined): ToastPosition {
  * can be forked and renamed without touching source files.
  */
 export const appConfig = {
-  name: process.env.NEXT_PUBLIC_APP_NAME ?? "CI-PRS",
+  name: process.env.NEXT_PUBLIC_APP_NAME ?? "CI-PRS WEB",
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3600",
   toastPosition: resolveToastPosition(process.env.NEXT_PUBLIC_TOAST_POSITION),
 } as const;
