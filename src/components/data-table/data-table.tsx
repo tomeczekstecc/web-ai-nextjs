@@ -294,6 +294,7 @@ export function DataTable<TData>({
   )
 
   // ── TanStack Table ─────────────────────────────────────────────────────
+  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data: filteredData,
     columns: tableColumns,

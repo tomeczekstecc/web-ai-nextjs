@@ -4,7 +4,6 @@ import type { ColumnDef } from "@tanstack/react-table"
 import { resolveIcon } from "@/lib/icons"
 
 const CircleCheckIcon = resolveIcon("CircleCheck");
-const EllipsisVerticalIcon = resolveIcon("EllipsisVertical");
 const LoaderIcon = resolveIcon("Loader");
 import { toast } from "@/components/toast"
 
@@ -12,14 +11,6 @@ import { type DataTableColumnMeta } from "@/components/data-table"
 import { multiSelectFilterFnMeta } from "@/lib/data-table/utils"
 import { formatDate } from "@/lib/format/date"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
