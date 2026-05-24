@@ -124,11 +124,11 @@ export const tasksListColumns: ColumnDef<TaskListItem>[] = [
               variant="ghost"
               className="flex size-8 text-muted-foreground data-open:bg-muted"
               size="icon"
+              aria-label="Otwórz menu"
             />
           }
         >
           <EllipsisVerticalIcon />
-          <span className="sr-only">Otwórz menu</span>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-36">
           <DropdownMenuItem render={<Link href={`/zadania/${row.original.id}`} />}>

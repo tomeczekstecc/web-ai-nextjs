@@ -56,11 +56,11 @@ function ActionsCell({ row }: { row: { original: Application } }) {
             className="flex size-8 text-muted-foreground data-open:bg-muted"
             size="icon"
             disabled={isPending}
+            aria-label="Otwórz menu"
           />
         }
       >
         <EllipsisVerticalIcon />
-        <span className="sr-only">Otwórz menu</span>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-40">
         <DropdownMenuItem render={<Link href={`/applications/${app.id}`} />}>

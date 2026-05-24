@@ -48,8 +48,7 @@ export function ApplicationDetailAdmin({ id }: Props) {
             <Button variant="outline" size="sm">Przepisz właściciela</Button>
             <Button
               size="sm"
-              variant="outline"
-              className="text-destructive hover:bg-destructive/10"
+              variant="destructive"
             >
               Archiwizuj
             </Button>

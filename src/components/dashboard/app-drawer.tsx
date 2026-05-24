@@ -82,7 +82,7 @@ export function AppDrawer({ item, mode, onOpenChange }: AppDrawerProps) {
               {mutation.isPending ? "Zapisywanie…" : "Zapisz"}
             </Button>
           )}
-          <SheetClose render={<Button variant={mode === "edit" ? "outline" : "default"} disabled={mutation.isPending} />}>
+          <SheetClose render={<Button variant="outline" disabled={mutation.isPending} />}>
             Zamknij
           </SheetClose>
         </SheetFooter>

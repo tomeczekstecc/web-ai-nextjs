@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import type { ReactNode } from "react"
 import { resolveIcon } from "@/lib/icons"
 
@@ -9,9 +10,67 @@ const PlusIcon = resolveIcon("Plus");
 const Trash2Icon = resolveIcon("Trash2");
 
 import { Button } from "@/components/ui/button"
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 import { cn } from "@/lib/utils"
 
 import type { RepeaterBaseProps, RepeaterRowArgs } from "./repeater-types"
+
+type DeleteRowButtonProps = {
+  index: number
+  canRemove: boolean
+  disabled?: boolean
+  onRemove: () => void
+}
+
+function DeleteRowButton({ index, canRemove, disabled, onRemove }: DeleteRowButtonProps) {
+  const [open, setOpen] = useState(false)
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger
+        render={
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            disabled={!canRemove || disabled}
+            aria-label={`Usuń wiersz ${index + 1}`}
+          />
+        }
+      >
+        <Trash2Icon />
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Usunąć wiersz?</DialogTitle>
+          <DialogDescription>
+            Wiersz zostanie usunięty z formularza. Tej operacji nie można cofnąć.
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <DialogClose render={<Button type="button" variant="outline" />}>
+            Anuluj
+          </DialogClose>
+          <Button
+            type="button"
+            variant="destructive"
+            onClick={() => { onRemove(); setOpen(false) }}
+          >
+            Usuń
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+}
 
 export type TableRepeaterColumn = {
   header: ReactNode
@@ -169,16 +228,12 @@ export function TableRepeater<T>({
                                 </Button>
                               </>
                             )}
-                            <Button
-                              type="button"
-                              variant="destructive"
-                              size="icon-sm"
-                              disabled={!args.canRemove}
-                              onClick={args.remove}
-                              aria-label={`Usuń wiersz ${index + 1}`}
-                            >
-                              <Trash2Icon />
-                            </Button>
+                            <DeleteRowButton
+                              index={index}
+                              canRemove={args.canRemove}
+                              disabled={disabled}
+                              onRemove={args.remove}
+                            />
                           </div>
                         </td>
                       )
