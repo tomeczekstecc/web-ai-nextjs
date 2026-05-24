@@ -280,7 +280,7 @@ export default async function Home() {
             </div>
 
             <div className="flex flex-wrap items-center gap-3">
-              <Button variant="outline" size="sm" nativeButton={false} render={<Link href="#" />}>
+              <Button variant="outline" size="sm" nativeButton={false} render={<Link href="https://gitlab-ci-prs.slaskie.pl/ai-tmpl/web/-/wikis/pages" target="_blank" rel="noopener noreferrer" />}>
                 <GitBranch className="size-4" />
                 GitLab
               </Button>
