@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef } from 'react'
 import { toast } from '@/components/toast'
+import { saveBlobAsFile } from '@/lib/api/core/download-blob'
 import { useStore } from '@/lib/store'
 import { submitGenerateReport } from '@/lib/api/domains/reports/commands'
 import { checkGenerationStatus, downloadReport } from '@/lib/api/domains/reports/client'
@@ -41,7 +42,8 @@ export function useReportGeneration(reportId: number) {
           .then(res => {
             if (res.status === 'done') {
               if (intervalRef.current) clearInterval(intervalRef.current)
-              return downloadReport(jobId).then(() => {
+              return downloadReport(jobId).then(({ blob, filename }) => {
+                saveBlobAsFile(blob, filename)
                 setGenerationState(reportId, 'done')
                 setTimeout(() => clearGenerationState(reportId), 2000)
               })

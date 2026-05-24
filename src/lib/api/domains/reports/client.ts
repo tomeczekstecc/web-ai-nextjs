@@ -1,4 +1,5 @@
 import { browserFetch } from '@/lib/api/core/browser-http'
+import { parseContentDispositionFilename } from '@/lib/api/core/download-blob'
 import type {
   CheckStatusResponse,
   GenerateReportInput,
@@ -43,21 +44,19 @@ export async function checkGenerationStatus(jobId: string): Promise<CheckStatusR
   return result.data
 }
 
-export async function downloadReport(jobId: string): Promise<void> {
+export async function downloadReport(
+  jobId: string,
+): Promise<{ blob: Blob; filename: string }> {
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL ?? '/api'}/reports/download?jobId=${jobId}`,
     { credentials: 'include' },
   )
   if (!response.ok) throw new Error('Błąd pobierania pliku')
   const blob = await response.blob()
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  const disposition = response.headers.get('Content-Disposition') ?? ''
-  const match = /filename="?([^"]+)"?/.exec(disposition)
-  a.download = match?.[1] ?? `raport-${jobId}.xlsx`
-  a.click()
-  URL.revokeObjectURL(url)
+  const filename =
+    parseContentDispositionFilename(response.headers.get('Content-Disposition')) ??
+    `raport-${jobId}.xlsx`
+  return { blob, filename }
 }
 
 export async function testQuery(input: TestQueryInput): Promise<TestQueryResponse> {
