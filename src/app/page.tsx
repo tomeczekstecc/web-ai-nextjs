@@ -7,7 +7,8 @@ import {
   CheckCircle2,
   GitBranch,
   Globe,
-  Component,
+  GraduationCap,
+  PlayCircle,
   KeyRound,
   LayoutList,
   ListOrdered,
@@ -242,53 +243,163 @@ export default async function Home() {
         </header>
 
         {/* ── Hero ── */}
-        <section className="flex flex-col items-start gap-6 pb-16 pt-16 sm:pt-24">
-          <Badge variant="outline" className="rounded-full px-4 py-1.5 text-xs font-medium">
-            {source === "api" ? "🟢 Backend online" : "⚡ Tryb lokalny"} · {content.hero.eyebrow}
-          </Badge>
+        <section className="grid items-start gap-10 pb-16 pt-8 sm:pt-12 lg:grid-cols-[minmax(0,1fr)_390px] lg:gap-14">
+          <div className="flex flex-col items-start gap-6">
+            <Badge variant="outline" className="rounded-full px-4 py-1.5 text-xs font-medium">
+              {source === "api" ? "🟢 Backend online" : "⚡ Tryb lokalny"} · {content.hero.eyebrow}
+            </Badge>
 
-          <h1 className="max-w-4xl text-balance text-4xl font-semibold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
-            {content.hero.title}{" "}
-            <span className="text-muted-foreground">{content.hero.highlight}</span>
-          </h1>
+            <h1 className="max-w-4xl text-balance text-4xl font-semibold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
+              {content.hero.title}{" "}
+              <span className="text-muted-foreground">{content.hero.highlight}</span>
+            </h1>
 
-          <p className="max-w-2xl text-balance text-lg leading-relaxed text-muted-foreground">
-            {content.hero.description}
-          </p>
+            <p className="max-w-2xl text-balance text-lg leading-relaxed text-muted-foreground">
+              {content.hero.description}
+            </p>
 
-          <div className="flex flex-wrap gap-3 pt-2">
-            <Button
-              size="lg"
-              className="h-11 rounded-xl px-6"
-              render={<Link href="/dashboard" />}
-            >
-              {content.hero.primaryCtaLabel}
-              <ArrowRight data-icon="inline-end" />
-            </Button>
-            <Button
-              variant="outline"
-              size="lg"
-              className="h-11 rounded-xl px-6"
-              render={<Link href="#features" />}
-            >
-              Przeglądaj funkcje
-            </Button>
+            <div className="flex flex-wrap gap-3 pt-2">
+              <Button
+                size="lg"
+                className="h-11 rounded-xl px-6"
+                nativeButton={false}
+                render={<Link href="/dashboard" />}
+              >
+                {content.hero.primaryCtaLabel}
+                <ArrowRight data-icon="inline-end" />
+              </Button>
+              <Button
+                variant="outline"
+                size="lg"
+                className="h-11 rounded-xl px-6"
+                nativeButton={false}
+                render={<Link href="#features" />}
+              >
+                Przeglądaj funkcje
+              </Button>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3">
+              <Button variant="outline" size="sm" nativeButton={false} render={<Link href="#" />}>
+                <GitBranch className="size-4" />
+                GitLab
+              </Button>
+
+              <span className="mx-1 h-5 w-px bg-border" aria-hidden />
+              <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                Nauka
+              </span>
+
+              <Button
+                variant="outline"
+                size="sm"
+                nativeButton={false}
+                render={
+                  <Link
+                    href="https://ci-prs.udemy.com/course/nextjs-react-the-complete-guide/learn/lecture/41160682#overview"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  />
+                }
+              >
+                <GraduationCap className="size-4" />
+                Next.js
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                nativeButton={false}
+                render={
+                  <Link
+                    href="https://ci-prs.udemy.com/course/react-typescript-the-practical-guide/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  />
+                }
+              >
+                <GraduationCap className="size-4" />
+                TypeScript
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                nativeButton={false}
+                render={
+                  <Link
+                    href="https://www.youtube.com/watch?v=6tEQ1nJZ51w&t=1s"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  />
+                }
+              >
+                <PlayCircle className="size-4" />
+                Zustand
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                nativeButton={false}
+                render={
+                  <Link
+                    href="https://ci-prs.udemy.com/course/react-tutorial-and-projects-course/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  />
+                }
+              >
+                <GraduationCap className="size-4" />
+                shadcn/ui
+              </Button>
+            </div>
           </div>
 
-          <div className="flex flex-wrap gap-3">
-            <Button variant="outline" size="sm" render={<Link href="#" />}>
-              <GitBranch className="size-4" />
-              GitLab
-            </Button>
-            <Button variant="outline" size="sm" render={<Link href="#" />}>
-              <Globe className="size-4" />
-              Next.js docs
-            </Button>
-            <Button variant="outline" size="sm" render={<Link href="#" />}>
-              <Component className="size-4" />
-              shadcn/ui
-            </Button>
-          </div>
+          <aside
+            aria-label="Migawka platformy"
+            className="hidden rounded-2xl border bg-card/80 p-5 shadow-sm backdrop-blur lg:block"
+          >
+            <div className="mb-5 flex items-center justify-between gap-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                  Platforma
+                </p>
+                <h2 className="mt-1 text-lg font-semibold tracking-tight">
+                  Gotowe moduły
+                </h2>
+              </div>
+              <Badge variant="outline" className="rounded-full">
+                live
+              </Badge>
+            </div>
+
+            <div className="space-y-3">
+              {[
+                { Icon: ShieldCheck, label: "RBAC", detail: "4 warstwy ochrony" },
+                { Icon: ListOrdered, label: "Wizard", detail: "tryby create, edit, view" },
+                { Icon: Table2, label: "DataTable", detail: "14 funkcji operacyjnych" },
+                { Icon: Upload, label: "Uploader", detail: "kolejka i repozytorium" },
+              ].map(({ Icon, label, detail }) => (
+                <div key={label} className="flex items-center gap-3 rounded-xl border bg-background px-3 py-3">
+                  <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-muted">
+                    <Icon className="size-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold leading-tight">{label}</p>
+                    <p className="truncate text-xs text-muted-foreground">{detail}</p>
+                  </div>
+                  <CheckCircle2 className="ml-auto size-4 shrink-0 text-muted-foreground" />
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-5 grid grid-cols-3 gap-2 border-t pt-4">
+              {content.stats.slice(1, 4).map((stat) => (
+                <div key={stat.id} className="rounded-lg bg-muted px-3 py-2">
+                  <p className="text-lg font-bold leading-none tracking-tight">{stat.value}</p>
+                  <p className="mt-1 truncate text-[10px] text-muted-foreground">{stat.label}</p>
+                </div>
+              ))}
+            </div>
+          </aside>
         </section>
 
         {/* ── Stats bar ── */}
@@ -656,11 +767,11 @@ export default async function Home() {
             backend Laravel i wdrażaj - bez przebudowy komponentów.
           </p>
           <div className="flex flex-wrap justify-center gap-3">
-            <Button size="lg" className="h-11 rounded-xl px-8" render={<Link href="/dashboard" />}>
+            <Button size="lg" className="h-11 rounded-xl px-8" nativeButton={false} render={<Link href="/dashboard" />}>
               Otwórz aplikację
               <ArrowRight data-icon="inline-end" />
             </Button>
-            <Button variant="outline" size="lg" className="h-11 rounded-xl px-8" render={<Link href="/auth/sign-in" />}>
+            <Button variant="outline" size="lg" className="h-11 rounded-xl px-8" nativeButton={false} render={<Link href="/auth/sign-in" />}>
               Zaloguj się
             </Button>
           </div>
