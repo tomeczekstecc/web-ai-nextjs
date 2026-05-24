@@ -30,5 +30,6 @@ Project-specific adjustments for this repository:
 - Follow the server-first API pattern documented in `README.md` and implemented under `src/lib/api/`; pages and components should consume domain queries and mapped models instead of raw backend DTOs. Keep basic CQRS separation in API domains: reads in `queries.ts`, writes in `commands.ts`.
 - Preserve existing UI and utility patterns in `src/app/`, `src/components/`, `src/hooks/`, and `src/lib/` unless a task explicitly calls for a broader refactor.
 - If a local-context rule conflicts with the live codebase, follow the codebase and update local docs when appropriate.
+- Never add co-author attribution to commit messages. Do not include `Co-Authored-By` trailers or any similar attribution lines (e.g. `Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>`), regardless of the AI tool or model involved.
 <!-- SPECKIT END -->
 

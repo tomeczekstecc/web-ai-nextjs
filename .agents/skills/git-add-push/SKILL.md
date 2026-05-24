@@ -67,14 +67,8 @@ git commit -m "$(cat <<'EOF'
 feat(auth): add JWT refresh token rotation
 
 Tokens now rotate on each use to reduce the window for replay attacks.
-Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 EOF
 )"
-```
-
-Always append the co-author trailer:
-```
-Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 ```
 
 ### 5. Push to all remotes
