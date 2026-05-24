@@ -7,6 +7,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { applicationDetailOptions } from "@/lib/api/domains/applications/query-options";
 import type { Application } from "@/lib/api/domains/applications/contract";
+import { formatDate } from "@/lib/format/date"
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { AuthorizedView } from "@/components/auth/authorized-view";
@@ -72,11 +73,11 @@ function ApplicationBaseDetails({ data }: { data: Application }) {
       </div>
       <div>
         <dt className="text-xs text-muted-foreground">Utworzono</dt>
-        <dd className="text-sm">{data.createdAt.toLocaleDateString("pl")}</dd>
+        <dd className="text-sm">{formatDate(data.createdAt)}</dd>
       </div>
       <div>
         <dt className="text-xs text-muted-foreground">Zaktualizowano</dt>
-        <dd className="text-sm">{data.updatedAt.toLocaleDateString("pl")}</dd>
+        <dd className="text-sm">{formatDate(data.updatedAt)}</dd>
       </div>
     </dl>
   );

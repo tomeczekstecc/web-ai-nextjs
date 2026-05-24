@@ -6,6 +6,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { applicationDetailOptions } from "@/lib/api/domains/applications/query-options";
+import { formatDate } from "@/lib/format/date"
 import { Badge } from "@/components/ui/badge";
 
 type Props = { id: string };
@@ -37,13 +38,13 @@ export function ApplicationDetailUser({ id }: Props) {
           <dt className="text-xs text-muted-foreground">Data złożenia</dt>
           <dd className="text-sm">
             {data.status === "submitted"
-              ? data.updatedAt.toLocaleDateString("pl")
+              ? formatDate(data.updatedAt)
               : "—"}
           </dd>
         </div>
         <div>
           <dt className="text-xs text-muted-foreground">Utworzono</dt>
-          <dd className="text-sm">{data.createdAt.toLocaleDateString("pl")}</dd>
+          <dd className="text-sm">{formatDate(data.createdAt)}</dd>
         </div>
       </dl>
 

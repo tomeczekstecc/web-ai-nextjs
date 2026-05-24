@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { format, parse, isValid } from 'date-fns'
+import { parse, isValid } from 'date-fns'
 import { pl } from 'date-fns/locale'
 import { CalendarIcon } from 'lucide-react'
 import { Label } from '@/components/ui/label'
@@ -46,16 +46,16 @@ export function DateTimeWiz({ keyName, hideTime, hide, label: labelOverride }: P
       return
     }
     if (hideTime) {
-      f.onChange(format(date, 'yyyy-MM-dd'))
+      f.onChange(formatDate(date))
     } else {
       const timeStr = rawValue?.includes('T') ? rawValue.split('T')[1]?.slice(0, 5) : '00:00'
-      f.onChange(`${format(date, 'yyyy-MM-dd')}T${timeStr}`)
+      f.onChange(`${formatDate(date)}T${timeStr}`)
     }
     setOpen(false)
   }
 
   const handleTimeChange = (time: string) => {
-    const datePart = rawValue?.split('T')[0] || format(new Date(), 'yyyy-MM-dd')
+    const datePart = rawValue?.split('T')[0] || formatDate(new Date())
     f.onChange(`${datePart}T${time}`)
   }
 

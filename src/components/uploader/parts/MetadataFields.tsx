@@ -4,7 +4,8 @@
 
 'use client'
 
-import { format, parse, isValid } from 'date-fns'
+import { parse, isValid } from 'date-fns'
+import { formatDate } from '@/lib/format/date'
 import { CalendarIcon } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import {
@@ -194,7 +195,7 @@ function OneField<TMeta>({
                   )}
                 >
                   <CalendarIcon className="mr-2 size-4" />
-                  {date && isValid(date) ? format(date, 'yyyy-MM-dd') : '—'}
+                  {date && isValid(date) ? formatDate(date) : '—'}
                 </Button>
               }
             />
@@ -203,7 +204,7 @@ function OneField<TMeta>({
                 mode="single"
                 selected={date ?? undefined}
                 onSelect={(d) =>
-                  onChange((d ? format(d, 'yyyy-MM-dd') : null) as TMeta[keyof TMeta])
+                  onChange((d ? formatDate(d) : null) as TMeta[keyof TMeta])
                 }
                 autoFocus
               />
