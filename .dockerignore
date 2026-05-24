@@ -1,0 +1,35 @@
+node_modules/
+.pnpm-store/
+.git/
+.next/
+dist/
+build/
+coverage/
+*.log
+*.log.*
+
+# Secrets — never bake these into the image
+.env
+.env.*
+!.env.example
+
+# Editor / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Spec Kit / agent artifacts
+specs/
+.specify/
+.agents/
+.claude/
+
+# Docker files themselves
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# Docs
+*.md
+!README.md

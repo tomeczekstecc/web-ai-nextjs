@@ -1,0 +1,45 @@
+# ──────────────────────────────────────────────────────────────────────────────
+# ci-prs / web — Development image
+# Hot-reload Next.js dev server; source tree is bind-mounted by docker-compose.
+# ──────────────────────────────────────────────────────────────────────────────
+
+FROM harbor.slaskie.pl/oraclelinux/oraclelinux:9-slim-fips AS ol-node
+
+RUN rm -f /etc/yum.repos.d/*.repo
+ADD --chmod=0644 https://repo.slaskie.pl/OracleLinux9-local.repo /etc/yum.repos.d/OracleLinux9-local.repo
+
+RUN microdnf -y module enable nodejs:24 \
+ && microdnf -y install nodejs npm shadow-utils \
+ && microdnf -y clean all \
+ && rm -rf /var/cache/dnf /var/cache/yum /tmp/* /var/tmp/*
+
+ENV PNPM_HOME=/pnpm
+ENV PATH="${PNPM_HOME}:${PATH}"
+
+RUN npm install -g "pnpm@11.1.2" \
+ && npm cache clean --force
+
+# ── deps ──────────────────────────────────────────────────────────────────────
+FROM ol-node AS deps
+
+WORKDIR /workspace
+
+COPY package.json pnpm-lock.yaml ./
+
+RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store \
+    pnpm install --frozen-lockfile
+
+# ── dev ───────────────────────────────────────────────────────────────────────
+FROM deps AS dev
+
+WORKDIR /workspace
+
+# Source is bind-mounted at runtime; the installed node_modules stay in the
+# image layer so pnpm doesn't re-install on every container restart.
+
+ENV NODE_ENV=development
+ENV PORT=3600
+
+EXPOSE 3600
+
+CMD ["pnpm", "dev"]

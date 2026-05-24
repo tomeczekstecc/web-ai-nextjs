@@ -1,0 +1,103 @@
+name: ci-prs-dev
+
+services:
+  # ── PostgreSQL ──────────────────────────────────────────────────────────────
+  db:
+    image: postgres:16.9-bookworm
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB:       ${POSTGRES_DB:-ci-prs}
+      POSTGRES_USER:     ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_INITDB_ARGS: --encoding=UTF8 --locale-provider=libc --locale=C.UTF-8
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5439}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB -h 127.0.0.1 -p 5432",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  # ── Adminer ─────────────────────────────────────────────────────────────────
+  adminer:
+    image: adminer:4.8.1
+    restart: unless-stopped
+    depends_on:
+      - db
+    environment:
+      ADMINER_DEFAULT_SERVER: db
+    ports:
+      - "127.0.0.1:${ADMINER_PORT:-8089}:8080"
+
+  # ── Next.js web ─────────────────────────────────────────────────────────────
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: development
+      PORT:     3600
+
+      # Public client vars (baked at build time, can be overridden at dev runtime)
+      NEXT_PUBLIC_APP_NAME:        ${NEXT_PUBLIC_APP_NAME:-CI-PRS}
+      NEXT_PUBLIC_SITE_URL:        ${NEXT_PUBLIC_SITE_URL:-http://localhost:3600}
+      NEXT_PUBLIC_API_URL:         ${NEXT_PUBLIC_API_URL:-http://localhost:3600/api}
+      NEXT_PUBLIC_NAV_LAYOUT:      ${NEXT_PUBLIC_NAV_LAYOUT:-sidebar}
+      NEXT_PUBLIC_TOAST_POSITION:  ${NEXT_PUBLIC_TOAST_POSITION:-bottom-right}
+
+      # Server vars — point DB at the compose db service
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-ci-prs}
+
+      # better-auth
+      BETTER_AUTH_URL:    ${BETTER_AUTH_URL:-http://localhost:3600}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-changeme-dev-secret}
+
+      # Laravel bridge tokens (dev mocks; override in .env.docker.dev)
+      LARAVEL_INTERNAL_AUTH_TOKEN:        ${LARAVEL_INTERNAL_AUTH_TOKEN:-dev-token}
+      LARAVEL_INTERNAL_AUTH_MAIL_TOKEN:   ${LARAVEL_INTERNAL_AUTH_MAIL_TOKEN:-dev-mail-token}
+      LARAVEL_INTERNAL_AUTH_REVOKE_TOKEN: ${LARAVEL_INTERNAL_AUTH_REVOKE_TOKEN:-dev-revoke-token}
+
+      # Dev convenience flags (hard-blocked in production)
+      AUTH_SIGNUP_ENABLED:          ${AUTH_SIGNUP_ENABLED:-true}
+      AUTH_SOCIAL_LOGIN_ENABLED:    ${AUTH_SOCIAL_LOGIN_ENABLED:-false}
+      AUTH_LARAVEL_MOCK_ENABLED:    ${AUTH_LARAVEL_MOCK_ENABLED:-true}
+      AUTH_SESSION_BYPASS_ENABLED:  ${AUTH_SESSION_BYPASS_ENABLED:-true}
+      AUTH_MOCK_ROLE:               ${AUTH_MOCK_ROLE:-Admin}
+
+    env_file:
+      - path: .env.docker.dev
+        required: false   # optional local overrides; copy .env.example → .env.docker.dev
+    ports:
+      - "127.0.0.1:${WEB_PORT:-3600}:3600"
+    volumes:
+      # Bind-mount source for hot-reload; keep node_modules from the image.
+      - .:/workspace
+      - /workspace/node_modules
+      - /workspace/.next
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "require('http').get('http://127.0.0.1:3600',r=>process.exit(r.statusCode&&r.statusCode<500?0:1)).on('error',()=>process.exit(1))",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
+    command: ["pnpm", "dev"]
+
+volumes:
+  postgres_data:

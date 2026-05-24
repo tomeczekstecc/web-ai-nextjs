@@ -6,6 +6,9 @@ import type { NextConfig } from "next";
 import "./src/env";
 
 const nextConfig: NextConfig = {
+  // Required for the multi-stage Docker production build (Dockerfile.prod).
+  // Copies only the files needed to run the app into .next/standalone.
+  output: "standalone",
   experimental: {
     // Enables `unauthorized()` / `forbidden()` from `next/navigation` and the
     // matching `unauthorized.tsx` / `forbidden.tsx` special files.

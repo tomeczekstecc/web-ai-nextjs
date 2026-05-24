@@ -1,0 +1,92 @@
+# ──────────────────────────────────────────────────────────────────────────────
+# ci-prs / web — Production image (Next.js standalone output)
+#
+# Requires next.config.ts  →  output: 'standalone'
+# Build args bake NEXT_PUBLIC_* values into the JS bundle at build time.
+# Runtime vars (API_URL, DATABASE_URL, secrets) are injected via docker-compose.
+# ──────────────────────────────────────────────────────────────────────────────
+
+FROM harbor.slaskie.pl/oraclelinux/oraclelinux:9-slim-fips AS ol-node
+
+RUN rm -f /etc/yum.repos.d/*.repo
+ADD --chmod=0644 https://repo.slaskie.pl/OracleLinux9-local.repo /etc/yum.repos.d/OracleLinux9-local.repo
+
+RUN microdnf -y module enable nodejs:24 \
+ && microdnf -y install nodejs npm shadow-utils \
+ && microdnf -y clean all \
+ && rm -rf /var/cache/dnf /var/cache/yum /tmp/* /var/tmp/*
+
+ENV PNPM_HOME=/pnpm
+ENV PATH="${PNPM_HOME}:${PATH}"
+
+RUN npm install -g "pnpm@11.1.2" \
+ && npm cache clean --force
+
+# ── deps ──────────────────────────────────────────────────────────────────────
+FROM ol-node AS deps
+
+WORKDIR /workspace
+
+COPY package.json pnpm-lock.yaml ./
+
+RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store \
+    pnpm install --frozen-lockfile
+
+# ── builder ───────────────────────────────────────────────────────────────────
+FROM deps AS builder
+
+WORKDIR /workspace
+
+# Public (baked) env vars — supply real values via --build-arg in CI/CD.
+ARG NEXT_PUBLIC_APP_NAME=CI-PRS
+ARG NEXT_PUBLIC_SITE_URL=http://localhost:3600
+ARG NEXT_PUBLIC_API_URL=http://localhost:3600/api
+ARG NEXT_PUBLIC_NAV_LAYOUT=sidebar
+ARG NEXT_PUBLIC_TOAST_POSITION=bottom-right
+
+ENV NEXT_PUBLIC_APP_NAME=$NEXT_PUBLIC_APP_NAME
+ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_NAV_LAYOUT=$NEXT_PUBLIC_NAV_LAYOUT
+ENV NEXT_PUBLIC_TOAST_POSITION=$NEXT_PUBLIC_TOAST_POSITION
+
+# Skip runtime env validation during build (secrets not available here).
+ENV SKIP_ENV_VALIDATION=1
+
+COPY . .
+
+RUN pnpm build \
+ && test -f /workspace/.next/standalone/server.js
+
+# ── runner ────────────────────────────────────────────────────────────────────
+FROM harbor.slaskie.pl/oraclelinux/oraclelinux:9-slim-fips AS runner
+
+RUN rm -f /etc/yum.repos.d/*.repo
+ADD --chmod=0644 https://repo.slaskie.pl/OracleLinux9-local.repo /etc/yum.repos.d/OracleLinux9-local.repo
+
+RUN microdnf -y module enable nodejs:24 \
+ && microdnf -y install nodejs shadow-utils \
+ && microdnf update -y \
+ && groupadd --gid 10001 --system app \
+ && useradd  --uid 10001 --gid 10001 \
+             --system --no-create-home --home-dir /nonexistent \
+             --shell /sbin/nologin app \
+ && microdnf -y remove shadow-utils \
+ && microdnf -y clean all \
+ && rm -rf /var/cache/dnf /var/cache/yum /tmp/* /var/tmp/*
+
+ENV NODE_ENV=production
+ENV NODE_OPTIONS="--enable-source-maps"
+ENV PORT=3600
+
+WORKDIR /app
+
+COPY --from=builder --chown=app:app /workspace/.next/standalone ./
+COPY --from=builder --chown=app:app /workspace/.next/static     ./.next/static
+COPY --from=builder --chown=app:app /workspace/public           ./public
+
+USER app:app
+
+EXPOSE 3600
+
+CMD ["node", "server.js"]
