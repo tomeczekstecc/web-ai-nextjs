@@ -1,7 +1,12 @@
 "use client"
 
 import type { ReactNode } from "react"
-import { ChevronDownIcon, ChevronUpIcon, PlusIcon, Trash2Icon } from "lucide-react"
+import { resolveIcon } from "@/lib/icons"
+
+const ChevronDownIcon = resolveIcon("ChevronDown");
+const ChevronUpIcon = resolveIcon("ChevronUp");
+const PlusIcon = resolveIcon("Plus");
+const Trash2Icon = resolveIcon("Trash2");
 
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"

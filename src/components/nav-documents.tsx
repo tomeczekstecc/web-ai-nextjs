@@ -16,7 +16,12 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
-import { MoreHorizontalIcon, FolderIcon, ShareIcon, Trash2Icon } from "lucide-react"
+import { resolveIcon } from "@/lib/icons"
+
+const MoreHorizontalIcon = resolveIcon("MoreHorizontal");
+const FolderIcon = resolveIcon("Folder");
+const ShareIcon = resolveIcon("Share");
+const Trash2Icon = resolveIcon("Trash2");
 
 export function NavDocuments({
   items,

@@ -1,7 +1,10 @@
 "use client";
 
 import * as React from "react";
-import { Moon, SunMedium } from "lucide-react";
+import { resolveIcon } from "@/lib/icons";
+
+const Moon = resolveIcon("Moon");
+const SunMedium = resolveIcon("SunMedium");
 import { useTheme } from "next-themes";
 
 import { Button } from "@/components/ui/button";

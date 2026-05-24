@@ -1,7 +1,10 @@
 "use client"
 
 import type { Column } from "@tanstack/react-table"
-import { CheckIcon, ListFilterIcon } from "lucide-react"
+import { resolveIcon } from "@/lib/icons"
+
+const CheckIcon = resolveIcon("Check");
+const ListFilterIcon = resolveIcon("ListFilter");
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"

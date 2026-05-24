@@ -3,7 +3,9 @@
 import { useState } from "react"
 import { useQueryClient, useMutation } from "@tanstack/react-query"
 import { useForm, type StandardSchemaV1 } from "@tanstack/react-form"
-import { PlusIcon } from "lucide-react"
+import { resolveIcon } from "@/lib/icons"
+
+const PlusIcon = resolveIcon("Plus");
 import { toast } from "@/components/toast"
 import { z } from "zod"
 

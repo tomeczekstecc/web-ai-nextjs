@@ -2,7 +2,9 @@
 
 import { useSortable } from "@dnd-kit/sortable"
 import type { UniqueIdentifier } from "@dnd-kit/core"
-import { GripVerticalIcon } from "lucide-react"
+import { resolveIcon } from "@/lib/icons"
+
+const GripVerticalIcon = resolveIcon("GripVertical");
 import { Button } from "@/components/ui/button"
 
 export function DragHandle({ id, disabled }: { id: UniqueIdentifier; disabled: boolean }) {

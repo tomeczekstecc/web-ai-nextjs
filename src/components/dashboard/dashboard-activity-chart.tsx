@@ -1,6 +1,8 @@
 "use client"
 
-import { TrendingUpIcon } from "lucide-react"
+import { resolveIcon } from "@/lib/icons"
+
+const TrendingUpIcon = resolveIcon("TrendingUp");
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts"
 
 import {

@@ -29,8 +29,9 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 import type { FeatureItem, SubMenuItem } from "@/lib/api/domains/menu/contract"
-import { resolveIcon } from "@/lib/menu/icons"
-import { ChevronRightIcon } from "lucide-react"
+import { resolveIcon } from "@/lib/icons"
+
+const ChevronRightIcon = resolveIcon("ChevronRight");
 
 type IconComponent = React.ComponentType<React.SVGProps<SVGSVGElement>>
 

@@ -24,10 +24,16 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import { useIsMobile } from "@/hooks/use-mobile"
-import { ChevronsUpDownIcon, MoonIcon, SunIcon, PanelLeft, PanelTop, Loader2 } from "lucide-react"
+import { resolveIcon } from "@/lib/icons"
+
+const ChevronsUpDownIcon = resolveIcon("ChevronsUpDown");
+const MoonIcon = resolveIcon("Moon");
+const SunIcon = resolveIcon("Sun");
+const PanelLeft = resolveIcon("PanelLeft");
+const PanelTop = resolveIcon("PanelTop");
+const Loader2 = resolveIcon("Loader2");
 import { useTheme } from "next-themes"
 import type { SettingsItem } from "@/lib/api/domains/menu/contract"
-import { resolveIcon } from "@/lib/menu/icons"
 import { authClient } from "@/lib/auth-client"
 import { AUTH_ROUTES } from "@/lib/auth/redirects"
 import { setNavLayoutAction } from "@/app/actions/nav-layout"

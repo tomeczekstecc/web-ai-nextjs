@@ -1,40 +1,63 @@
 import type { LucideIcon } from "lucide-react";
 import {
   // Navigation & Layout
+  ArrowDown,
+  ArrowLeft,
   ArrowRight,
+  ArrowUp,
+  ArrowUpDown,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
   ChevronUp,
+  ChevronsLeft,
+  ChevronsRight,
   ChevronsUpDown,
+  Columns3,
   GripVertical,
+  ListFilter,
   MoreHorizontal,
   EllipsisVertical,
   PanelLeft,
+  PanelTop,
+  RefreshCw,
 
   // Actions
   Plus,
   Trash2,
   Share,
+  Upload,
   X,
   Check,
+  Loader,
   Loader2,
-  
+
   // Status & Feedback
+  AlertTriangle,
   CircleCheck,
   OctagonX,
   TriangleAlert,
   Info,
   BadgeCheck,
+  CheckCircle2,
   ShieldCheck,
-  
+
   // Content & Data
+  Database,
   Folder,
   FileText,
   FileSpreadsheet,
   BookOpen,
-  
+
   // Features & Concepts
+  Eye,
+  GraduationCap,
+  KeyRound,
+  Layers,
+  LayoutList,
+  ListOrdered,
+  PlayCircle,
+  Table2,
   Terminal,
   Bot,
   Sparkles,
@@ -44,29 +67,30 @@ import {
   Component,
   GitBranch,
   Globe,
-  
+
   // Charts & Analytics
   TrendingUp,
   TrendingDown,
   BarChart3,
-  
+
   // User & Account
   CircleUser,
   CreditCard,
   Bell,
   LogOut,
-  
+
   // Layout & Views
   Layout,
   LayoutDashboard,
   Map,
   Calendar,
   Trophy,
-  
+
   // Theme
   Moon,
   Sun,
-  
+  SunMedium,
+
   // Fallback
   Circle,
   CircleHelp,
@@ -89,40 +113,63 @@ import {
  */
 const iconRegistry = {
   // Navigation & Layout
+  ArrowDown,
+  ArrowLeft,
   ArrowRight,
+  ArrowUp,
+  ArrowUpDown,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
   ChevronUp,
+  ChevronsLeft,
+  ChevronsRight,
   ChevronsUpDown,
+  Columns3,
   GripVertical,
+  ListFilter,
   MoreHorizontal,
   EllipsisVertical,
   PanelLeft,
-  CircleCheck,
-  
+  PanelTop,
+  RefreshCw,
+
   // Actions
   Plus,
   Trash2,
   Share,
+  Upload,
   X,
   Check,
+  Loader,
   Loader2,
-  
+
   // Status & Feedback
+  AlertTriangle,
+  CircleCheck,
   OctagonX,
   TriangleAlert,
   Info,
   BadgeCheck,
+  CheckCircle2,
   ShieldCheck,
-  
+
   // Content & Data
+  Database,
   Folder,
   FileText,
   FileSpreadsheet,
   BookOpen,
-  
+
   // Features & Concepts
+  Eye,
+  GraduationCap,
+  KeyRound,
+  Layers,
+  LayoutList,
+  ListOrdered,
+  PlayCircle,
+  Table2,
   Terminal,
   Bot,
   Sparkles,
@@ -132,29 +179,30 @@ const iconRegistry = {
   Component,
   GitBranch,
   Globe,
-  
+
   // Charts & Analytics
   TrendingUp,
   TrendingDown,
   BarChart3,
-  
+
   // User & Account
   CircleUser,
   CreditCard,
   Bell,
   LogOut,
-  
+
   // Layout & Views
   Layout,
   LayoutDashboard,
   Map,
   Calendar,
   Trophy,
-  
+
   // Theme
   Moon,
   Sun,
-  
+  SunMedium,
+
   // Fallback / Generic
   Circle,
   CircleHelp,

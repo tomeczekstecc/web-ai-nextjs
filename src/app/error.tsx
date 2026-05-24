@@ -2,12 +2,12 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
-import {
-  AlertTriangleIcon,
-  ArrowLeftIcon,
-  ChevronDownIcon,
-  RefreshCwIcon,
-} from "lucide-react";
+import { resolveIcon } from "@/lib/icons";
+
+const AlertTriangleIcon = resolveIcon("AlertTriangle");
+const ArrowLeftIcon = resolveIcon("ArrowLeft");
+const ChevronDownIcon = resolveIcon("ChevronDown");
+const RefreshCwIcon = resolveIcon("RefreshCw");
 
 import { Button } from "@/components/ui/button";
 import {

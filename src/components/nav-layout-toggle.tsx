@@ -2,7 +2,11 @@
 
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { PanelLeft, PanelTop, Loader2 } from "lucide-react";
+import { resolveIcon } from "@/lib/icons";
+
+const PanelLeft = resolveIcon("PanelLeft");
+const PanelTop = resolveIcon("PanelTop");
+const Loader2 = resolveIcon("Loader2");
 
 import { Button } from "@/components/ui/button";
 import {

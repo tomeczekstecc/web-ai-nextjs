@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ChevronDownIcon } from "lucide-react";
+import { resolveIcon } from "@/lib/icons";
+
+const ChevronDownIcon = resolveIcon("ChevronDown");
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";

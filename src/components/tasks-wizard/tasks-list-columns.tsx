@@ -18,7 +18,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import type { TaskListItem, TaskPriority } from "@/lib/api/domains/tasks/contract"
-import { EllipsisVerticalIcon } from "lucide-react"
+import { resolveIcon } from "@/lib/icons"
+
+const EllipsisVerticalIcon = resolveIcon("EllipsisVertical");
 
 const PRIORITY_LABELS: Record<TaskPriority, string> = {
   low:    "Niski",

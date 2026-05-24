@@ -1,11 +1,13 @@
 "use client"
 
-import {
-  ChevronDownIcon,
-  Columns3Icon,
-  XIcon,
-} from "lucide-react"
 import type { Column } from "@tanstack/react-table"
+
+import { resolveIcon } from "@/lib/icons"
+
+const ChevronDownIcon = resolveIcon("ChevronDown");
+const Columns3Icon = resolveIcon("Columns3");
+const FileSpreadsheetIcon = resolveIcon("FileSpreadsheet");
+const XIcon = resolveIcon("X");
 
 import { Button } from "@/components/ui/button"
 import { CopyButton } from "@/components/ui/copy-button"
@@ -14,9 +16,6 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { resolveIcon } from "@/lib/icons"
-
-const FileSpreadsheetIcon = resolveIcon("FileSpreadsheet")
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,

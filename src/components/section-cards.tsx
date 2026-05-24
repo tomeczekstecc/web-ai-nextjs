@@ -7,7 +7,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { ArrowRightIcon, TrendingUpIcon, TrendingDownIcon } from "lucide-react"
+import { resolveIcon } from "@/lib/icons"
+
+const ArrowRightIcon = resolveIcon("ArrowRight");
+const TrendingUpIcon = resolveIcon("TrendingUp");
+const TrendingDownIcon = resolveIcon("TrendingDown");
 import Link from "next/link"
 
 export function SectionCards() {

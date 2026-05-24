@@ -1,25 +1,25 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import {
-  ArrowRight,
-  BadgeCheck,
-  BarChart3,
-  CheckCircle2,
-  GitBranch,
-  Globe,
-  GraduationCap,
-  PlayCircle,
-  KeyRound,
-  LayoutList,
-  ListOrdered,
-  ShieldCheck,
-  Table2,
-  Upload,
-  Zap,
-  Layers,
-  Eye,
-  Database,
-} from "lucide-react";
+import { resolveIcon } from "@/lib/icons";
+
+const ArrowRight = resolveIcon("ArrowRight");
+const BadgeCheck = resolveIcon("BadgeCheck");
+const BarChart3 = resolveIcon("BarChart3");
+const CheckCircle2 = resolveIcon("CheckCircle2");
+const GitBranch = resolveIcon("GitBranch");
+const Globe = resolveIcon("Globe");
+const GraduationCap = resolveIcon("GraduationCap");
+const PlayCircle = resolveIcon("PlayCircle");
+const KeyRound = resolveIcon("KeyRound");
+const LayoutList = resolveIcon("LayoutList");
+const ListOrdered = resolveIcon("ListOrdered");
+const ShieldCheck = resolveIcon("ShieldCheck");
+const Table2 = resolveIcon("Table2");
+const Upload = resolveIcon("Upload");
+const Zap = resolveIcon("Zap");
+const Layers = resolveIcon("Layers");
+const Eye = resolveIcon("Eye");
+const Database = resolveIcon("Database");
 
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Badge } from "@/components/ui/badge";

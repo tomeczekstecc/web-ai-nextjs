@@ -2,7 +2,9 @@
 
 import type { ColumnDef } from "@tanstack/react-table"
 import Link from "next/link"
-import { EllipsisVerticalIcon } from "lucide-react"
+import { resolveIcon } from "@/lib/icons"
+
+const EllipsisVerticalIcon = resolveIcon("EllipsisVertical");
 import { useTransition } from "react"
 
 import type { DataTableColumnMeta } from "@/components/data-table"

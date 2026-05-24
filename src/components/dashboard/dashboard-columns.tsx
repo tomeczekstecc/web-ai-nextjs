@@ -1,11 +1,11 @@
 "use client"
 
 import type { ColumnDef } from "@tanstack/react-table"
-import {
-  CircleCheckIcon,
-  EllipsisVerticalIcon,
-  LoaderIcon,
-} from "lucide-react"
+import { resolveIcon } from "@/lib/icons"
+
+const CircleCheckIcon = resolveIcon("CircleCheck");
+const EllipsisVerticalIcon = resolveIcon("EllipsisVertical");
+const LoaderIcon = resolveIcon("Loader");
 import { toast } from "@/components/toast"
 
 import { type DataTableColumnMeta } from "@/components/data-table"

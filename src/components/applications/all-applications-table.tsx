@@ -1,7 +1,9 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
-import { PlusIcon } from "lucide-react"
+import { resolveIcon } from "@/lib/icons"
+
+const PlusIcon = resolveIcon("Plus");
 import Link from "next/link"
 
 import { DataTable, DataTableSkeleton } from "@/components/data-table"
