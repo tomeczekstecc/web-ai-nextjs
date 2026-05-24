@@ -1,4 +1,5 @@
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import {
   Card,
   CardAction,
@@ -12,6 +13,7 @@ import { resolveIcon } from "@/lib/icons"
 const ArrowRightIcon = resolveIcon("ArrowRight");
 const TrendingUpIcon = resolveIcon("TrendingUp");
 const TrendingDownIcon = resolveIcon("TrendingDown");
+const PlusIcon = resolveIcon("Plus");
 import Link from "next/link"
 
 export function SectionCards() {
@@ -60,13 +62,12 @@ export function SectionCards() {
           <div className="text-muted-foreground">
             5 projektów w trakcie aplikacji
           </div>
-          <Link
-            className="mt-1 inline-flex items-center gap-1 font-medium text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-            href="/applications"
-          >
-            Przejdź do wniosków
-            <ArrowRightIcon className="size-4" aria-hidden="true" />
-          </Link>
+          <Button asChild variant="outline" size="sm" className="mt-1">
+            <Link href="/applications/new" className="inline-flex items-center gap-1.5">
+              <PlusIcon className="size-4" aria-hidden="true" />
+              Dodaj wniosek
+            </Link>
+          </Button>
         </CardFooter>
       </Card>
       <Card className="@container/card">
