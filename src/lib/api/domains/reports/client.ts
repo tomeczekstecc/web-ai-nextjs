@@ -2,13 +2,9 @@ import { browserFetch } from '@/lib/api/core/browser-http'
 import { parseContentDispositionFilename } from '@/lib/api/core/download-blob'
 import type {
   CheckStatusResponse,
-  GenerateReportInput,
-  GenerateReportResponse,
   Permission,
   ReportListParams,
   ReportListPayload,
-  TestQueryInput,
-  TestQueryResponse,
 } from './contract'
 import { mapReportList } from './mapper'
 
@@ -25,15 +21,6 @@ export async function fetchReportList(params: ReportListParams) {
 
 export async function fetchReportPermissions(): Promise<Permission[]> {
   const result = await browserFetch<Permission[]>('/reports/permissions')
-  if (!result.ok) throw new Error(result.error.message)
-  return result.data
-}
-
-export async function generateReport(input: GenerateReportInput): Promise<GenerateReportResponse> {
-  const result = await browserFetch<GenerateReportResponse>('/reports/generate', {
-    method: 'POST',
-    body: JSON.stringify(input),
-  })
   if (!result.ok) throw new Error(result.error.message)
   return result.data
 }
@@ -59,16 +46,4 @@ export async function downloadReport(
   return { blob, filename }
 }
 
-export async function testQuery(input: TestQueryInput): Promise<TestQueryResponse> {
-  const result = await browserFetch<TestQueryResponse>('/reports/test-query', {
-    method: 'POST',
-    body: JSON.stringify(input),
-  })
-  if (!result.ok) throw new Error(result.error.message)
-  return result.data
-}
 
-export async function deleteReportRequest(id: number): Promise<void> {
-  const result = await browserFetch<void>(`/reports/${id}`, { method: 'DELETE' })
-  if (!result.ok) throw new Error(result.error.message)
-}

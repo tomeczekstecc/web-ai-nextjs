@@ -1,12 +1,10 @@
 "use client"
 
 import { useState } from "react"
-import { useQueryClient, useMutation } from "@tanstack/react-query"
 import { useForm, type StandardSchemaV1 } from "@tanstack/react-form"
 import { resolveIcon } from "@/lib/icons"
 
 const PlusIcon = resolveIcon("Plus");
-import { toast } from "@/components/toast"
 import { z } from "zod"
 
 import { Alert, AlertDescription } from "@/components/ui/alert"
@@ -35,8 +33,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { createDashboardReviewItem } from "@/lib/api/domains/dashboard/commands"
-import { dashboardKeys } from "@/lib/api/domains/dashboard/query-keys"
+import { useCreateDashboardItem } from "@/hooks/dashboard/use-create-dashboard-item"
 
 const schema = z.object({
   header: z.string().min(1, "Podaj nazwę konkursu."),
@@ -60,19 +57,7 @@ const DEFAULTS: FormValues = {
 
 export function AddProjectDrawer() {
   const [open, setOpen] = useState(false)
-  const queryClient = useQueryClient()
-
-  const mutation = useMutation({
-    mutationFn: createDashboardReviewItem,
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: dashboardKeys.reviewItems() })
-      toast.success("Projekt został dodany.")
-      setOpen(false)
-    },
-    onError: () => {
-      toast.error("Nie udało się dodać projektu. Spróbuj ponownie.")
-    },
-  })
+  const mutation = useCreateDashboardItem()
 
   const form = useForm({
     defaultValues: DEFAULTS,
@@ -80,7 +65,10 @@ export function AddProjectDrawer() {
       onSubmit: schema as unknown as StandardSchemaV1<FormValues>,
     },
     onSubmit: async ({ value }) => {
-      mutation.mutate({ ...value, parameters: [], instruments: [] })
+      mutation.mutate(
+        { ...value, parameters: [], instruments: [] },
+        { onSuccess: () => setOpen(false) },
+      )
     },
   })
 

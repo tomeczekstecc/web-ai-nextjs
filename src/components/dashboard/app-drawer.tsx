@@ -1,8 +1,6 @@
 "use client"
 
 import dynamic from "next/dynamic"
-import { useQueryClient, useMutation } from "@tanstack/react-query"
-import { toast } from "@/components/toast"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -14,8 +12,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet"
-import { updateDashboardReviewItem } from "@/lib/api/domains/dashboard/commands"
-import { dashboardKeys } from "@/lib/api/domains/dashboard/query-keys"
+import { useUpdateDashboardItem } from "@/hooks/dashboard/use-update-dashboard-item"
 import { DashboardEditForm, EDIT_FORM_ID } from "./dashboard-edit-form"
 import type { DashboardReviewItem } from "@/lib/api/domains/dashboard/contract"
 
@@ -38,20 +35,7 @@ const DESCRIPTIONS: Record<AppDrawerMode, string> = {
 }
 
 export function AppDrawer({ item, mode, onOpenChange }: AppDrawerProps) {
-  const queryClient = useQueryClient()
-
-  const mutation = useMutation({
-    mutationFn: (data: Parameters<typeof updateDashboardReviewItem>[1]) =>
-      updateDashboardReviewItem(item.id, data),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: dashboardKeys.reviewItems() })
-      toast.success("Projekt został zapisany.")
-      onOpenChange(false)
-    },
-    onError: () => {
-      toast.error("Nie udało się zapisać projektu. Spróbuj ponownie.")
-    },
-  })
+  const mutation = useUpdateDashboardItem(item)
 
   return (
     <Sheet open={mode !== null} onOpenChange={onOpenChange}>
@@ -68,7 +52,14 @@ export function AppDrawer({ item, mode, onOpenChange }: AppDrawerProps) {
           <DashboardEditForm
             item={item}
             readOnly={mode === "view"}
-            onSave={async (data) => { await mutation.mutateAsync(data) }}
+            onSave={async (data) => {
+              try {
+                await mutation.mutateAsync(data)
+                onOpenChange(false)
+              } catch {
+                // error toast handled by useUpdateDashboardItem
+              }
+            }}
           />
         </div>
 

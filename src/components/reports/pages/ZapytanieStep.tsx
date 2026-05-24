@@ -1,48 +1,26 @@
 'use client'
 
-import { useState } from 'react'
 import dynamic from 'next/dynamic'
 import { useTheme } from 'next-themes'
 import { Button } from '@/components/ui/button'
 import { useWizard } from '@/hooks/wizard/useWizard'
-import { submitTestQuery } from '@/lib/api/domains/reports/commands'
-import type { QueryParameter, TestQueryResponse } from '@/lib/api/domains/reports/contract'
+import { useTestQuery } from '@/hooks/reports/use-test-query'
+import type { QueryParameter } from '@/lib/api/domains/reports/contract'
 import { ParameterTable } from './ParameterTable'
 
 const MonacoEditor = dynamic(() => import('@monaco-editor/react'), { ssr: false })
 
-type TestState =
-  | { status: 'idle' }
-  | { status: 'loading' }
-  | { status: 'success'; result: TestQueryResponse }
-  | { status: 'error'; message: string }
-
 export function ZapytanieStep() {
   const { form, setValue, mode } = useWizard()
   const { resolvedTheme } = useTheme()
-  const [testState, setTestState] = useState<TestState>({ status: 'idle' })
+  const testQuery = useTestQuery()
   const isView = mode === 'view'
   const sqlQuery = (form.sqlQuery as string | undefined) ?? ''
   const parameters = (form.parameters as QueryParameter[] | undefined) ?? []
 
-  async function handleTestQuery() {
-    setTestState({ status: 'loading' })
-    try {
-      const runtimeParams = parameters.map(p => ({
-        name: p.name,
-        value: p.defaultValue,
-      }))
-      const result = await submitTestQuery({
-        sql: sqlQuery,
-        parameters: runtimeParams,
-      })
-      setTestState({ status: 'success', result })
-    } catch (err) {
-      setTestState({
-        status: 'error',
-        message: err instanceof Error ? err.message : 'Błąd wykonania zapytania',
-      })
-    }
+  function handleTestQuery() {
+    const runtimeParams = parameters.map(p => ({ name: p.name, value: p.defaultValue }))
+    testQuery.mutate({ sql: sqlQuery, parameters: runtimeParams })
   }
 
   return (
@@ -72,28 +50,30 @@ export function ZapytanieStep() {
               type="button"
               variant="outline"
               size="sm"
-              onClick={() => void handleTestQuery()}
-              disabled={testState.status === 'loading' || !sqlQuery.trim()}
+              onClick={() => handleTestQuery()}
+              disabled={testQuery.isPending || !sqlQuery.trim()}
             >
-              {testState.status === 'loading' ? 'Testowanie…' : 'Testuj zapytanie'}
+              {testQuery.isPending ? 'Testowanie…' : 'Testuj zapytanie'}
             </Button>
           </div>
         )}
 
-        {testState.status === 'error' && (
-          <p className="text-sm text-destructive">{testState.message}</p>
+        {testQuery.isError && (
+          <p className="text-sm text-destructive">
+            {testQuery.error?.message ?? 'Błąd wykonania zapytania'}
+          </p>
         )}
 
-        {testState.status === 'success' && (
+        {testQuery.isSuccess && (
           <div className="rounded-md border p-3">
-            {testState.result.rows.length === 0 ? (
+            {testQuery.data.rows.length === 0 ? (
               <p className="text-sm text-muted-foreground">Brak danych</p>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full border-collapse text-sm">
                   <thead>
                     <tr className="border-b">
-                      {testState.result.columns.map(col => (
+                      {testQuery.data.columns.map(col => (
                         <th
                           key={col}
                           className="text-muted-foreground px-2 py-1 text-left text-xs font-medium"
@@ -104,9 +84,9 @@ export function ZapytanieStep() {
                     </tr>
                   </thead>
                   <tbody>
-                    {testState.result.rows.map((row, i) => (
+                    {testQuery.data.rows.map((row, i) => (
                       <tr key={i}>
-                        {testState.result.columns.map(col => (
+                        {testQuery.data.columns.map(col => (
                           <td key={col} className="px-2 py-1 text-xs">
                             {String(row[col] ?? '')}
                           </td>
