@@ -7,8 +7,8 @@ argument-hint: run|check
 Review the codebase for cleanup tasks:
 
 1. Find unnecessary console.log statements in src/
-2. Find unused imports
-3. Check for stale TODO comments
+2. Find unused imports (skip imports on lines immediately preceded by a `[keep-commented:*]` comment)
+3. Check for stale TODO comments (skip any line or block tagged `[keep-commented:*]` — those are intentionally commented-out blocks pending config/env wiring and must not be removed)
 4. Find orphaned/unused files
 5. Check that context files match actual project state
 6. Keep `.env` and `.env.example` in sync — compare variable names (not values); whichever file has more variables wins, add any missing keys to the other.
