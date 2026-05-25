@@ -5,8 +5,6 @@ import { AppTopNav } from "@/components/app-top-nav"
 import { AppSidebar } from "@/components/app-sidebar"
 import { BreadcrumbBar, PageTitle } from "@/components/breadcrumb-bar"
 import { NavLayoutProvider } from "@/components/nav-layout-provider"
-// [keep-commented:nav-layout-toggle] UI toggle disabled – layout controlled via .env; do not remove
-// import { NavLayoutToggle } from "@/components/nav-layout-toggle"
 import { SiteHeader } from "@/components/site-header"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { PrincipalProvider } from "@/components/auth/principal-provider"
