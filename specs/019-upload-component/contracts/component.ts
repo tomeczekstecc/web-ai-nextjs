@@ -11,7 +11,6 @@ import type { QueryKey } from '@tanstack/react-query';
 import type {
   StoredFile,
   UploadAdapter,
-  UploaderError,
 } from './adapter';
 
 // ---------------------------------------------------------------------------

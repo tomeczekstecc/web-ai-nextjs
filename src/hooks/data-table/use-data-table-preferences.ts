@@ -3,18 +3,11 @@ import type { DataTablePreferences } from "@/lib/data-table/types"
 import { readPreferences } from "@/lib/data-table/utils"
 
 export function useDataTablePreferences(resolvedKey: string | undefined) {
-  const [initialPreferences, setInitialPreferences] = React.useState<DataTablePreferences>({})
-  const [preferencesLoaded, setPreferencesLoaded] = React.useState(false)
-  const hasLoaded = React.useRef(false)
+  // readPreferences is synchronous — initialise eagerly to avoid an effect
+  // that would cause a cascading re-render (react-hooks/set-state-in-effect).
+  const [initialPreferences] = React.useState<DataTablePreferences>(() =>
+    resolvedKey ? readPreferences(resolvedKey) : {}
+  )
 
-  React.useEffect(() => {
-    if (hasLoaded.current) return
-    hasLoaded.current = true
-    if (resolvedKey) {
-      setInitialPreferences(readPreferences(resolvedKey))
-    }
-    setPreferencesLoaded(true)
-  }, [resolvedKey])
-
-  return { initialPreferences, preferencesLoaded }
+  return { initialPreferences, preferencesLoaded: true as const }
 }
