@@ -5,7 +5,7 @@
     "tagName": "v${version}",
     "tagAnnotation": "Release v${version}",
     "requireCleanWorkingDir": false,
-    "requireBranch": "main"
+    "requireBranch": "master"
   },
   "github": {
     "release": false
