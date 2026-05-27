@@ -16,6 +16,63 @@ $ARGUMENTS
 
 You **MUST** consider the user input before proceeding (if not empty).
 
+## Step 0 — Mantis Identification (REQUIRED, runs before everything else)
+
+Before any spec work or hook execution, collect and validate the Mantis reference and resolve the username. **Do not proceed until both are confirmed.**
+
+### 0a. Ask for Mantis number
+
+Prompt the user:
+
+> **Mantis issue / feature number required.**
+> Please enter a 4- or 5-digit Mantis ID (e.g. `1234` or `12345`), or type `no mantis` to skip.
+
+Validation rules:
+- Accept **4 or 5 consecutive digits** (e.g. `1234`, `12345`) — strip any leading `#`
+- Accept the literal string `no mantis` (case-insensitive)
+- Reject everything else and re-prompt: _"Invalid input. Enter a 4-5 digit Mantis ID or type 'no mantis'"_
+
+Resolved values:
+- Mantis provided → `MANTIS_REF = "<digits>"` (e.g. `"12345"`)
+- No mantis → `MANTIS_REF = current datetime formatted as YYYY_MM_DD_HH_mm` (e.g. `"2026_05_25_07_11"`)
+
+### 0b. Resolve username
+
+Run in order, use the first that succeeds:
+
+```bash
+git config user.name      # preferred
+git config user.email     # fallback — take the part before @
+```
+
+Normalise to a safe slug: lowercase, replace spaces and dots with `_`, strip special characters.
+Store as `GIT_USERNAME` (e.g. `tomek`, `jan_kowalski`).
+
+If both commands fail, prompt: _"Enter your username (used in branch name):"_ and apply the same normalisation.
+
+### 0c. Compute naming tokens
+
+After collecting short name (generated in Outline step 1), the branch and folder names are built as:
+
+| Token | With Mantis | Without Mantis |
+|---|---|---|
+| `MANTIS_OR_DATE` | `<digits>` e.g. `12345` | `<timestamp>` e.g. `2026_05_25_07_11` |
+| **Branch name** | `{MANTIS_OR_DATE}_{GIT_USERNAME}_{short-name}` | `{MANTIS_OR_DATE}_{GIT_USERNAME}_{short-name}` |
+| **Spec folder prefix** | `{MANTIS_OR_DATE}` | `{MANTIS_OR_DATE}` |
+
+Examples (Format A — Mantis first):
+```
+# With Mantis 12345, user tomek, feature "user auth"
+branch  → 12345_tomek_user-auth
+folder  → specs/12345-user-auth/
+
+# No mantis, user tomek, feature "analytics dashboard"
+branch  → 2026_05_25_07_11_tomek_analytics-dashboard
+folder  → specs/2026_05_25_07_11-analytics-dashboard/
+```
+
+Store `GIT_BRANCH_NAME = "{MANTIS_OR_DATE}_{GIT_USERNAME}_{short-name}"` — this overrides all default branch generation in the hook (see Outline step 2).
+
 ## Pre-Execution Checks
 
 **Check for extension hooks (before specification)**:
@@ -70,9 +127,9 @@ Given that feature description, do this:
 
 2. **Branch creation** (optional, via hook):
 
-   If a `before_specify` hook ran successfully in the Pre-Execution Checks above, it will have created/switched to a git branch and output JSON containing `BRANCH_NAME` and `FEATURE_NUM`. Note these values for reference, but the branch name does **not** dictate the spec directory name.
+   `GIT_BRANCH_NAME` was computed in Step 0c as `{MANTIS_OR_DATE}_{GIT_USERNAME}_{short-name}` (Format A — Mantis first). Pass this value to the hook so the branch script uses the exact value, bypassing all prefix/suffix generation.
 
-   If the user explicitly provided `GIT_BRANCH_NAME`, pass it through to the hook so the branch script uses the exact value as the branch name (bypassing all prefix/suffix generation).
+   If a `before_specify` hook ran successfully in the Pre-Execution Checks above, it will have created/switched to that branch and output JSON containing `BRANCH_NAME` and `FEATURE_NUM`. Note these values for reference, but the branch name does **not** dictate the spec directory name.
 
 3. **Create the spec feature directory**:
 
@@ -80,12 +137,11 @@ Given that feature description, do this:
 
    **Resolution order for `SPECIFY_FEATURE_DIRECTORY`**:
    1. If the user explicitly provided `SPECIFY_FEATURE_DIRECTORY` (e.g., via environment variable, argument, or configuration), use it as-is
-   2. Otherwise, auto-generate it under `specs/`:
-      - Check `.specify/init-options.json` for `branch_numbering`
-      - If `"timestamp"`: prefix is `YYYYMMDD-HHMMSS` (current timestamp)
-      - If `"sequential"` or absent: prefix is `NNN` (next available 3-digit number after scanning existing directories in `specs/`)
-      - Construct the directory name: `<prefix>-<short-name>` (e.g., `003-user-auth` or `20260319-143022-user-auth`)
+   2. Otherwise, auto-generate it under `specs/` using the Mantis token from Step 0:
+      - Prefix is always `MANTIS_OR_DATE` (e.g. `12345` or `2026_05_25_07_11`)
+      - Construct the directory name: `<MANTIS_OR_DATE>-<short-name>` (e.g. `12345-user-auth` or `2026_05_25_07_11-analytics-dashboard`)
       - Set `SPECIFY_FEATURE_DIRECTORY` to `specs/<directory-name>`
+      - **The old sequential (`NNN`) and timestamp (`YYYYMMDD-HHMMSS`) schemes are superseded by this rule when Mantis gate is active**
 
    **Create the directory and spec file**:
    - `mkdir -p SPECIFY_FEATURE_DIRECTORY`
