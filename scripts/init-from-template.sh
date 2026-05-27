@@ -114,6 +114,16 @@ if [[ -f package.json ]]; then
   fi
 fi
 
+# 3.5 bootstrap .env from .env.example if .env does not exist
+if [[ -f .env.example ]] && [[ ! -f .env ]]; then
+  if [[ "$DRY_RUN" -eq 0 ]]; then
+    cp .env.example .env
+    echo "+ bootstrapped .env from .env.example"
+  else
+    echo "+ would bootstrap .env from .env.example"
+  fi
+fi
+
 # 4. update port in package.json scripts, .env, and .env.example
 if [[ -n "$PORT" ]]; then
   if [[ "$DRY_RUN" -eq 0 ]]; then
@@ -169,7 +179,7 @@ EOF
 if [[ "$SKIP_VERIFY" -eq 0 ]]; then
   run pnpm install
   run pnpm lint || echo "warn: lint failed; review and fix before first commit"
-  run pnpm build || echo "warn: build failed; review and fix before first commit"
+  run env SKIP_ENV_VALIDATION=1 pnpm build || echo "warn: build failed; review and fix before first commit"
 fi
 
 echo "done. Remotes:"
