@@ -3,6 +3,12 @@
 All notable changes to this project will be documented here.
 
 
+## [0.6.1](https://gitlab-ci-prs.slaskie.pl/ai-tmpl/web/compare/v0.6.0...v0.6.1) (2026-05-27)
+
+### 🔧 Chores
+
+* **env:** add NODE_ENV=development to .env.example ([82a58a1](https://gitlab-ci-prs.slaskie.pl/ai-tmpl/web/commit/82a58a11e5f2451d413fcfa0d3f90f4350418c88))
+
 ## [0.6.0](https://gitlab-ci-prs.slaskie.pl/ai-tmpl/web/compare/v0.5.1...v0.6.0) (2026-05-27)
 
 ### ✨ Features
