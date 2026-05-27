@@ -3,6 +3,12 @@
 All notable changes to this project will be documented here.
 
 
+## [0.7.4](https://gitlab-ci-prs.slaskie.pl/ai-tmpl/web/compare/v0.7.3...v0.7.4) (2026-05-27)
+
+### 🐛 Bug Fixes
+
+* **scripts:** bootstrap .env from .env.example and skip env validation on verify build ([6bf878d](https://gitlab-ci-prs.slaskie.pl/ai-tmpl/web/commit/6bf878d432f00d3f063403db63cb59d51b54fe6e))
+
 ## [0.7.3](https://gitlab-ci-prs.slaskie.pl/ai-tmpl/web/compare/v0.7.2...v0.7.3) (2026-05-27)
 
 ### 🔧 Chores
