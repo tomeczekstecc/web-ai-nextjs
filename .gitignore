@@ -8,6 +8,7 @@ build
 coverage
 *.log
 .env*
+!.env.example
 next-env.d.ts
 .superpowers/
 .pnpm-lock.yaml
