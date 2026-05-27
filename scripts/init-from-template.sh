@@ -179,7 +179,7 @@ EOF
 if [[ "$SKIP_VERIFY" -eq 0 ]]; then
   run pnpm install
   run pnpm lint || echo "warn: lint failed; review and fix before first commit"
-  run env SKIP_ENV_VALIDATION=1 pnpm build || echo "warn: build failed; review and fix before first commit"
+  run pnpm build || echo "warn: build failed; review and fix before first commit"
 fi
 
 echo "done. Remotes:"
