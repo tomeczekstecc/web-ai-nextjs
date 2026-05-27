@@ -3,6 +3,12 @@
 All notable changes to this project will be documented here.
 
 
+## [0.7.5](https://gitlab-ci-prs.slaskie.pl/ai-tmpl/web/compare/v0.7.4...v0.7.5) (2026-05-27)
+
+### 🐛 Bug Fixes
+
+* **scripts:** remove SKIP_ENV_VALIDATION from verify build ([4ed1dea](https://gitlab-ci-prs.slaskie.pl/ai-tmpl/web/commit/4ed1dea55ba26466320f85e42f4ae41c539bf525))
+
 ## [0.7.4](https://gitlab-ci-prs.slaskie.pl/ai-tmpl/web/compare/v0.7.3...v0.7.4) (2026-05-27)
 
 ### 🐛 Bug Fixes
