@@ -57,21 +57,21 @@ After collecting short name (generated in Outline step 1), the branch and folder
 | Token | With Mantis | Without Mantis |
 |---|---|---|
 | `MANTIS_OR_DATE` | `<digits>` e.g. `12345` | `<timestamp>` e.g. `2026_05_25_07_11` |
-| **Branch name** | `{GIT_USERNAME}_{MANTIS_OR_DATE}_{short-name}` | `{GIT_USERNAME}_{MANTIS_OR_DATE}_{short-name}` |
+| **Branch name** | `{MANTIS_OR_DATE}_{GIT_USERNAME}_{short-name}` | `{MANTIS_OR_DATE}_{GIT_USERNAME}_{short-name}` |
 | **Spec folder prefix** | `{MANTIS_OR_DATE}` | `{MANTIS_OR_DATE}` |
 
-Examples (Format A):
+Examples (Format A — Mantis first):
 ```
 # With Mantis 12345, user tomek, feature "user auth"
-branch  → tomek_12345_user-auth
+branch  → 12345_tomek_user-auth
 folder  → specs/12345-user-auth/
 
 # No mantis, user tomek, feature "analytics dashboard"
-branch  → tomek_2026_05_25_07_11_analytics-dashboard
+branch  → 2026_05_25_07_11_tomek_analytics-dashboard
 folder  → specs/2026_05_25_07_11-analytics-dashboard/
 ```
 
-Store `GIT_BRANCH_NAME = "{GIT_USERNAME}_{MANTIS_OR_DATE}_{short-name}"` — this overrides all default branch generation in the hook (see Outline step 2).
+Store `GIT_BRANCH_NAME = "{MANTIS_OR_DATE}_{GIT_USERNAME}_{short-name}"` — this overrides all default branch generation in the hook (see Outline step 2).
 
 ## Pre-Execution Checks
 
@@ -127,7 +127,7 @@ Given that feature description, do this:
 
 2. **Branch creation** (optional, via hook):
 
-   `GIT_BRANCH_NAME` was computed in Step 0c as `{GIT_USERNAME}_{MANTIS_OR_DATE}_{short-name}` (Format A). Pass this value to the hook so the branch script uses the exact value, bypassing all prefix/suffix generation.
+   `GIT_BRANCH_NAME` was computed in Step 0c as `{MANTIS_OR_DATE}_{GIT_USERNAME}_{short-name}` (Format A — Mantis first). Pass this value to the hook so the branch script uses the exact value, bypassing all prefix/suffix generation.
 
    If a `before_specify` hook ran successfully in the Pre-Execution Checks above, it will have created/switched to that branch and output JSON containing `BRANCH_NAME` and `FEATURE_NUM`. Note these values for reference, but the branch name does **not** dictate the spec directory name.
 
