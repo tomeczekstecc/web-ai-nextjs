@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
+import { buttonVariants } from "@/components/ui/button"
 import {
   Card,
   CardAction,
@@ -62,12 +62,10 @@ export function SectionCards() {
           <div className="text-muted-foreground">
             5 projektów w trakcie aplikacji
           </div>
-          <Button asChild variant="outline" size="sm" className="mt-1">
-            <Link href="/applications/new" className="inline-flex items-center gap-1.5">
-              <PlusIcon className="size-4" aria-hidden="true" />
-              Dodaj wniosek
-            </Link>
-          </Button>
+          <Link href="/applications/new" className={buttonVariants({ variant: "outline", size: "sm", className: "mt-1 inline-flex items-center gap-1.5" })}>
+            <PlusIcon className="size-4" aria-hidden="true" />
+            Dodaj wniosek
+          </Link>
         </CardFooter>
       </Card>
       <Card className="@container/card">
