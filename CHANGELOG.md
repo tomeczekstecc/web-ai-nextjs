@@ -3,6 +3,12 @@
 All notable changes to this project will be documented here.
 
 
+## [0.7.3](https://gitlab-ci-prs.slaskie.pl/ai-tmpl/web/compare/v0.7.2...v0.7.3) (2026-05-27)
+
+### 🔧 Chores
+
+* **git:** exclude .env.example from .gitignore ([29521c5](https://gitlab-ci-prs.slaskie.pl/ai-tmpl/web/commit/29521c5fdc2379e07b8b2635af365042b82c6a25))
+
 ## [0.7.2](https://gitlab-ci-prs.slaskie.pl/ai-tmpl/web/compare/v0.7.1...v0.7.2) (2026-05-27)
 
 ### 📝 Documentation
