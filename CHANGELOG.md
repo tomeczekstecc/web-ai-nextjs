@@ -3,6 +3,12 @@
 All notable changes to this project will be documented here.
 
 
+## [0.7.1](https://gitlab-ci-prs.slaskie.pl/ai-tmpl/web/compare/v0.7.0...v0.7.1) (2026-05-27)
+
+### 🔧 Chores
+
+* **env:** add mock placeholder values to .env.example ([4045289](https://gitlab-ci-prs.slaskie.pl/ai-tmpl/web/commit/4045289a25e14406ad82dafa8d55b14af5c237e9))
+
 ## [0.7.0](https://gitlab-ci-prs.slaskie.pl/ai-tmpl/web/compare/v0.6.1...v0.7.0) (2026-05-27)
 
 ### ✨ Features
