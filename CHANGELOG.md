@@ -3,6 +3,12 @@
 All notable changes to this project will be documented here.
 
 
+## [0.8.2](https://gitlab-ci-prs.slaskie.pl/ai-tmpl/web/compare/v0.8.1...v0.8.2) (2026-05-27)
+
+### 🐛 Bug Fixes
+
+* **api:** add GET /api/config/menu route serving mock fixture ([a958adc](https://gitlab-ci-prs.slaskie.pl/ai-tmpl/web/commit/a958adc16a3012f621003525902b9d6e3d89cd37))
+
 ## [0.8.1](https://gitlab-ci-prs.slaskie.pl/ai-tmpl/web/compare/v0.8.0...v0.8.1) (2026-05-27)
 
 ### 🐛 Bug Fixes
