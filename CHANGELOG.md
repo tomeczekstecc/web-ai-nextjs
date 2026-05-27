@@ -3,6 +3,12 @@
 All notable changes to this project will be documented here.
 
 
+## [0.5.1](https://gitlab-ci-prs.slaskie.pl/ai-tmpl/web/compare/v0.5.0...v0.5.1) (2026-05-27)
+
+### 🔧 Chores
+
+* **env:** add safe default placeholders for Laravel internal auth tokens in .env.example ([785598d](https://gitlab-ci-prs.slaskie.pl/ai-tmpl/web/commit/785598d56e54636193422899dd0cae6e661aa712))
+
 ## [0.5.0](https://gitlab-ci-prs.slaskie.pl/ai-tmpl/web/compare/v0.4.0...v0.5.0) (2026-05-27)
 
 ### ✨ Features
