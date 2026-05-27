@@ -3,6 +3,12 @@
 All notable changes to this project will be documented here.
 
 
+## [0.7.2](https://gitlab-ci-prs.slaskie.pl/ai-tmpl/web/compare/v0.7.1...v0.7.2) (2026-05-27)
+
+### 📝 Documentation
+
+* add release-flow.md documenting branching and release workflow ([9357968](https://gitlab-ci-prs.slaskie.pl/ai-tmpl/web/commit/9357968e0bb76fe60e3df375e6944c7341daa45c))
+
 ## [0.7.1](https://gitlab-ci-prs.slaskie.pl/ai-tmpl/web/compare/v0.7.0...v0.7.1) (2026-05-27)
 
 ### 🔧 Chores
