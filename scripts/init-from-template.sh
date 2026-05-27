@@ -184,3 +184,6 @@ fi
 
 echo "done. Remotes:"
 git remote -v
+
+# 7. start dev server
+run pnpm dev
