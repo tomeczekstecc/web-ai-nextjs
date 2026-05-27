@@ -10,7 +10,8 @@
     "release": "release-it",
     "release:dry": "release-it --dry-run",
     "predev": "node -e \"const fs=require('fs');if(!fs.existsSync('.env')&&fs.existsSync('.env.example')){fs.copyFileSync('.env.example','.env');console.log('copied .env.example → .env')}\"",
-    "prestart": "node -e \"const fs=require('fs');if(!fs.existsSync('.env')&&fs.existsSync('.env.example')){fs.copyFileSync('.env.example','.env');console.log('copied .env.example → .env')}\""
+    "prestart": "node -e \"const fs=require('fs');if(!fs.existsSync('.env')&&fs.existsSync('.env.example')){fs.copyFileSync('.env.example','.env');console.log('copied .env.example → .env')}\"",
+    "prebuild": "node -e \"const fs=require('fs');if(!fs.existsSync('.env')&&fs.existsSync('.env.example')){fs.copyFileSync('.env.example','.env');console.log('copied .env.example → .env')}\""
   },
   "dependencies": {
     "@base-ui/react": "^1.4.1",
