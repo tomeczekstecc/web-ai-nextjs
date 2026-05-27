@@ -8,6 +8,7 @@
 #
 # Usage:
 #   scripts/init-from-template.sh --name my-new-project --origin <git-url>
+#   scripts/init-from-template.sh --name my-new-project --origin <git-url> --port 3800
 #   scripts/init-from-template.sh --name my-new-project --origin <git-url> --dry-run
 #
 # What it does:
@@ -15,7 +16,9 @@
 #   2. Sets `origin` to the downstream repo URL (if --origin is given).
 #   3. Adds the `template` remote pointing at the upstream template.
 #   4. Renames the project in package.json (and optionally in README/layout).
-#   5. Runs pnpm install + lint + build as a sanity check (unless --skip-verify).
+#   5. Updates the dev/start port in package.json scripts, .env, and .env.example
+#      (PORT=, NEXT_PUBLIC_SITE_URL, NEXT_PUBLIC_API_URL, BETTER_AUTH_URL).
+#   6. Runs pnpm install + lint + build as a sanity check (unless --skip-verify).
 #
 # Environment overrides:
 #   TEMPLATE_URL   default: https://gitlab-ci-prs.slaskie.pl/ai-tmpl/web.git
@@ -26,6 +29,7 @@ TEMPLATE_URL="${TEMPLATE_URL:-https://gitlab-ci-prs.slaskie.pl/ai-tmpl/web.git}"
 
 NAME=""
 ORIGIN_URL=""
+PORT=""
 DRY_RUN=0
 SKIP_VERIFY=0
 
@@ -33,9 +37,10 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
     --name)        NAME="${2:-}"; shift 2 ;;
     --origin)      ORIGIN_URL="${2:-}"; shift 2 ;;
+    --port)        PORT="${2:-}"; shift 2 ;;
     --dry-run)     DRY_RUN=1; shift ;;
     --skip-verify) SKIP_VERIFY=1; shift ;;
-    -h|--help)     sed -n '2,22p' "$0"; exit 0 ;;
+    -h|--help)     sed -n '2,26p' "$0"; exit 0 ;;
     *) echo "error: unknown arg: $1" >&2; exit 2 ;;
   esac
 done
@@ -49,6 +54,13 @@ fi
 if [[ ! "$NAME" =~ ^[a-z0-9._-]+$ ]]; then
   echo "error: --name must match ^[a-z0-9._-]+\$ (got: $NAME)" >&2
   exit 2
+fi
+
+if [[ -n "$PORT" ]]; then
+  if [[ ! "$PORT" =~ ^[0-9]+$ ]] || (( PORT < 1 || PORT > 65535 )); then
+    echo "error: --port must be a number between 1 and 65535 (got: $PORT)" >&2
+    exit 2
+  fi
 fi
 
 run() {
@@ -102,7 +114,46 @@ if [[ -f package.json ]]; then
   fi
 fi
 
-# 4. soft reminder for files this script does NOT touch
+# 4. update port in package.json scripts, .env, and .env.example
+if [[ -n "$PORT" ]]; then
+  if [[ "$DRY_RUN" -eq 0 ]]; then
+    # Update --port flag in package.json dev/start scripts
+    if [[ -f package.json ]]; then
+      node -e '
+        const fs = require("fs");
+        const port = process.argv[1];
+        const p = JSON.parse(fs.readFileSync("package.json", "utf8"));
+        for (const key of ["dev", "start"]) {
+          if (p.scripts && p.scripts[key]) {
+            p.scripts[key] = p.scripts[key].replace(/--port\s+\d+/, "--port " + port);
+          }
+        }
+        fs.writeFileSync("package.json", JSON.stringify(p, null, 2) + "\n");
+      ' "$PORT"
+      echo "+ updated package.json dev/start --port -> $PORT"
+    fi
+
+    # Helper: replace port in a single env file
+    replace_port_in_env() {
+      local file="$1"
+      [[ -f "$file" ]] || return 0
+      # PORT=<n>
+      sed -i.bak -E "s|^(PORT=)[0-9]+|\1${PORT}|" "$file"
+      # http://localhost:<n> (covers NEXT_PUBLIC_SITE_URL, NEXT_PUBLIC_API_URL, BETTER_AUTH_URL)
+      sed -i.bak -E "s|localhost:[0-9]+|localhost:${PORT}|g" "$file"
+      rm -f "${file}.bak"
+    }
+
+    replace_port_in_env .env
+    replace_port_in_env .env.example
+    echo "+ updated port references -> $PORT in .env and .env.example"
+  else
+    echo "+ would update package.json dev/start --port -> $PORT"
+    echo "+ would update port references -> $PORT in .env and .env.example"
+  fi
+fi
+
+# 5. soft reminder for files this script does NOT touch
 cat <<EOF
 
 Manual follow-ups (see docs/template-fork-workflow.md):
@@ -110,11 +161,11 @@ Manual follow-ups (see docs/template-fork-workflow.md):
   - src/app/layout.tsx metadata.title / metadata.description
   - public/ logo & favicon if branded
   - next.config.ts for any hardcoded paths/domains
-  - dev port in package.json scripts (default 3600)
+  $([ -z "$PORT" ] && echo "- dev port in package.json scripts and .env (pass --port <n> to automate)")
 
 EOF
 
-# 5. verify
+# 6. verify
 if [[ "$SKIP_VERIFY" -eq 0 ]]; then
   run pnpm install
   run pnpm lint || echo "warn: lint failed; review and fix before first commit"
