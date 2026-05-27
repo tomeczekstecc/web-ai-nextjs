@@ -3,6 +3,12 @@
 All notable changes to this project will be documented here.
 
 
+## [0.4.0](https://gitlab-ci-prs.slaskie.pl/ai-tmpl/web/compare/v0.3.0...v0.4.0) (2026-05-27)
+
+### ✨ Features
+
+* **skills:** add git-add-to-dev skill ([acc2e00](https://gitlab-ci-prs.slaskie.pl/ai-tmpl/web/commit/acc2e00fae28bacd5458c4c0a778abf5cc172e1b))
+
 ## 0.3.0 (2026-05-27)
 
 ### ✨ Features
