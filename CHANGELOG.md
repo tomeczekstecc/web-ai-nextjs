@@ -3,6 +3,25 @@
 All notable changes to this project will be documented here.
 
 
+## [0.5.0](https://gitlab-ci-prs.slaskie.pl/ai-tmpl/web/compare/v0.4.0...v0.5.0) (2026-05-27)
+
+### ✨ Features
+
+* **skills:** enhance speckit-specify with Mantis gate and Format A branch naming ([cddefdc](https://gitlab-ci-prs.slaskie.pl/ai-tmpl/web/commit/cddefdcd3ecd292be02e4945c008ae6475fb5397))
+
+### ♻️ Refactors
+
+* **skills:** move mantis/date to front of branch name ([b8bed70](https://gitlab-ci-prs.slaskie.pl/ai-tmpl/web/commit/b8bed70a3981537c0d4ffa164f02e60cde0052c4))
+
+### 📝 Documentation
+
+* **changelog:** rewrite to show only per-release changes ([9979373](https://gitlab-ci-prs.slaskie.pl/ai-tmpl/web/commit/9979373b71d3d5697af993fb2c40784a2dc83461))
+
+# Changelog
+
+All notable changes to this project will be documented here.
+
+
 ## [0.4.0](https://gitlab-ci-prs.slaskie.pl/ai-tmpl/web/compare/v0.3.0...v0.4.0) (2026-05-27)
 
 ### ✨ Features
