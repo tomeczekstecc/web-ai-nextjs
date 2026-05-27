@@ -3,6 +3,12 @@
 All notable changes to this project will be documented here.
 
 
+## [0.8.1](https://gitlab-ci-prs.slaskie.pl/ai-tmpl/web/compare/v0.8.0...v0.8.1) (2026-05-27)
+
+### 🐛 Bug Fixes
+
+* **scripts:** remove pnpm build from verify — pnpm dev is the real check ([080c0b2](https://gitlab-ci-prs.slaskie.pl/ai-tmpl/web/commit/080c0b2f2b2e901d40c81b16193acf1a2bb84190))
+
 ## [0.8.0](https://gitlab-ci-prs.slaskie.pl/ai-tmpl/web/compare/v0.7.6...v0.8.0) (2026-05-27)
 
 ### ✨ Features
