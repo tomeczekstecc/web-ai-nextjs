@@ -3,6 +3,12 @@
 All notable changes to this project will be documented here.
 
 
+## [0.6.0](https://gitlab-ci-prs.slaskie.pl/ai-tmpl/web/compare/v0.5.1...v0.6.0) (2026-05-27)
+
+### ✨ Features
+
+* **scripts:** auto-copy .env.example to .env before dev/start if .env is missing ([4c8a12d](https://gitlab-ci-prs.slaskie.pl/ai-tmpl/web/commit/4c8a12d7c232c7818e9d1332f040c26d679d9aa7))
+
 ## [0.5.1](https://gitlab-ci-prs.slaskie.pl/ai-tmpl/web/compare/v0.5.0...v0.5.1) (2026-05-27)
 
 ### 🔧 Chores
