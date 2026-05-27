@@ -3,6 +3,12 @@
 All notable changes to this project will be documented here.
 
 
+## [0.8.0](https://gitlab-ci-prs.slaskie.pl/ai-tmpl/web/compare/v0.7.6...v0.8.0) (2026-05-27)
+
+### ✨ Features
+
+* **scripts:** start dev server after init; enable mock auth in .env.example ([dc1d338](https://gitlab-ci-prs.slaskie.pl/ai-tmpl/web/commit/dc1d338cc9a5d4d30f50344d41fd6ff4c8a3d809))
+
 ## [0.7.6](https://gitlab-ci-prs.slaskie.pl/ai-tmpl/web/compare/v0.7.5...v0.7.6) (2026-05-27)
 
 ### 🐛 Bug Fixes
