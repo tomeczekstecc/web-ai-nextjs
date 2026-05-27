@@ -3,6 +3,12 @@
 All notable changes to this project will be documented here.
 
 
+## [0.7.6](https://gitlab-ci-prs.slaskie.pl/ai-tmpl/web/compare/v0.7.5...v0.7.6) (2026-05-27)
+
+### 🐛 Bug Fixes
+
+* **section-cards:** replace Button asChild with buttonVariants on Link ([e4fe6bf](https://gitlab-ci-prs.slaskie.pl/ai-tmpl/web/commit/e4fe6bf3e7cc610ffec8ed42a55d8379273080e6))
+
 ## [0.7.5](https://gitlab-ci-prs.slaskie.pl/ai-tmpl/web/compare/v0.7.4...v0.7.5) (2026-05-27)
 
 ### 🐛 Bug Fixes
